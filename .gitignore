@@ -1,0 +1,38 @@
+# Dependensi
+/node_modules
+/.pnp
+.pnp.*
+
+# Build Next.js
+/.next/
+/out/
+/build
+next-env.d.ts
+*.tsbuildinfo
+
+# Variabel lingkungan — nilai rahasia tidak pernah masuk Git.
+# Hanya .env.example yang dilacak, dan isinya nama tanpa nilai.
+.env
+.env.*
+!.env.example
+
+# Platform
+/.vercel
+/.netlify
+
+# Pengujian
+/coverage
+
+# Log
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Sistem operasi dan editor
+.DS_Store
+Thumbs.db
+*.swp
+/.idea
+/.vscode/*
+!/.vscode/extensions.json

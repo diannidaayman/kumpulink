@@ -1,0 +1,15 @@
+# Simpan seluruh berkas teks dengan akhir baris LF di repositori.
+# Kerja lokal berjalan di Windows, sedangkan build berjalan di Linux;
+# tanpa aturan ini setiap berkas tampak berubah seluruhnya saat
+# berpindah mesin.
+* text=auto eol=lf
+
+# Berkas biner tidak boleh disentuh normalisasi.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.pdf binary
+*.ico binary
+*.woff binary
+*.woff2 binary
