@@ -77,19 +77,88 @@ sesuai keputusan D1 dan D3.
 Bagian ini opsional, tetapi disarankan: DNS untuk Vercel dan DNS untuk
 Resend dikelola di satu tempat, gratis, dan perubahannya berlaku cepat.
 
-1. Buat akun Cloudflare, tambahkan `«domain»`, pilih paket Free.
-2. Cloudflare menampilkan dua nameserver. Salin keduanya ke panel
-   registrar `.my.id`, menggantikan nameserver bawaan.
-3. Tunggu Cloudflare menandai domain berstatus **Active**. Ini dapat
+### 2.1 Memindahkan nameserver
+
+1. Buat akun Cloudflare, tambahkan `«domain»`, pilih paket **Free**.
+2. Cloudflare memindai DNS yang ada dan mengimpor record yang
+   ditemukannya. **Periksa hasil impor itu.** Registrar `.my.id` kerap
+   menyisipkan record bawaan berupa halaman parkir atau iklan. Record
+   semacam itu akan bentrok dengan record Vercel nanti — hapus sebelum
+   melanjutkan.
+3. Cloudflare menampilkan dua nameserver. Salin keduanya ke panel
+   registrar `.my.id`, menggantikan nameserver bawaan. Bila registrar
+   menolak, periksa apakah domainnya sedang terkunci.
+4. Tunggu Cloudflare menandai domain berstatus **Active**. Ini dapat
    memakan waktu beberapa jam.
 
-**Penting untuk record Vercel nanti.** Setel record yang menunjuk ke
-Vercel sebagai **DNS only** — ikon awan abu, bukan awan oranye. Record
-yang diproksikan Cloudflare dapat menimbulkan lingkaran pengalihan dan
-persoalan sertifikat dengan Vercel. Record milik Resend berjenis TXT dan
-MX, yang memang tidak pernah diproksikan.
+Record boleh ditambahkan sebelum status **Active** tercapai. Record itu
+baru berlaku bagi dunia luar setelah nameserver-nya benar-benar pindah.
 
-**Setelah bagian ini:** DNS `«domain»` dapat Anda ubah sendiri.
+### 2.2 Aturan mengisi kolom record
+
+Berlaku untuk seluruh record di bagian Resend maupun Vercel.
+
+- **Kolom Name diisi bagian di depan domain saja, bukan nama lengkap.**
+  Untuk `resend._domainkey.«domain»`, isi `resend._domainkey`. Untuk
+  domain itu sendiri (apex), isi `@`. Cloudflare menampilkan nama penuh
+  hasilnya di bawah kolom saat Anda mengetik — **baca hasilnya, bukan
+  ketikan Anda.**
+- **Kolom Content disalin apa adanya**, termasuk tanda kutip dan tanda
+  titik dua bila ada. Nilai DKIM panjang dan mudah terpotong saat
+  disalin; periksa ujungnya.
+- **TTL biarkan Auto.** Tidak ada alasan mengaturnya sendiri di sini.
+- **Proxy status** hanya muncul pada record A, AAAA, dan CNAME. Record
+  TXT dan MX tidak memilikinya.
+
+### 2.3 Proxy — awan abu, bukan awan oranye
+
+Seluruh record yang menunjuk ke Vercel disetel **DNS only**, yaitu awan
+**abu**. Awan oranye berarti lalu lintasnya diproksikan Cloudflare, dan
+itu menimbulkan dua persoalan dengan Vercel: lingkaran pengalihan, dan
+sertifikat yang tidak pernah selesai diterbitkan.
+
+Bila Anda tetap ingin memproksikannya, mode SSL/TLS di Cloudflare
+**wajib** disetel **Full (strict)**. Mode **Flexible** membuat Cloudflare
+menghubungi Vercel lewat HTTP sementara Vercel memaksa HTTPS —
+hasilnya lingkaran pengalihan yang tidak berujung. Jalur paling aman
+tetap DNS only.
+
+### 2.4 Tiga bentrokan yang mudah terjadi
+
+- **Dua record SPF.** Satu domain hanya boleh punya **satu** record SPF.
+  Bila sudah ada SPF dari layanan lain, jangan menambah baris kedua —
+  gabungkan mekanismenya ke dalam satu record. Dua record SPF membuat
+  pemeriksaan gagal, bukan menjadi lebih longgar.
+- **Cloudflare Email Routing.** Bila fitur ini aktif, Cloudflare memasang
+  record MX miliknya sendiri, yang akan bertabrakan dengan MX jalur balik
+  Resend. Matikan Email Routing, atau pakai subdomain terpisah untuk
+  Resend sehingga MX-nya tidak berebut tempat.
+- **Record warisan dari registrar.** Lihat butir 2 di atas.
+
+### 2.5 Memeriksa hasilnya
+
+Jangan menilai dari tampilan dashboard Cloudflare — di sana record
+selalu terlihat benar. Tanyakan ke resolver publik, yang membaca dari
+luar seperti Google dan Resend membacanya.
+
+PowerShell, tanpa perlu memasang apa pun:
+
+```
+Resolve-DnsName -Name «domain» -Type NS -Server 1.1.1.1
+```
+
+Ganti `-Type` dan nama sesuai record yang diperiksa:
+
+```
+Resolve-DnsName -Name resend._domainkey.«domain» -Type TXT -Server 1.1.1.1
+```
+
+Menanyakan langsung ke `1.1.1.1` melewati cache DNS mesin Anda. Tanpa
+itu, Anda bisa membaca jawaban lama selama berjam-jam dan menyangka
+recordnya belum masuk.
+
+**Setelah bagian ini:** DNS `«domain»` dapat Anda ubah sendiri, dan
+Anda punya cara memeriksa hasilnya dari luar.
 
 ---
 
