@@ -6,9 +6,12 @@ yang berarti.
 ## Current Phase
 
 - Fase 0 — Keputusan dan prasyarat layanan. Bagian yang
-  dikerjakan dari sesi Claude Code sudah selesai. Sisanya
-  dijalankan pemilik sendiri di konsol tiap layanan
-  mengikuti `docs/setup-layanan.md`.
+  dikerjakan dari sesi Claude Code sudah selesai. Prasyarat
+  layanan berjalan sebagian: **empat dari sebelas variabel
+  terkumpul**, dan seluruh langkah yang punya waktu tunggu
+  di luar kendali sudah lewat.
+- Belum ada satu baris pun kode aplikasi. Unit 1 belum
+  dimulai.
 
 ## Current Goal
 
@@ -45,13 +48,56 @@ yang berarti.
     private store Vercel Blob, header respons pengaliran
     berkas, penjadwal GitHub Actions, zona waktu tampilan,
     dan masa simpan `AccessLog`.
+- Prasyarat layanan, 19 Agustus 2026:
+  - Domain `diandiandian.web.id` dibeli di DomaiNesia.
+    Perhatikan TLD-nya `.web.id`, bukan `.my.id` seperti
+    yang diperkirakan saat D1 ditutup.
+  - Nameserver dipindahkan ke Cloudflare dan **diverifikasi
+    dari luar** — `kallie` dan `mitchell`, dijawab sama oleh
+    resolver `1.1.1.1`, `8.8.8.8`, dan `9.9.9.9`. Zona kosong,
+    tidak ada record warisan registrar.
+  - Empat record DNS Resend dipasang: DKIM pada
+    `resend._domainkey`, SPF berupa TXT dan MX pada `send`
+    (region `ap-northeast-1`), dan DMARC `p=none` pada
+    `_dmarc`. Nilai DKIM dibandingkan karakter demi karakter
+    terhadap yang ditampilkan Resend dan cocok persis, 218
+    karakter, dibaca sama oleh ketiga resolver.
+  - `.env.local` dibuat dari `.env.example` dan terbukti
+    diabaikan Git.
+  - Empat variabel terisi: `RESEND_API_KEY`, `EMAIL_FROM`,
+    `AUTH_SECRET`, dan `CRON_SECRET`. Dua terakhir dibuat
+    dengan `openssl rand -base64 32` dan ditulis langsung ke
+    berkas tanpa melewati layar.
 
 ## In Progress
 
-- Prasyarat layanan eksternal, dijalankan pemilik mengikuti
-  `docs/setup-layanan.md`. Belum tuntas sampai kesebelas
-  variabel terkumpul di `.env.local` dan tujuh butir setelan
-  di daftar periksa akhir diperiksa di layar.
+Prasyarat layanan eksternal, dijalankan pemilik mengikuti
+`docs/setup-layanan.md`. Papan statusnya ada di bagian
+**Urutan pengerjaan** pada dokumen itu.
+
+Empat konsol tersisa, seluruhnya berjalan seketika tanpa
+waktu tunggu:
+
+| Konsol | Menghasilkan |
+| ------ | ------------ |
+| Neon | `DATABASE_URL`, `DIRECT_URL` |
+| GitHub | repositori publik, remote `origin` |
+| Vercel | `BLOB_READ_WRITE_TOKEN`, `BLOB_STORE_ID`, nama alias preview |
+| Google Cloud Console | `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` |
+
+Ditambah `OWNER_EMAIL`, yang tidak perlu konsol apa pun —
+cukup alamat Google yang akan dipakai pemilik untuk masuk.
+
+**Urutan yang disarankan: Neon → GitHub → Vercel → Google**,
+berbeda dari penomoran di `docs/setup-layanan.md`. Alasannya
+Google Cloud Console meminta tiga redirect URI sekaligus, dan
+salah satunya memuat nama alias preview Vercel yang baru ada
+setelah proyek Vercel dibuat. Mengerjakan Google terakhir
+membuat ketiganya terisi sekali jalan, tanpa perlu kembali.
+
+Neon didahulukan karena hasilnya yang pertama dipakai Unit 1:
+menulis `prisma/schema.prisma` lalu menjalankan migrasi
+pertama.
 
 ## Next Up
 
@@ -83,6 +129,17 @@ baru ada setelah `docs/setup-layanan.md` dijalankan:
 - Nama alias preview Vercel belum ditetapkan. Diperlukan
   untuk redirect URI ketiga di Google Cloud Console, agar
   masuk dengan Google berfungsi di deployment preview.
+- **Status verifikasi domain di Resend belum dikonfirmasi.**
+  Keempat record DNS-nya sudah dipastikan benar dari luar,
+  tetapi belum ada kabar bahwa Resend sendiri sudah menandai
+  domainnya *Verified*. Periksa di halaman Domains; bila
+  masih *not started*, tekan **Verify**.
+- **Alamat untuk `OWNER_EMAIL` belum ditetapkan.** Alamat
+  yang terdaftar di sesi pengembangan adalah
+  `laluardian23@gmail.com`, tetapi belum dikonfirmasi bahwa
+  itu akun Google yang akan dipakai pemilik untuk masuk.
+  Nilainya harus cocok persis dengan yang dikembalikan
+  Google saat masuk, dan tidak dapat diubah lewat antarmuka.
 
 Domain sudah ditetapkan: **`diandiandian.web.id`**, dibeli di
 DomaiNesia pada 19 Agustus 2026, dengan DNS dikelola Cloudflare
@@ -323,6 +380,24 @@ sebelum satu baris kode aplikasi ditulis.
 - Dokumen perencanaan ini disusun pada 18 Agustus 2026
   melalui sesi brainstorming.
 - Nama proyek: Kumpulink.
+- Sesi 19 Agustus 2026 menutup D1–D8, membangun kerangka
+  repositori, dan menuntaskan seluruh prasyarat yang punya
+  waktu tunggu. Riwayat commit-nya: `2800c4b` Fase 0,
+  `8f57746` bagian Cloudflare, `acfe36a` penetapan domain,
+  `da8ede7` Resend dan rahasia lokal selesai.
+- **Identitas commit masih sementara.** `user.email` disetel
+  `lalu@users.noreply.github.com` karena akun GitHub belum
+  dibuat. Setelah akun ada, ambil alamat noreply asli dari
+  Settings → Emails, jalankan `git config user.email`, lalu
+  `git commit --amend --reset-author --no-edit`. Kerjakan
+  **sebelum push pertama** — setelah itu riwayatnya sudah
+  publik dan perbaikannya menuntut penulisan ulang.
+- **Rahasia tidak pernah masuk percakapan.** Nilai di
+  `.env.local` diisi pemilik sendiri, atau dibuat lewat
+  perintah yang menulis langsung ke berkas tanpa mencetak
+  hasilnya. Pemeriksaan dari sesi Claude Code hanya membaca
+  bentuknya — panjang karakter, awalan, ada tidaknya spasi
+  nyasar — bukan isinya.
 - Variabel lingkungan yang dibutuhkan, sebelas seluruhnya:
   `DATABASE_URL`, `DIRECT_URL`, `AUTH_SECRET`,
   `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `OWNER_EMAIL`,
