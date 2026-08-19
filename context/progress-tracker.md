@@ -80,11 +80,13 @@ menjadi keputusan D1–D8 di bagian Architecture Decisions.
 Yang tersisa bukan pertanyaan rancangan, melainkan nilai yang
 baru ada setelah `docs/setup-layanan.md` dijalankan:
 
-- Nama domain `.my.id` belum ditetapkan. Seluruh dokumen
-  memakai penanda `«domain»` sampai domainnya dibeli.
 - Nama alias preview Vercel belum ditetapkan. Diperlukan
   untuk redirect URI ketiga di Google Cloud Console, agar
   masuk dengan Google berfungsi di deployment preview.
+
+Domain sudah ditetapkan: **`diandiandian.web.id`**, dibeli di
+DomaiNesia pada 19 Agustus 2026, dengan DNS dikelola Cloudflare
+(`kallie.ns.cloudflare.com`, `mitchell.ns.cloudflare.com`).
 
 ## Release Prerequisites
 
@@ -117,7 +119,7 @@ dilupakan:
 Kedelapan keputusan yang sebelumnya menggantung, ditutup
 sebelum satu baris kode aplikasi ditulis.
 
-- **D1 — Domain kustom `.my.id`, bukan subdomain
+- **D1 — Domain kustom `.web.id`, bukan subdomain
   `*.vercel.app`.** Digabung dengan D3: satu domain menutup
   kebutuhan alamat aplikasi dan alamat pengirim email
   sekaligus. Vercel memasang domain kustom tanpa biaya di
@@ -133,7 +135,7 @@ sebelum satu baris kode aplikasi ditulis.
   orang yang membahas baris yang sama menyebut angka
   berbeda. Aturannya ditulis di `ui-context.md`.
 
-- **D3 — Domain `.my.id` yang sama diverifikasi di Resend,
+- **D3 — Domain `.web.id` yang sama diverifikasi di Resend,
   disarankan lewat subdomain pengiriman.** Domain uji bawaan
   `resend.dev` hanya dapat mengirim ke alamat pemilik akun,
   sedangkan email keputusan justru ditujukan ke pemohon —

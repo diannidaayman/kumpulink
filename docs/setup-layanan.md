@@ -27,7 +27,7 @@ keduanya lebih dulu, lalu kerjakan sisanya sambil menunggu.
 
 | Urutan | Bagian | Waktu tunggu |
 | ------ | ------ | ------------ |
-| 1 | Domain `.my.id` | Menit sampai jam, tergantung registrar |
+| 1 | Domain `.web.id` | Menit sampai jam, tergantung registrar |
 | 2 | Cloudflare DNS | Sampai beberapa jam untuk propagasi nameserver |
 | 3 | Resend | Sampai beberapa jam untuk verifikasi DNS |
 | 4 | GitHub | Segera |
@@ -40,7 +40,7 @@ keduanya lebih dulu, lalu kerjakan sisanya sambil menunggu.
 
 | Bagian | Menghasilkan |
 | ------ | ------------ |
-| Domain | `«domain»` — dipakai bagian Vercel dan Resend |
+| Domain | `diandiandian.web.id` — dipakai bagian Vercel dan Resend |
 | Google Cloud Console | `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` |
 | Neon | `DATABASE_URL`, `DIRECT_URL` |
 | Vercel | `BLOB_READ_WRITE_TOKEN`, `BLOB_STORE_ID` |
@@ -55,20 +55,21 @@ untuk mengubahnya.
 
 ---
 
-## 1. Domain `.my.id`
+## 1. Domain `.web.id` — SELESAI
 
-Beli satu domain `.my.id` di registrar Indonesia. Domain ini dipakai
-untuk dua hal sekaligus — alamat aplikasi dan alamat pengirim email —
-sesuai keputusan D1 dan D3.
+Domain dipakai untuk dua hal sekaligus — alamat aplikasi dan alamat
+pengirim email — sesuai keputusan D1 dan D3.
 
-1. Pilih registrar yang menyediakan pengelolaan DNS atau mengizinkan
-   penggantian nameserver. Keduanya cukup; bagian berikutnya memakai
-   penggantian nameserver.
-2. Catat nama domainnya. Di seluruh dokumen ini ia ditulis `«domain»`.
-3. Registrasi `.my.id` mensyaratkan identitas pendaftar Indonesia.
-   Siapkan datanya sebelum memulai agar tidak terhenti di tengah jalan.
+| | |
+| --- | --- |
+| Domain | `diandiandian.web.id` |
+| Registrar | DomaiNesia |
+| Dibeli | 19 Agustus 2026 |
 
-**Setelah bagian ini:** `«domain»` sudah dimiliki.
+Registrasi `.web.id` mensyaratkan identitas pendaftar Indonesia.
+Catatan ini disimpan untuk perpanjangan tahun berikutnya.
+
+**Setelah bagian ini:** `diandiandian.web.id` sudah dimiliki.
 
 ---
 
@@ -77,16 +78,31 @@ sesuai keputusan D1 dan D3.
 Bagian ini opsional, tetapi disarankan: DNS untuk Vercel dan DNS untuk
 Resend dikelola di satu tempat, gratis, dan perubahannya berlaku cepat.
 
-### 2.1 Memindahkan nameserver
+### 2.1 Memindahkan nameserver — SELESAI
 
-1. Buat akun Cloudflare, tambahkan `«domain»`, pilih paket **Free**.
+**Status 19 Agustus 2026.** Nameserver sudah berpindah dan terverifikasi
+dari luar: `kallie.ns.cloudflare.com` dan `mitchell.ns.cloudflare.com`,
+dijawab sama oleh resolver `1.1.1.1` maupun `8.8.8.8`, dengan SOA
+menunjuk Cloudflare. Zona dalam keadaan kosong — tidak ada record
+warisan DomaiNesia yang perlu dihapus.
+
+Dashboard Cloudflare dapat tertinggal beberapa jam di balik kenyataan
+dan masih menampilkan *Waiting for your registrar to propagate your new
+nameservers*. Yang menentukan adalah jawaban resolver publik, bukan
+tulisan di dashboard. Tekan **Check nameservers now** di halaman
+Overview untuk memaksa Cloudflare memeriksa ulang.
+
+Langkah aslinya disimpan di bawah untuk rujukan.
+
+
+1. Buat akun Cloudflare, tambahkan `diandiandian.web.id`, pilih paket **Free**.
 2. Cloudflare memindai DNS yang ada dan mengimpor record yang
-   ditemukannya. **Periksa hasil impor itu.** Registrar `.my.id` kerap
+   ditemukannya. **Periksa hasil impor itu.** Registrar DomaiNesia kerap
    menyisipkan record bawaan berupa halaman parkir atau iklan. Record
    semacam itu akan bentrok dengan record Vercel nanti — hapus sebelum
    melanjutkan.
 3. Cloudflare menampilkan dua nameserver. Salin keduanya ke panel
-   registrar `.my.id`, menggantikan nameserver bawaan. Bila registrar
+   registrar DomaiNesia, menggantikan nameserver bawaan. Bila registrar
    menolak, periksa apakah domainnya sedang terkunci.
 4. Tunggu Cloudflare menandai domain berstatus **Active**. Ini dapat
    memakan waktu beberapa jam.
@@ -99,7 +115,7 @@ baru berlaku bagi dunia luar setelah nameserver-nya benar-benar pindah.
 Berlaku untuk seluruh record di bagian Resend maupun Vercel.
 
 - **Kolom Name diisi bagian di depan domain saja, bukan nama lengkap.**
-  Untuk `resend._domainkey.«domain»`, isi `resend._domainkey`. Untuk
+  Untuk `resend._domainkey.diandiandian.web.id`, isi `resend._domainkey`. Untuk
   domain itu sendiri (apex), isi `@`. Cloudflare menampilkan nama penuh
   hasilnya di bawah kolom saat Anda mengetik — **baca hasilnya, bukan
   ketikan Anda.**
@@ -144,20 +160,20 @@ luar seperti Google dan Resend membacanya.
 PowerShell, tanpa perlu memasang apa pun:
 
 ```
-Resolve-DnsName -Name «domain» -Type NS -Server 1.1.1.1
+Resolve-DnsName -Name diandiandian.web.id -Type NS -Server 1.1.1.1
 ```
 
 Ganti `-Type` dan nama sesuai record yang diperiksa:
 
 ```
-Resolve-DnsName -Name resend._domainkey.«domain» -Type TXT -Server 1.1.1.1
+Resolve-DnsName -Name resend._domainkey.diandiandian.web.id -Type TXT -Server 1.1.1.1
 ```
 
 Menanyakan langsung ke `1.1.1.1` melewati cache DNS mesin Anda. Tanpa
 itu, Anda bisa membaca jawaban lama selama berjam-jam dan menyangka
 recordnya belum masuk.
 
-**Setelah bagian ini:** DNS `«domain»` dapat Anda ubah sendiri, dan
+**Setelah bagian ini:** DNS `diandiandian.web.id` dapat Anda ubah sendiri, dan
 Anda punya cara memeriksa hasilnya dari luar.
 
 ---
@@ -172,8 +188,8 @@ API key.
 1. Buat akun di resend.com.
 2. Buka menu **Domains** lalu **Add Domain**.
 3. Masukkan domain pengirim. Dua pilihan yang sama-sama sah:
-   - `«domain»` langsung, atau
-   - subdomain khusus pengiriman, misalnya `mail.«domain»`.
+   - `diandiandian.web.id` langsung, atau
+   - subdomain khusus pengiriman, misalnya `mail.diandiandian.web.id`.
 
    Subdomain khusus lebih dianjurkan, karena reputasi pengiriman
    aplikasi jadi terpisah dari reputasi email pribadi Anda pada domain
@@ -194,7 +210,7 @@ API key.
 2. Salin nilainya **sekarang** — Resend hanya menampilkannya satu kali.
    Ini `RESEND_API_KEY`.
 3. Tetapkan `EMAIL_FROM` memakai domain yang baru diverifikasi,
-   misalnya `Kumpulink <no-reply@«domain»>`. Alamat di luar domain
+   misalnya `Kumpulink <no-reply@diandiandian.web.id>`. Alamat di luar domain
    terverifikasi akan ditolak saat pengiriman.
 
 **Mengapa domain uji tidak cukup.** Domain bawaan `resend.dev` hanya
@@ -302,7 +318,7 @@ Jangan menganggapnya sudah berubah hanya karena tombolnya sudah ditekan.
 
    ```
    http://localhost:3000/api/auth/callback/google
-   https://«domain»/api/auth/callback/google
+   https://diandiandian.web.id/api/auth/callback/google
    https://«alias-preview».vercel.app/api/auth/callback/google
    ```
 
@@ -360,7 +376,7 @@ karena penyebab sebenarnya tidak disebut di pesan galatnya.
 1. Buat akun di vercel.com, impor repositori `kumpulink` dari GitHub.
 2. Deploy pertama akan kosong atau gagal — belum ada kode aplikasi. Ini
    wajar; yang dibutuhkan sekarang hanyalah proyeknya ada.
-3. Buka **Settings → Domains**, tambahkan `«domain»`.
+3. Buka **Settings → Domains**, tambahkan `diandiandian.web.id`.
 4. Vercel menampilkan record DNS yang harus dibuat. **Baca nilainya dari
    layar Vercel**, jangan dari ingatan atau dokumen lama — alamat yang
    dipakai Vercel berubah dari waktu ke waktu.
@@ -487,7 +503,7 @@ Setelan yang tidak berbentuk nilai:
 - [ ] Domain pengirim berstatus **Verified** di Resend
 - [ ] Status publikasi OAuth tertulis **In production**
 - [ ] Ketiga redirect URI terdaftar di Google Cloud Console
-- [ ] Domain `«domain»` berstatus **Valid Configuration** di Vercel
+- [ ] Domain `diandiandian.web.id` berstatus **Valid Configuration** di Vercel
 - [ ] Repositori GitHub berstatus **Public**
 - [ ] Cabang `main` terlindungi dari `force push` dan penghapusan
 
