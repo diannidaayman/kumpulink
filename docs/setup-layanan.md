@@ -25,16 +25,37 @@ mengubah konsepnya.
 Dua bagian pertama punya waktu tunggu di luar kendali. Kerjakan
 keduanya lebih dulu, lalu kerjakan sisanya sambil menunggu.
 
-| Urutan | Bagian | Waktu tunggu |
-| ------ | ------ | ------------ |
-| 1 | Domain `.web.id` | Menit sampai jam, tergantung registrar |
-| 2 | Cloudflare DNS | Sampai beberapa jam untuk propagasi nameserver |
-| 3 | Resend | Sampai beberapa jam untuk verifikasi DNS |
-| 4 | GitHub | Segera |
-| 5 | Google Cloud Console | Segera |
-| 6 | Neon | Segera |
-| 7 | Vercel | Segera |
-| 8 | Rahasia lokal | Segera |
+| Urutan | Bagian | Waktu tunggu | Status |
+| ------ | ------ | ------------ | ------ |
+| 1 | Domain `.web.id` | Menit sampai jam, tergantung registrar | **selesai** |
+| 2 | Cloudflare DNS | Sampai beberapa jam untuk propagasi nameserver | **selesai** |
+| 3 | Resend | Sampai beberapa jam untuk verifikasi DNS | **selesai** |
+| 8 | Rahasia lokal | Segera | **selesai** |
+| 4 | GitHub | Segera | belum |
+| 5 | Google Cloud Console | Segera | belum |
+| 6 | Neon | Segera | belum |
+| 7 | Vercel | Segera | belum |
+
+Seluruh bagian yang punya waktu tunggu sudah lewat. Empat yang tersisa
+berjalan seketika dan boleh dikerjakan dalam urutan mana pun, kecuali
+Vercel yang sebaiknya menunggu GitHub karena proyeknya diimpor dari
+repositori.
+
+### Variabel yang sudah terkumpul
+
+| Variabel | Sumber | Status |
+| -------- | ------ | ------ |
+| `RESEND_API_KEY` | Resend | terisi |
+| `EMAIL_FROM` | Resend | terisi |
+| `AUTH_SECRET` | dibuat lokal | terisi |
+| `CRON_SECRET` | dibuat lokal | terisi |
+| `OWNER_EMAIL` | Anda sendiri | kosong |
+| `AUTH_GOOGLE_ID` | Google Cloud Console | kosong |
+| `AUTH_GOOGLE_SECRET` | Google Cloud Console | kosong |
+| `DATABASE_URL` | Neon | kosong |
+| `DIRECT_URL` | Neon | kosong |
+| `BLOB_READ_WRITE_TOKEN` | Vercel | kosong |
+| `BLOB_STORE_ID` | Vercel | kosong |
 
 ## Apa yang dihasilkan tiap bagian
 
@@ -178,7 +199,7 @@ Anda punya cara memeriksa hasilnya dari luar.
 
 ---
 
-## 3. Resend
+## 3. Resend — SELESAI
 
 Verifikasi domain lebih dulu karena bagian itu menunggu DNS, baru buat
 API key.
@@ -432,7 +453,7 @@ tangan, dan store terbukti privat di layar.
 
 ---
 
-## 8. Rahasia lokal
+## 8. Rahasia lokal — SELESAI
 
 `AUTH_SECRET` dan `CRON_SECRET` dibuat sendiri, bukan diambil dari
 konsol mana pun. Keduanya wajib berasal dari sumber acak kriptografis —
