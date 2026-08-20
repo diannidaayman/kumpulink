@@ -36,7 +36,7 @@ langsung di komponen.
 | Teks utama             | `--text-primary`      | `#0F172A` |
 | Teks redup             | `--text-muted`        | `#64748B` |
 | Aksen utama            | `--accent-primary`    | `#2563EB` |
-| Teks di atas aksen     | `--accent-foreground` | `#FFFFFF` |
+| Teks di atas aksen     | `--accent-on`         | `#FFFFFF` |
 | Garis batas            | `--border-default`    | `#E2E8F0` |
 | Galat                  | `--state-error`       | `#DC2626` |
 | Berhasil               | `--state-success`     | `#16A34A` |
@@ -52,11 +52,19 @@ langsung di komponen.
 | Teks utama             | `--text-primary`      | `#E8EDF5` |
 | Teks redup             | `--text-muted`        | `#94A3B8` |
 | Aksen utama            | `--accent-primary`    | `#60A5FA` |
-| Teks di atas aksen     | `--accent-foreground` | `#0B0F19` |
+| Teks di atas aksen     | `--accent-on`         | `#0B0F19` |
 | Garis batas            | `--border-default`    | `#253044` |
 | Galat                  | `--state-error`       | `#F87171` |
 | Berhasil               | `--state-success`     | `#4ADE80` |
 | Peringatan             | `--state-warning`     | `#FBBF24` |
+
+**Kenapa `--accent-on`, bukan `--accent-foreground`.** Nama yang kedua
+sudah dipakai shadcn/ui dengan arti berbeda — di sana ia berarti teks di
+atas permukaan hover yang redup, bukan teks di atas aksen biru. Satu nama
+properti CSS tidak dapat bernilai dua hal dalam scope yang sama.
+Dibiarkan, setiap tombol `ghost` dan setiap baris `dropdown-menu` akan
+menampilkan teks putih di atas latar abu muda saat di-hover. Nilai
+paletnya tidak berubah; hanya ejaan nama variabelnya.
 
 Setiap pasangan teks dan latar di atas harus memenuhi
 rasio kontras WCAG AA, yaitu 4.5:1 untuk teks biasa dan
