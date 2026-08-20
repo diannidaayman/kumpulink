@@ -362,9 +362,22 @@ Ganti **seluruh** isinya dengan berikut. Nilai heksadesimal disalin dari tabel d
 
 ```css
 @import "tailwindcss";
+/* Dua impor berikut ditulis `shadcn init` dan WAJIB dipertahankan.
+   Keduanya tidak memuat satu pun token warna — `shadcn/tailwind.css`
+   hanya berisi keyframes `accordion-down`/`accordion-up`, dan
+   `tw-animate-css` menyediakan utility `animate-in`, `fade-in`,
+   `zoom-in`, `slide-in`. Enam dari dua puluh komponen memakainya:
+   accordion, dialog, dropdown-menu, popover, select, sheet.
+   Menjatuhkannya membuat animasi buka-tutup keenamnya hilang diam-diam —
+   komponennya tetap berfungsi, jadi tidak ada gerbang yang gagal. */
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
 /* Mode gelap berbasis kelas, bukan prefers-color-scheme langsung,
-   karena tombol manual harus dapat menang atas setelan sistem. */
+   karena tombol manual harus dapat menang atas setelan sistem.
+   Bentuk `:where(.dark, .dark *)` dipakai, bukan `:is(.dark *)` yang
+   ditulis shadcn init — yang kedua tidak mencakup elemen .dark itu
+   sendiri, hanya keturunannya. */
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ---- Lapis 1: sebelas token Kumpulink. Satu-satunya tempat
