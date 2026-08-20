@@ -1,4 +1,4 @@
-export default function Beranda() {
+export default function Home() {
   return (
     <main>
       <h1>Kumpulink</h1>
