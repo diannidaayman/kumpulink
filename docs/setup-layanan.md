@@ -32,12 +32,12 @@ keduanya lebih dulu, lalu kerjakan sisanya sambil menunggu.
 | 3 | Resend | Sampai beberapa jam untuk verifikasi DNS | **selesai** |
 | 8 | Rahasia lokal | Segera | **selesai** |
 | — | `OWNER_EMAIL` | Segera | **selesai** |
+| 4 | GitHub | Segera | **selesai** |
 | 6 | Neon | Segera | belum |
-| 4 | GitHub | Segera | belum |
 | 7 | Vercel | Segera | belum |
 | 5 | Google Cloud Console | Segera | belum |
 
-Seluruh bagian yang punya waktu tunggu sudah lewat. Empat yang tersisa
+Seluruh bagian yang punya waktu tunggu sudah lewat. Tiga yang tersisa
 berjalan seketika.
 
 **Kerjakan dalam urutan baris tabel di atas — Neon → GitHub → Vercel →
@@ -263,7 +263,26 @@ kriteria sukses nomor 9 tidak dapat dipenuhi.
 
 ---
 
-## 4. GitHub
+## 4. GitHub — SELESAI
+
+**Status 20 Agustus 2026.** Repositori terbit di
+`https://github.com/diannidaayman/kumpulink`, visibilitas **Public**,
+cabang bawaan `main`, remote `origin` terpasang di repositori lokal.
+
+Diverifikasi dari sisi GitHub, bukan diasumsikan:
+
+- Tiga belas berkas terkirim — persis yang terlacak Git. `.env.local`
+  **tidak ada** di pohon berkas GitHub.
+- Enam berkas terlacak disapu lebih dulu terhadap pola kunci Resend,
+  token Blob, connection string Postgres, dan kredensial Google — nol
+  kecocokan.
+- Ruleset **Lindungi main** (id `21075437`) aktif, memuat `deletion` dan
+  `non_fast_forward`. Dibaca dari endpoint aturan-yang-berlaku milik
+  GitHub, bukan dari fakta bahwa rulesetnya sempat dibuat.
+- Keenam commit diatribusikan GitHub ke akun `diannidaayman` —
+  perbaikan identitas terbukti berlaku.
+
+Langkah aslinya disimpan di bawah untuk rujukan.
 
 Repositori dibuat **publik**, sesuai keputusan D5. GitHub Actions tidak
 dibatasi menit pada repositori publik, sedangkan repositori privat hanya
@@ -614,14 +633,15 @@ Nilai:
 Setelan yang tidak berbentuk nilai:
 
 - [ ] Blob store tertulis **private** di dashboard Vercel
-- [ ] Domain pengirim berstatus **Verified** di Resend
+- [x] Domain pengirim berstatus **Verified** di Resend
 - [ ] Status publikasi OAuth tertulis **In production**
 - [ ] Ketiga redirect URI terdaftar di Google Cloud Console
 - [ ] Domain `diandiandian.web.id` berstatus **Valid Configuration** di Vercel
 - [ ] Alias `kumpulink-preview.vercel.app` terpasang ke cabang `dev`
-- [ ] Repositori GitHub berstatus **Public**
-- [ ] Cabang `main` terlindungi dari `force push` dan penghapusan
-- [x] Kelima commit memakai alamat noreply `294433957+diannidaayman@…`
+- [x] Repositori GitHub berstatus **Public**
+- [x] Cabang `main` terlindungi dari `force push` dan penghapusan
+- [x] Keenam commit memakai alamat noreply `294433957+diannidaayman@…`
+- [x] `.env.local` terbukti tidak ada di pohon berkas GitHub
 
 Sambungan:
 

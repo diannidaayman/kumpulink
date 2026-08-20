@@ -10,9 +10,10 @@ yang berarti.
   layanan berjalan sebagian: **lima dari sebelas variabel
   terkumpul**, dan seluruh langkah yang punya waktu tunggu
   di luar kendali sudah lewat.
-- Yang tersisa seluruhnya berjalan seketika: empat konsol
-  (Neon, GitHub, Vercel, Google) menghasilkan enam variabel
-  terakhir.
+- Yang tersisa seluruhnya berjalan seketika: **tiga konsol**
+  (Neon, Vercel, Google) menghasilkan enam variabel terakhir.
+  GitHub sudah selesai dan tidak menghasilkan variabel.
+- Tidak ada lagi pertanyaan terbuka.
 - Belum ada satu baris pun kode aplikasi. Unit 1 belum
   dimulai.
 
@@ -90,6 +91,21 @@ yang berarti.
     alasannya, bagian GitHub ditulis ulang memakai `gh repo
     create`, dan jebakan Windows dicatat untuk Vercel CLI serta
     penyuntingan `.env.local`.
+  - **Domain Resend dikonfirmasi *Verified*** oleh pemilik.
+    Pertanyaan terbuka terakhir tertutup.
+  - **Repositori GitHub terbit:**
+    `https://github.com/diannidaayman/kumpulink`, Public,
+    cabang `main`, remote `origin` terpasang. Sebelum push,
+    berkas terlacak disapu terhadap pola kunci Resend, token
+    Blob, connection string Postgres, dan kredensial Google —
+    nol kecocokan. Sesudah push, dipastikan dari API GitHub
+    bahwa hanya tiga belas berkas terlacak yang terkirim dan
+    `.env.local` tidak ada di pohon berkasnya.
+  - Ruleset **Lindungi main** (id `21075437`) aktif dengan
+    `deletion` dan `non_fast_forward`, dibaca dari endpoint
+    aturan-yang-berlaku GitHub.
+  - GitHub mengatribusikan keenam commit ke akun
+    `diannidaayman`, membuktikan perbaikan identitas berlaku.
 
 ## In Progress
 
@@ -97,42 +113,40 @@ Prasyarat layanan eksternal, dijalankan pemilik mengikuti
 `docs/setup-layanan.md`. Papan statusnya ada di bagian
 **Urutan pengerjaan** pada dokumen itu.
 
-Empat konsol tersisa, seluruhnya berjalan seketika tanpa
+Tiga konsol tersisa, seluruhnya berjalan seketika tanpa
 waktu tunggu:
 
 | Konsol | Menghasilkan |
 | ------ | ------------ |
 | Neon | `DATABASE_URL`, `DIRECT_URL` |
-| GitHub | repositori publik, remote `origin` |
 | Vercel | `BLOB_READ_WRITE_TOKEN`, `BLOB_STORE_ID` |
 | Google Cloud Console | `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` |
 
-`OWNER_EMAIL` sudah tidak ada di daftar ini — ditetapkan dan
-diisi pada 20 Agustus 2026.
+`OWNER_EMAIL` dan GitHub sudah tidak ada di daftar ini —
+keduanya selesai pada 20 Agustus 2026.
 
-**Urutan yang disarankan: Neon → GitHub → Vercel → Google**,
-berbeda dari penomoran di `docs/setup-layanan.md`. Urutan ini
-sudah ditulis ke tabel di dokumen itu beserta alasannya:
-Google Cloud Console meminta tiga redirect URI sekaligus, dan
-salah satunya memuat alias preview Vercel yang baru ada
-setelah proyek Vercel dibuat. Mengerjakan Google terakhir
-membuat ketiganya terisi sekali jalan, tanpa perlu kembali.
+**Urutan yang disarankan: Neon → Vercel → Google.** Google
+Cloud Console meminta tiga redirect URI sekaligus, dan salah
+satunya memuat alias preview Vercel yang baru ada setelah
+proyek Vercel dibuat. Mengerjakan Google terakhir membuat
+ketiganya terisi sekali jalan, tanpa perlu kembali.
 
 Neon didahulukan karena hasilnya yang pertama dipakai Unit 1:
 menulis `prisma/schema.prisma` lalu menjalankan migrasi
 pertama.
 
-**GitHub jauh lebih singkat dari yang tertulis di dokumen
-aslinya.** Akun `diannidaayman` sudah ada dan `gh` CLI sudah
-login di mesin ini, jadi pembuatan repositori, pemasangan
-remote, dan push pertama selesai dalam satu perintah.
+**Dua hal yang menghadang di Vercel.** Blob store wajib dibuat
+privat sejak awal — store publik tidak dapat diubah menjadi
+privat belakangan. Dan pada Windows, PowerShell kerap menolak
+menjalankan `vercel` setelah pemasangan global; jalan keluarnya
+mengawali perintah dengan `npx`, bukan mengubah execution
+policy.
 
 ## Next Up
 
 0. Tuntaskan `docs/setup-layanan.md` sampai daftar periksa
-   akhirnya bersih — empat konsol dalam urutan Neon → GitHub
-   → Vercel → Google, ditambah konfirmasi status *Verified*
-   di Resend. Unit 1 tidak dapat diverifikasi ujung ke ujung
+   akhirnya bersih — tiga konsol dalam urutan Neon → Vercel
+   → Google. Unit 1 tidak dapat diverifikasi ujung ke ujung
    tanpa `DATABASE_URL`, `DIRECT_URL`, dan kredensial Google.
 
    Sesudahnya, mulai dari prompt **P1.1** di
@@ -160,7 +174,11 @@ menjadi keputusan D1–D8 di bagian Architecture Decisions.
 Yang tersisa bukan pertanyaan rancangan, melainkan nilai yang
 baru ada setelah `docs/setup-layanan.md` dijalankan:
 
-Dua dari tiga ditutup pada 20 Agustus 2026:
+**Kosong.** Ketiganya ditutup pada 20 Agustus 2026. Ini memenuhi salah
+satu gerbang rilis Fase 11 di `ROADMAP.md`, yang menuntut bagian ini
+kosong atau berisi hal yang sengaja ditunda beserta alasannya.
+
+Catatan penutupannya:
 
 - ~~Nama alias preview Vercel~~ → **ditetapkan
   `kumpulink-preview.vercel.app`**, menunjuk ke cabang `dev`.
@@ -174,16 +192,14 @@ Dua dari tiga ditutup pada 20 Agustus 2026:
   dan berbeda pula dari akun GitHub (`diannidaayman`).
   Dugaan di catatan sebelumnya keliru.
 
-Yang masih terbuka, satu:
-
-- **Status verifikasi domain di Resend belum dikonfirmasi.**
-  Keempat record DNS-nya sudah dipastikan benar dari luar —
-  diperiksa ulang 20 Agustus 2026, NS menjawab Cloudflare dan
-  DKIM terbaca dari resolver `1.1.1.1` — tetapi belum ada
-  kabar bahwa Resend sendiri sudah menandai domainnya
-  *Verified*. Ini hanya dapat dibaca di layar Resend, tidak
-  dari terminal. Periksa di halaman Domains; bila masih *not
-  started*, tekan **Verify**.
+- ~~Status verifikasi domain di Resend~~ → **dikonfirmasi
+  *Verified* oleh pemilik, 20 Agustus 2026.** Keempat record
+  DNS-nya sudah dipastikan benar dari luar sejak 19 Agustus
+  dan diperiksa ulang 20 Agustus — NS menjawab Cloudflare,
+  DKIM terbaca dari resolver `1.1.1.1`. Yang menutupnya adalah
+  status di layar Resend, yang memang hanya dapat dibaca di
+  sana. Dengan ini kriteria sukses nomor 9 tidak lagi
+  terhalang prasyarat layanan.
 
 Domain sudah ditetapkan: **`diandiandian.web.id`**, dibeli di
 DomaiNesia pada 19 Agustus 2026, dengan DNS dikelola Cloudflare
