@@ -1099,7 +1099,7 @@ Lalu pada bagian `## Storage Model`, setelah kalimat tentang penghitung rate lim
 
 ```markdown
 Tabel penghitung rate limit **belum didefinisikan** dan sengaja ditunda ke
-Unit 4, tempat logikanya ditulis. Bentuknya tidak pernah dirinci di bagian
+Unit 4 (K7), tempat logikanya ditulis. Bentuknya tidak pernah dirinci di bagian
 Data Model, dan membuat tabel baru tidak memikul risiko yang mendasari
 aturan "skema lengkap sejak Unit 1" — risiko itu melekat pada penambahan
 kolom atau nilai enum ke tabel yang sudah berisi data.
