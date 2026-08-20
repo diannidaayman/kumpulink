@@ -15,8 +15,8 @@ export const metadata: Metadata = {
 
 const THEME_SCRIPT = `(function(){try{
 var t=localStorage.getItem("theme");
-var gelap=t==="dark"||(!t&&window.matchMedia("(prefers-color-scheme: dark)").matches);
-document.documentElement.classList.toggle("dark",gelap);
+var isDark=t==="dark"||(!t&&window.matchMedia("(prefers-color-scheme: dark)").matches);
+document.documentElement.classList.toggle("dark",isDark);
 }catch(e){}})();`;
 
 export default function RootLayout({
