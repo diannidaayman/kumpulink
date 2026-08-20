@@ -22,8 +22,8 @@ mengubah konsepnya.
 
 ## Urutan pengerjaan
 
-Dua bagian pertama punya waktu tunggu di luar kendali. Kerjakan
-keduanya lebih dulu, lalu kerjakan sisanya sambil menunggu.
+Dua bagian pertama punya waktu tunggu di luar kendali, jadi dikerjakan
+lebih dulu dan sisanya dikerjakan sambil menunggu.
 
 | Urutan | Bagian | Waktu tunggu | Status |
 | ------ | ------ | ------------ | ------ |
@@ -33,25 +33,26 @@ keduanya lebih dulu, lalu kerjakan sisanya sambil menunggu.
 | 8 | Rahasia lokal | Segera | **selesai** |
 | — | `OWNER_EMAIL` | Segera | **selesai** |
 | 4 | GitHub | Segera | **selesai** |
-| 6 | Neon | Segera | belum |
-| 7 | Vercel | Segera | belum |
-| 5 | Google Cloud Console | Segera | belum |
+| 6 | Neon | Segera | **selesai** |
+| 7 | Vercel | Segera | **selesai** |
+| 5 | Google Cloud Console | Segera | **selesai** |
 
-Seluruh bagian yang punya waktu tunggu sudah lewat. Tiga yang tersisa
-berjalan seketika.
+**Seluruh bagian selesai pada 20 Agustus 2026.** Kesebelas variabel
+terkumpul dan diverifikasi bentuknya; keempat setelan yang tidak
+berbentuk nilai diperiksa di layar oleh pemilik.
 
-**Kerjakan dalam urutan baris tabel di atas — Neon → GitHub → Vercel →
-Google — bukan dalam urutan penomoran bagiannya.** Dua alasan, dan
-keduanya menghemat perjalanan bolak-balik:
+**Urutan yang dipakai adalah urutan baris tabel di atas — Neon → GitHub
+→ Vercel → Google — bukan urutan penomoran bagiannya.** Dicatat di sini
+karena penomoran bagian menyesatkan, dan siapa pun yang mengulang
+persiapan ini di lingkungan lain sebaiknya mengikuti urutan yang sama:
 
 - **Vercel setelah GitHub**, karena proyek Vercel diimpor dari
   repositori.
 - **Google paling akhir**, karena bagian 5.4 meminta tiga redirect URI
   sekaligus dan salah satunya memuat alias preview Vercel, yang baru ada
   setelah bagian 7.2 dikerjakan.
-
-**Neon didahulukan** karena hasilnya yang pertama dipakai Unit 1:
-menulis `prisma/schema.prisma` lalu menjalankan migrasi pertama.
+- **Neon paling awal**, karena hasilnya yang pertama dipakai Unit 1:
+  menulis `prisma/schema.prisma` lalu menjalankan migrasi pertama.
 
 ### Variabel yang sudah terkumpul
 
@@ -62,12 +63,12 @@ menulis `prisma/schema.prisma` lalu menjalankan migrasi pertama.
 | `AUTH_SECRET` | dibuat lokal | terisi |
 | `CRON_SECRET` | dibuat lokal | terisi |
 | `OWNER_EMAIL` | Anda sendiri | terisi |
-| `AUTH_GOOGLE_ID` | Google Cloud Console | kosong |
-| `AUTH_GOOGLE_SECRET` | Google Cloud Console | kosong |
-| `DATABASE_URL` | Neon | kosong |
-| `DIRECT_URL` | Neon | kosong |
-| `BLOB_READ_WRITE_TOKEN` | Vercel | kosong |
-| `BLOB_STORE_ID` | Vercel | kosong |
+| `AUTH_GOOGLE_ID` | Google Cloud Console | terisi |
+| `AUTH_GOOGLE_SECRET` | Google Cloud Console | terisi |
+| `DATABASE_URL` | Neon | terisi |
+| `DIRECT_URL` | Neon | terisi |
+| `BLOB_READ_WRITE_TOKEN` | Vercel | terisi |
+| `BLOB_STORE_ID` | Vercel | terisi |
 
 ## Apa yang dihasilkan tiap bagian
 
@@ -350,7 +351,7 @@ untuk workflow terjadwal di Fase 8.
 
 ---
 
-## 5. Google Cloud Console
+## 5. Google Cloud Console — SELESAI
 
 Menghasilkan kredensial masuk dengan Google. Sejak 2025 sebagian menu
 ini bernama **Google Auth Platform**; pada tampilan lama namanya
@@ -428,7 +429,7 @@ tangan, status publikasi *In production*, tiga redirect URI terdaftar.
 
 ---
 
-## 6. Neon
+## 6. Neon — SELESAI
 
 Menghasilkan **dua** connection string yang berbeda. Keduanya wajib:
 aplikasi memakai koneksi ter-pool, sedangkan migrasi Prisma menuntut
@@ -461,7 +462,7 @@ karena penyebab sebenarnya tidak disebut di pesan galatnya.
 
 ---
 
-## 7. Vercel
+## 7. Vercel — SELESAI
 
 ### 7.1 Proyek dan domain
 
@@ -474,6 +475,41 @@ karena penyebab sebenarnya tidak disebut di pesan galatnya.
    dipakai Vercel berubah dari waktu ke waktu.
 5. Tambahkan record itu di Cloudflare sebagai **DNS only** (awan abu).
 6. Tunggu Vercel menandai domain **Valid Configuration**.
+
+### 7.1a Apex yang utama, bukan `www` — JEBAKAN
+
+**Vercel kerap menawarkan pola sebaliknya sebagai bawaan saat domain
+ditambahkan:** `www` dijadikan Production dan apex dialihkan 308 ke sana.
+Menerima tawaran itu **mematahkan login Google**, dan gejalanya tidak
+muncul sampai ada deployment sungguhan — jadi mudah lolos sampai jauh.
+
+Sebabnya: Auth.js menyusun `redirect_uri` dari host yang benar-benar
+melayani permintaan. Bila produksi dilayani di `www`, yang dikirim ke
+Google adalah `https://www.diandiandian.web.id/api/auth/callback/google`,
+sedangkan yang terdaftar apex. Google menolaknya dengan
+`redirect_uri_mismatch` dan login gagal total — bukan sekadar tampil
+aneh.
+
+**Konfigurasi yang benar** di Settings → Domains:
+
+| Domain | Harus tertulis |
+| ------ | -------------- |
+| `diandiandian.web.id` | **Production** |
+| `www.diandiandian.web.id` | **308 → `diandiandian.web.id`** |
+| `kumpulink-preview.vercel.app` | cabang **`dev`** |
+| `kumpulink-mu.vercel.app` | Production — bawaan Vercel, biarkan |
+
+**Bila arahnya terlanjur terbalik, perbaiki dalam urutan ini.** Membalik
+urutannya membuat Vercel menolak karena mendeteksi lingkaran pengalihan:
+
+1. Edit `diandiandian.web.id` → lepaskan redirect, jadikan **Production**
+2. Baru edit `www.diandiandian.web.id` → jadikan **Redirect to**
+   `diandiandian.web.id`, kode **308**
+
+Apex dipilih sebagai host utama, bukan `www`, karena tiga alasan: redirect
+URI di Google sudah terdaftar untuk apex; seluruh dokumen proyek memakai
+apex, termasuk D1 dan `EMAIL_FROM`; dan QR code yang dicetak jadi lebih
+pendek, sehingga lebih mudah dipindai.
 
 ### 7.2 Alias preview yang tetap
 
@@ -626,20 +662,30 @@ diasumsikan sudah benar.
 
 Nilai:
 
-- [ ] `.env.local` memuat kesebelas nilai, tidak ada yang kosong
-- [ ] `.env.local` tidak muncul di `git status`
-- [ ] `git check-ignore -v .env.local` menyebutkan baris `.gitignore`
+- [x] `.env.local` memuat kesebelas nilai, tidak ada yang kosong
+- [x] `.env.local` tidak muncul di `git status`
+- [x] `git check-ignore -v .env.local` menyebutkan baris `.gitignore`
+- [x] Tidak ada satu pun variabel berawalan `NEXT_PUBLIC_`
+
+Bentuk kesebelas nilai diverifikasi dari sesi Claude Code tanpa
+menampilkan isinya: `-pooler` ada di `DATABASE_URL` dan tidak ada di
+`DIRECT_URL`, keduanya `sslmode=require`; `AUTH_GOOGLE_ID` berakhiran
+`.apps.googleusercontent.com`; `AUTH_GOOGLE_SECRET` diawali `GOCSPX-`;
+`BLOB_READ_WRITE_TOKEN` diawali `vercel_blob_rw_` dan **diuji hidup** ke
+API Vercel Blob dengan jawaban HTTP 200.
 
 Setelan yang tidak berbentuk nilai:
 
-- [ ] Blob store tertulis **private** di dashboard Vercel
+- [x] Blob store tertulis **private** di dashboard Vercel
 - [x] Domain pengirim berstatus **Verified** di Resend
-- [ ] Status publikasi OAuth tertulis **In production**
-- [ ] Ketiga redirect URI terdaftar di Google Cloud Console
-- [ ] Domain `diandiandian.web.id` berstatus **Valid Configuration** di Vercel
-- [ ] Alias `kumpulink-preview.vercel.app` terpasang ke cabang `dev`
+- [x] Status publikasi OAuth tertulis **In production**
+- [x] Ketiga redirect URI terdaftar di Google Cloud Console
+- [x] Domain `diandiandian.web.id` berstatus **Valid Configuration** di Vercel
+- [x] Alias `kumpulink-preview.vercel.app` terpasang ke cabang `dev`
+- [ ] `diandiandian.web.id` berstatus **Production**, `www` mengalihkan 308 ke apex — lihat 7.1a
 - [x] Repositori GitHub berstatus **Public**
 - [x] Cabang `main` terlindungi dari `force push` dan penghapusan
+- [x] Cabang `dev` ada di GitHub, dipakai alias preview
 - [x] Keenam commit memakai alamat noreply `294433957+diannidaayman@…`
 - [x] `.env.local` terbukti tidak ada di pohon berkas GitHub
 

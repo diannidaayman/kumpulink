@@ -5,24 +5,25 @@ yang berarti.
 
 ## Current Phase
 
-- Fase 0 — Keputusan dan prasyarat layanan. Bagian yang
-  dikerjakan dari sesi Claude Code sudah selesai. Prasyarat
-  layanan berjalan sebagian: **lima dari sebelas variabel
-  terkumpul**, dan seluruh langkah yang punya waktu tunggu
-  di luar kendali sudah lewat.
-- Yang tersisa seluruhnya berjalan seketika: **tiga konsol**
-  (Neon, Vercel, Google) menghasilkan enam variabel terakhir.
-  GitHub sudah selesai dan tidak menghasilkan variabel.
+- **Fase 0 selesai, 20 Agustus 2026.** Kesebelas variabel
+  terkumpul dan diverifikasi bentuknya, seluruh konsol
+  dikerjakan, dan setelan yang tidak berbentuk nilai
+  diperiksa di layar oleh pemilik.
+- Menyisakan satu pekerjaan konfigurasi: membalik arah
+  pengalihan domain agar apex `diandiandian.web.id` yang
+  berstatus Production dan `www` yang mengalihkan ke sana.
+  Lihat bagian 7.1a di `docs/setup-layanan.md`.
 - Tidak ada lagi pertanyaan terbuka.
-- Belum ada satu baris pun kode aplikasi. Unit 1 belum
-  dimulai.
+- Belum ada satu baris pun kode aplikasi. **Unit 1 siap
+  dimulai** dari prompt P1.1 di `PROMPT-PLAYBOOK.md`.
 
 ## Current Goal
 
-- Menuntaskan prasyarat layanan eksternal, lalu masuk ke
-  Unit 1 — Fondasi dan autentikasi: Next.js, Prisma, skema
-  database lengkap, dan Auth.js dengan provider Google,
-  sampai pemilik dapat masuk dan melihat dashboard kosong.
+- Masuk ke Unit 1 — Fondasi dan autentikasi: Next.js,
+  Prisma, skema database lengkap, dan Auth.js dengan provider
+  Google, sampai pemilik dapat masuk dan melihat dashboard
+  kosong. Prasyarat layanannya sudah tuntas, jadi tidak ada
+  lagi yang menahan.
 
 ## Completed
 
@@ -106,53 +107,64 @@ yang berarti.
     aturan-yang-berlaku GitHub.
   - GitHub mengatribusikan keenam commit ke akun
     `diannidaayman`, membuktikan perbaikan identitas berlaku.
+  - **Neon selesai.** Proyek `kumpulink` di region
+    `ap-southeast-1` (Singapura). `DATABASE_URL` terbukti
+    memuat `-pooler`, `DIRECT_URL` terbukti tidak, keduanya
+    `sslmode=require`.
+  - **Google Cloud Console selesai.** Status publikasi *In
+    production*, ketiga redirect URI terdaftar.
+  - **Vercel selesai.** Blob store privat — diperiksa di
+    layar; `BLOB_READ_WRITE_TOKEN` **diuji hidup** ke API
+    Vercel Blob dan dijawab HTTP 200, jadi bukan sekadar
+    bentuknya yang benar. Alias `kumpulink-preview.vercel.app`
+    menunjuk cabang `dev`.
+  - **Cabang `dev` dibuat dan di-push.** Diperlukan agar
+    Vercel punya cabang untuk dipilih saat alias preview
+    ditetapkan. Ini juga menjadi cabang integrasi di bawah
+    `main`: pekerjaan unit masuk ke `dev` lebih dulu, tempat
+    preview-nya dapat diuji, sebelum naik ke `main`.
+  - **Arah pengalihan domain diputuskan: apex yang utama.**
+    Vercel semula menyetel `www` sebagai Production dan apex
+    mengalihkan 308 ke sana — pola bawaan yang ditawarkannya
+    sendiri. Itu akan mematahkan login Google dengan
+    `redirect_uri_mismatch`, karena Auth.js menyusun
+    `redirect_uri` dari host yang benar-benar melayani
+    permintaan sedangkan yang terdaftar di Google adalah apex.
+    Gejalanya baru muncul setelah ada deployment sungguhan,
+    jadi mudah lolos sampai jauh. Arahnya dibalik. Alasan
+    memilih apex: redirect URI sudah terdaftar untuk apex,
+    seluruh dokumen memakai apex termasuk `EMAIL_FROM`, dan
+    QR code yang dicetak jadi lebih pendek.
 
 ## In Progress
 
-Prasyarat layanan eksternal, dijalankan pemilik mengikuti
-`docs/setup-layanan.md`. Papan statusnya ada di bagian
-**Urutan pengerjaan** pada dokumen itu.
+Prasyarat layanan eksternal **selesai**. Papan statusnya ada
+di bagian **Urutan pengerjaan** pada `docs/setup-layanan.md`,
+dan seluruh barisnya bertanda selesai.
 
-Tiga konsol tersisa, seluruhnya berjalan seketika tanpa
-waktu tunggu:
+Menyisakan satu pekerjaan konfigurasi di Vercel: membalik arah
+pengalihan domain agar apex `diandiandian.web.id` berstatus
+Production dan `www.diandiandian.web.id` yang mengalihkan 308
+ke sana. Langkahnya beserta alasannya ada di bagian **7.1a**
+`docs/setup-layanan.md`. Urutannya tidak boleh dibalik —
+menyetel `www` lebih dulu membuat Vercel menolaknya sebagai
+lingkaran pengalihan.
 
-| Konsol | Menghasilkan |
-| ------ | ------------ |
-| Neon | `DATABASE_URL`, `DIRECT_URL` |
-| Vercel | `BLOB_READ_WRITE_TOKEN`, `BLOB_STORE_ID` |
-| Google Cloud Console | `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` |
-
-`OWNER_EMAIL` dan GitHub sudah tidak ada di daftar ini —
-keduanya selesai pada 20 Agustus 2026.
-
-**Urutan yang disarankan: Neon → Vercel → Google.** Google
-Cloud Console meminta tiga redirect URI sekaligus, dan salah
-satunya memuat alias preview Vercel yang baru ada setelah
-proyek Vercel dibuat. Mengerjakan Google terakhir membuat
-ketiganya terisi sekali jalan, tanpa perlu kembali.
-
-Neon didahulukan karena hasilnya yang pertama dipakai Unit 1:
-menulis `prisma/schema.prisma` lalu menjalankan migrasi
-pertama.
-
-**Dua hal yang menghadang di Vercel.** Blob store wajib dibuat
-privat sejak awal — store publik tidak dapat diubah menjadi
-privat belakangan. Dan pada Windows, PowerShell kerap menolak
-menjalankan `vercel` setelah pemasangan global; jalan keluarnya
-mengawali perintah dengan `npx`, bukan mengubah execution
-policy.
+Selama belum dibalik, tidak ada yang tampak rusak, karena
+belum ada deployment. Yang rusak baru terlihat saat login
+Google dicoba di produksi.
 
 ## Next Up
 
-0. Tuntaskan `docs/setup-layanan.md` sampai daftar periksa
-   akhirnya bersih — tiga konsol dalam urutan Neon → Vercel
-   → Google. Unit 1 tidak dapat diverifikasi ujung ke ujung
-   tanpa `DATABASE_URL`, `DIRECT_URL`, dan kredensial Google.
+0. Balik arah pengalihan domain di Vercel — bagian 7.1a
+   `docs/setup-layanan.md`. Ini tidak menahan Unit 1, karena
+   pengembangan berjalan di `localhost:3000` yang redirect
+   URI-nya terpisah. Yang tertahan adalah uji di produksi,
+   jadi kerjakan sebelum Fase 10.
 
-   Sesudahnya, mulai dari prompt **P1.1** di
-   `PROMPT-PLAYBOOK.md` — brainstorming Unit 1. Butir 1–6 di
-   bawah adalah isi unit itu, bukan langkah yang dikerjakan
-   satu per satu tanpa rencana.
+   Mulai Unit 1 dari prompt **P1.1** di `PROMPT-PLAYBOOK.md`
+   — brainstorming. Butir 1–6 di bawah adalah isi unit itu,
+   bukan langkah yang dikerjakan satu per satu tanpa rencana.
 1. Inisialisasi proyek Next.js 15 dengan TypeScript dan
    Tailwind.
 2. Pasang shadcn/ui dan tambahkan komponen yang disebut di
