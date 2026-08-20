@@ -20,6 +20,11 @@ next-env.d.ts
 /.vercel
 /.netlify
 
+# Worktree terisolasi yang dibuat harness Claude Code. Letaknya di dalam
+# direktori kerja repo, jadi tanpa baris ini `git add -A` dari repo utama
+# akan ikut menstage seluruh isi worktree.
+/.claude/worktrees/
+
 # Pengujian
 /coverage
 
