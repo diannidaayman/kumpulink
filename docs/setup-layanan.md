@@ -682,7 +682,7 @@ Setelan yang tidak berbentuk nilai:
 - [x] Ketiga redirect URI terdaftar di Google Cloud Console
 - [x] Domain `diandiandian.web.id` berstatus **Valid Configuration** di Vercel
 - [x] Alias `kumpulink-preview.vercel.app` terpasang ke cabang `dev`
-- [ ] `diandiandian.web.id` berstatus **Production**, `www` mengalihkan 308 ke apex — lihat 7.1a
+- [x] `diandiandian.web.id` berstatus **Production**, `www` mengalihkan 308 ke apex — lihat 7.1a
 - [x] Repositori GitHub berstatus **Public**
 - [x] Cabang `main` terlindungi dari `force push` dan penghapusan
 - [x] Cabang `dev` ada di GitHub, dipakai alias preview
