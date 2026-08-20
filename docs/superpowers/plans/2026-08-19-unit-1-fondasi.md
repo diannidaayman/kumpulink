@@ -316,26 +316,26 @@ const ELEVEN_TOKENS = [
   "--state-warning",
 ];
 
-function blok(selector: string): string {
-  const mulai = css.indexOf(selector + " {");
-  if (mulai === -1) throw new Error(`blok ${selector} tidak ditemukan`);
-  const buka = css.indexOf("{", mulai);
-  const tutup = css.indexOf("}", buka);
-  return css.slice(buka, tutup);
+function block(selector: string): string {
+  const start = css.indexOf(selector + " {");
+  if (start === -1) throw new Error(`blok ${selector} tidak ditemukan`);
+  const open = css.indexOf("{", start);
+  const close = css.indexOf("}", open);
+  return css.slice(open, close);
 }
 
 describe("token warna", () => {
   it.each(ELEVEN_TOKENS)("mendefinisikan %s di mode terang", (token) => {
-    expect(blok(":root")).toContain(`${token}:`);
+    expect(block(":root")).toContain(`${token}:`);
   });
 
   it.each(ELEVEN_TOKENS)("mendefinisikan %s di mode gelap", (token) => {
-    expect(blok(".dark")).toContain(`${token}:`);
+    expect(block(".dark")).toContain(`${token}:`);
   });
 
   it("tidak memakai --accent-foreground sebagai token Kumpulink", () => {
-    expect(blok(":root")).not.toContain("--accent-foreground: #");
-    expect(blok(".dark")).not.toContain("--accent-foreground:");
+    expect(block(":root")).not.toContain("--accent-foreground: #");
+    expect(block(".dark")).not.toContain("--accent-foreground:");
   });
 
   it("memetakan --primary-foreground ke --accent-on, bukan sebaliknya", () => {
@@ -507,7 +507,7 @@ export const metadata: Metadata = {
   description: "Himpun tautan dan berkas ke dalam group, bagikan lewat satu link.",
 };
 
-const SKRIP_TEMA = `(function(){try{
+const THEME_SCRIPT = `(function(){try{
 var t=localStorage.getItem("theme");
 var gelap=t==="dark"||(!t&&window.matchMedia("(prefers-color-scheme: dark)").matches);
 document.documentElement.classList.toggle("dark",gelap);
@@ -517,13 +517,15 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="id" suppressHydrationWarning>
+    <html
+      lang="id"
+      className={`${inter.variable} ${jetbrainsMono.variable}`}
+      suppressHydrationWarning
+    >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: SKRIP_TEMA }} />
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
-      <body className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}>
-        {children}
-      </body>
+      <body className="antialiased">{children}</body>
     </html>
   );
 }
@@ -541,27 +543,27 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 export function ThemeToggle() {
-  const [gelap, setGelap] = useState(false);
+  const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
-    setGelap(document.documentElement.classList.contains("dark"));
+    setIsDark(document.documentElement.classList.contains("dark"));
   }, []);
 
-  function ganti() {
-    const berikutnya = !gelap;
-    document.documentElement.classList.toggle("dark", berikutnya);
-    localStorage.setItem("theme", berikutnya ? "dark" : "light");
-    setGelap(berikutnya);
+  function toggle() {
+    const next = !isDark;
+    document.documentElement.classList.toggle("dark", next);
+    localStorage.setItem("theme", next ? "dark" : "light");
+    setIsDark(next);
   }
 
   return (
     <Button
       variant="ghost"
       size="icon"
-      onClick={ganti}
-      aria-label={gelap ? "Ganti ke mode terang" : "Ganti ke mode gelap"}
+      onClick={toggle}
+      aria-label={isDark ? "Ganti ke mode terang" : "Ganti ke mode gelap"}
     >
-      {gelap ? (
+      {isDark ? (
         <Sun className="h-5 w-5" aria-hidden />
       ) : (
         <Moon className="h-5 w-5" aria-hidden />
