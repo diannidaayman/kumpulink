@@ -191,6 +191,10 @@
 
 ## Testing
 
+- Kerangka pengujian: **Vitest**, dijalankan lewat `npm test`.
+  Dipilih karena berjalan langsung dengan TypeScript dan ESM tanpa
+  lapisan transformasi tambahan, dan cepat — matriks izin dijalankan
+  berulang kali di Unit 4 dan Unit 7.
 - Setiap perubahan aturan izin wajib disertai pengujian
   pada matriks `evaluateAccess()` di dalam perubahan yang
   sama.
