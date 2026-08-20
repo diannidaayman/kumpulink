@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   description: "Himpun tautan dan berkas ke dalam group, bagikan lewat satu link.",
 };
 
-const SKRIP_TEMA = `(function(){try{
+const THEME_SCRIPT = `(function(){try{
 var t=localStorage.getItem("theme");
 var gelap=t==="dark"||(!t&&window.matchMedia("(prefers-color-scheme: dark)").matches);
 document.documentElement.classList.toggle("dark",gelap);
@@ -23,13 +23,15 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="id" suppressHydrationWarning>
+    <html
+      lang="id"
+      className={`${inter.variable} ${jetbrainsMono.variable}`}
+      suppressHydrationWarning
+    >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: SKRIP_TEMA }} />
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
-      <body className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}>
-        {children}
-      </body>
+      <body className="antialiased">{children}</body>
     </html>
   );
 }

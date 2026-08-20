@@ -5,27 +5,27 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 export function ThemeToggle() {
-  const [gelap, setGelap] = useState(false);
+  const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
-    setGelap(document.documentElement.classList.contains("dark"));
+    setIsDark(document.documentElement.classList.contains("dark"));
   }, []);
 
-  function ganti() {
-    const berikutnya = !gelap;
-    document.documentElement.classList.toggle("dark", berikutnya);
-    localStorage.setItem("theme", berikutnya ? "dark" : "light");
-    setGelap(berikutnya);
+  function toggle() {
+    const next = !isDark;
+    document.documentElement.classList.toggle("dark", next);
+    localStorage.setItem("theme", next ? "dark" : "light");
+    setIsDark(next);
   }
 
   return (
     <Button
       variant="ghost"
       size="icon"
-      onClick={ganti}
-      aria-label={gelap ? "Ganti ke mode terang" : "Ganti ke mode gelap"}
+      onClick={toggle}
+      aria-label={isDark ? "Ganti ke mode terang" : "Ganti ke mode gelap"}
     >
-      {gelap ? (
+      {isDark ? (
         <Sun className="h-5 w-5" aria-hidden />
       ) : (
         <Moon className="h-5 w-5" aria-hidden />

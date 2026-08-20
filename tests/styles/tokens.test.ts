@@ -17,26 +17,26 @@ const ELEVEN_TOKENS = [
   "--state-warning",
 ];
 
-function blok(selector: string): string {
-  const mulai = css.indexOf(selector + " {");
-  if (mulai === -1) throw new Error(`blok ${selector} tidak ditemukan`);
-  const buka = css.indexOf("{", mulai);
-  const tutup = css.indexOf("}", buka);
-  return css.slice(buka, tutup);
+function block(selector: string): string {
+  const start = css.indexOf(selector + " {");
+  if (start === -1) throw new Error(`blok ${selector} tidak ditemukan`);
+  const open = css.indexOf("{", start);
+  const close = css.indexOf("}", open);
+  return css.slice(open, close);
 }
 
 describe("token warna", () => {
   it.each(ELEVEN_TOKENS)("mendefinisikan %s di mode terang", (token) => {
-    expect(blok(":root")).toContain(`${token}:`);
+    expect(block(":root")).toContain(`${token}:`);
   });
 
   it.each(ELEVEN_TOKENS)("mendefinisikan %s di mode gelap", (token) => {
-    expect(blok(".dark")).toContain(`${token}:`);
+    expect(block(".dark")).toContain(`${token}:`);
   });
 
   it("tidak memakai --accent-foreground sebagai token Kumpulink", () => {
-    expect(blok(":root")).not.toContain("--accent-foreground: #");
-    expect(blok(".dark")).not.toContain("--accent-foreground:");
+    expect(block(":root")).not.toContain("--accent-foreground: #");
+    expect(block(".dark")).not.toContain("--accent-foreground:");
   });
 
   it("memetakan --primary-foreground ke --accent-on, bukan sebaliknya", () => {
