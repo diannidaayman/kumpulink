@@ -28,6 +28,16 @@ Berlaku untuk **setiap** task. Kebutuhan tiap task secara implisit memuat seluru
 
 **Skema Prisma ditulis LENGKAP di unit ini**, termasuk `AccessRequest` dan nilai `APPROVAL`, meski fiturnya baru dibangun di Unit 7. Alasannya sudah dicatat di `progress-tracker.md` dan tidak dinegosiasikan ulang: migrasi belakangan tidak boleh menyentuh tabel yang sudah berisi data produksi.
 
+### Kosakata domain — bukan pelanggaran aturan Bahasa Indonesia
+
+**`group` dan `link` adalah istilah domain proyek ini dan ditulis apa adanya di teks pengguna.** Keduanya dipakai konsisten di seluruh file konteks: `group` muncul 95 kali di `project-overview.md`, `ui-context.md`, dan `architecture.md`, sementara ejaan KBBI `grup` **nol kali**. `link` dipakai di kalimat definisi produk itu sendiri.
+
+Sebagiannya bahkan diwajibkan kata per kata: `ui-context.md` menetapkan teks keadaan kosong berbunyi persis *"Belum ada group. Buat group pertama untuk mulai menghimpun tautan dan berkas."*
+
+Menggantinya dengan "grup" akan membuat antarmuka bertentangan dengan spesifikasinya sendiri. Aturan "seluruh teks pengguna dalam Bahasa Indonesia" menyasar kalimat berbahasa Inggris, bukan istilah domain yang sudah ditetapkan.
+
+Catatan terpisah: `tautan` dan `link` **tidak** bersinonim di proyek ini. `tautan` berarti item bertipe `LINK` di dalam group; `link` berarti URL berbagi group itu sendiri. Keduanya dapat muncul dalam satu kalimat tanpa saling bertentangan.
+
 ### Dua pengecualian, diputuskan pemilik di Pre-Flight Plan Review
 
 Keduanya adalah konflik nyata antara rencana ini dan Global Constraints di atas, dibawa ke pemilik sebelum task pertama dan diputuskan 20 Agustus 2026. Keduanya **bukan** kelalaian, dan tidak perlu diangkat ulang sebagai temuan.
@@ -1488,7 +1498,7 @@ antarmuka untuk memperbaikinya."
 ```tsx
 import { redirect } from "next/navigation";
 
-export default function Beranda() {
+export default function Home() {
   redirect("/dashboard");
 }
 ```
