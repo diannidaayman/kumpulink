@@ -7,9 +7,12 @@ yang berarti.
 
 - Fase 0 — Keputusan dan prasyarat layanan. Bagian yang
   dikerjakan dari sesi Claude Code sudah selesai. Prasyarat
-  layanan berjalan sebagian: **empat dari sebelas variabel
+  layanan berjalan sebagian: **lima dari sebelas variabel
   terkumpul**, dan seluruh langkah yang punya waktu tunggu
   di luar kendali sudah lewat.
+- Yang tersisa seluruhnya berjalan seketika: empat konsol
+  (Neon, GitHub, Vercel, Google) menghasilkan enam variabel
+  terakhir.
 - Belum ada satu baris pun kode aplikasi. Unit 1 belum
   dimulai.
 
@@ -68,6 +71,25 @@ yang berarti.
     `AUTH_SECRET`, dan `CRON_SECRET`. Dua terakhir dibuat
     dengan `openssl rand -base64 32` dan ditulis langsung ke
     berkas tanpa melewati layar.
+- Sesi 20 Agustus 2026:
+  - **`OWNER_EMAIL` ditetapkan `laluardiansyah903@gmail.com`**
+    dan sudah tertulis di `.env.local`. Variabel kelima
+    terkumpul.
+  - **Alias preview Vercel ditetapkan
+    `kumpulink-preview.vercel.app`**, menunjuk ke cabang `dev`.
+    Ini membuka pendaftaran ketiga redirect URI sekali jalan
+    di Google Cloud Console.
+  - **Identitas kelima commit diperbaiki.** Alamat karangan
+    `lalu@users.noreply.github.com` diganti alamat noreply asli
+    akun `diannidaayman`, dengan tanggal author aslinya terjaga.
+    Dibuktikan dengan `git diff` antara tag cadangan dan `main`
+    yang kosong — isi berkas identik, hanya identitasnya yang
+    berganti.
+  - `docs/setup-layanan.md` diperbarui: urutan pengerjaan
+    diubah menjadi Neon → GitHub → Vercel → Google beserta
+    alasannya, bagian GitHub ditulis ulang memakai `gh repo
+    create`, dan jebakan Windows dicatat untuk Vercel CLI serta
+    penyuntingan `.env.local`.
 
 ## In Progress
 
@@ -82,16 +104,17 @@ waktu tunggu:
 | ------ | ------------ |
 | Neon | `DATABASE_URL`, `DIRECT_URL` |
 | GitHub | repositori publik, remote `origin` |
-| Vercel | `BLOB_READ_WRITE_TOKEN`, `BLOB_STORE_ID`, nama alias preview |
+| Vercel | `BLOB_READ_WRITE_TOKEN`, `BLOB_STORE_ID` |
 | Google Cloud Console | `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` |
 
-Ditambah `OWNER_EMAIL`, yang tidak perlu konsol apa pun —
-cukup alamat Google yang akan dipakai pemilik untuk masuk.
+`OWNER_EMAIL` sudah tidak ada di daftar ini — ditetapkan dan
+diisi pada 20 Agustus 2026.
 
 **Urutan yang disarankan: Neon → GitHub → Vercel → Google**,
-berbeda dari penomoran di `docs/setup-layanan.md`. Alasannya
+berbeda dari penomoran di `docs/setup-layanan.md`. Urutan ini
+sudah ditulis ke tabel di dokumen itu beserta alasannya:
 Google Cloud Console meminta tiga redirect URI sekaligus, dan
-salah satunya memuat nama alias preview Vercel yang baru ada
+salah satunya memuat alias preview Vercel yang baru ada
 setelah proyek Vercel dibuat. Mengerjakan Google terakhir
 membuat ketiganya terisi sekali jalan, tanpa perlu kembali.
 
@@ -99,12 +122,23 @@ Neon didahulukan karena hasilnya yang pertama dipakai Unit 1:
 menulis `prisma/schema.prisma` lalu menjalankan migrasi
 pertama.
 
+**GitHub jauh lebih singkat dari yang tertulis di dokumen
+aslinya.** Akun `diannidaayman` sudah ada dan `gh` CLI sudah
+login di mesin ini, jadi pembuatan repositori, pemasangan
+remote, dan push pertama selesai dalam satu perintah.
+
 ## Next Up
 
 0. Tuntaskan `docs/setup-layanan.md` sampai daftar periksa
-   akhirnya bersih. Unit 1 tidak dapat diverifikasi ujung ke
-   ujung tanpa `DATABASE_URL`, `DIRECT_URL`, dan kredensial
-   Google.
+   akhirnya bersih — empat konsol dalam urutan Neon → GitHub
+   → Vercel → Google, ditambah konfirmasi status *Verified*
+   di Resend. Unit 1 tidak dapat diverifikasi ujung ke ujung
+   tanpa `DATABASE_URL`, `DIRECT_URL`, dan kredensial Google.
+
+   Sesudahnya, mulai dari prompt **P1.1** di
+   `PROMPT-PLAYBOOK.md` — brainstorming Unit 1. Butir 1–6 di
+   bawah adalah isi unit itu, bukan langkah yang dikerjakan
+   satu per satu tanpa rencana.
 1. Inisialisasi proyek Next.js 15 dengan TypeScript dan
    Tailwind.
 2. Pasang shadcn/ui dan tambahkan komponen yang disebut di
@@ -126,20 +160,30 @@ menjadi keputusan D1–D8 di bagian Architecture Decisions.
 Yang tersisa bukan pertanyaan rancangan, melainkan nilai yang
 baru ada setelah `docs/setup-layanan.md` dijalankan:
 
-- Nama alias preview Vercel belum ditetapkan. Diperlukan
-  untuk redirect URI ketiga di Google Cloud Console, agar
-  masuk dengan Google berfungsi di deployment preview.
+Dua dari tiga ditutup pada 20 Agustus 2026:
+
+- ~~Nama alias preview Vercel~~ → **ditetapkan
+  `kumpulink-preview.vercel.app`**, menunjuk ke cabang `dev`.
+  Pilihan sebaliknya — tidak membuat alias — ditolak secara
+  sadar, karena akan membuat alur uji utama Fase 10 pertama
+  kali berjalan sungguhan langsung di produksi.
+- ~~Alamat untuk `OWNER_EMAIL`~~ → **ditetapkan
+  `laluardiansyah903@gmail.com`**, sudah tertulis di
+  `.env.local`. Perhatikan alamat ini berbeda dari yang
+  terdaftar di sesi pengembangan (`laluardian23@gmail.com`)
+  dan berbeda pula dari akun GitHub (`diannidaayman`).
+  Dugaan di catatan sebelumnya keliru.
+
+Yang masih terbuka, satu:
+
 - **Status verifikasi domain di Resend belum dikonfirmasi.**
-  Keempat record DNS-nya sudah dipastikan benar dari luar,
-  tetapi belum ada kabar bahwa Resend sendiri sudah menandai
-  domainnya *Verified*. Periksa di halaman Domains; bila
-  masih *not started*, tekan **Verify**.
-- **Alamat untuk `OWNER_EMAIL` belum ditetapkan.** Alamat
-  yang terdaftar di sesi pengembangan adalah
-  `laluardian23@gmail.com`, tetapi belum dikonfirmasi bahwa
-  itu akun Google yang akan dipakai pemilik untuk masuk.
-  Nilainya harus cocok persis dengan yang dikembalikan
-  Google saat masuk, dan tidak dapat diubah lewat antarmuka.
+  Keempat record DNS-nya sudah dipastikan benar dari luar —
+  diperiksa ulang 20 Agustus 2026, NS menjawab Cloudflare dan
+  DKIM terbaca dari resolver `1.1.1.1` — tetapi belum ada
+  kabar bahwa Resend sendiri sudah menandai domainnya
+  *Verified*. Ini hanya dapat dibaca di layar Resend, tidak
+  dari terminal. Periksa di halaman Domains; bila masih *not
+  started*, tekan **Verify**.
 
 Domain sudah ditetapkan: **`diandiandian.web.id`**, dibeli di
 DomaiNesia pada 19 Agustus 2026, dengan DNS dikelola Cloudflare
@@ -385,13 +429,30 @@ sebelum satu baris kode aplikasi ditulis.
   waktu tunggu. Riwayat commit-nya: `2800c4b` Fase 0,
   `8f57746` bagian Cloudflare, `acfe36a` penetapan domain,
   `da8ede7` Resend dan rahasia lokal selesai.
-- **Identitas commit masih sementara.** `user.email` disetel
-  `lalu@users.noreply.github.com` karena akun GitHub belum
-  dibuat. Setelah akun ada, ambil alamat noreply asli dari
-  Settings → Emails, jalankan `git config user.email`, lalu
-  `git commit --amend --reset-author --no-edit`. Kerjakan
-  **sebelum push pertama** — setelah itu riwayatnya sudah
-  publik dan perbaikannya menuntut penulisan ulang.
+- **Identitas commit sudah diperbaiki, 20 Agustus 2026.**
+  Akun GitHub ternyata sudah ada — `diannidaayman` — dan `gh`
+  CLI sudah login di mesin pengembangan; catatan lama yang
+  menyebut akunnya belum dibuat keliru. Kelima commit ditulis
+  ulang ke alamat noreply asli akunnya.
+
+  **Catatan untuk kasus serupa kelak: `git commit --amend`
+  hanya menyentuh commit terakhir.** Saran lama di tempat ini
+  akan menyisakan empat commit dengan alamat palsu. Bentuk
+  yang benar untuk seluruh riwayat, dan yang benar-benar
+  dipakai:
+
+  ```
+  git tag backup-identitas
+  git config user.email "<noreply asli>"
+  git rebase --root --exec 'git commit --amend --no-edit --author="Nama <noreply asli>"'
+  ```
+
+  `--author` dipakai, bukan `--reset-author`, karena
+  `--reset-author` ikut menyetel ulang tanggal author menjadi
+  waktu sekarang — tanggal 19 Agustus akan hilang. Hasilnya
+  diverifikasi dengan `git diff backup-identitas main`, yang
+  harus kosong: isi berkas identik, hanya identitasnya yang
+  berganti.
 - **Rahasia tidak pernah masuk percakapan.** Nilai di
   `.env.local` diisi pemilik sendiri, atau dibuat lewat
   perintah yang menulis langsung ke berkas tanpa mencetak

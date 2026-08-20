@@ -31,15 +31,27 @@ keduanya lebih dulu, lalu kerjakan sisanya sambil menunggu.
 | 2 | Cloudflare DNS | Sampai beberapa jam untuk propagasi nameserver | **selesai** |
 | 3 | Resend | Sampai beberapa jam untuk verifikasi DNS | **selesai** |
 | 8 | Rahasia lokal | Segera | **selesai** |
-| 4 | GitHub | Segera | belum |
-| 5 | Google Cloud Console | Segera | belum |
+| — | `OWNER_EMAIL` | Segera | **selesai** |
 | 6 | Neon | Segera | belum |
+| 4 | GitHub | Segera | belum |
 | 7 | Vercel | Segera | belum |
+| 5 | Google Cloud Console | Segera | belum |
 
 Seluruh bagian yang punya waktu tunggu sudah lewat. Empat yang tersisa
-berjalan seketika dan boleh dikerjakan dalam urutan mana pun, kecuali
-Vercel yang sebaiknya menunggu GitHub karena proyeknya diimpor dari
-repositori.
+berjalan seketika.
+
+**Kerjakan dalam urutan baris tabel di atas — Neon → GitHub → Vercel →
+Google — bukan dalam urutan penomoran bagiannya.** Dua alasan, dan
+keduanya menghemat perjalanan bolak-balik:
+
+- **Vercel setelah GitHub**, karena proyek Vercel diimpor dari
+  repositori.
+- **Google paling akhir**, karena bagian 5.4 meminta tiga redirect URI
+  sekaligus dan salah satunya memuat alias preview Vercel, yang baru ada
+  setelah bagian 7.2 dikerjakan.
+
+**Neon didahulukan** karena hasilnya yang pertama dipakai Unit 1:
+menulis `prisma/schema.prisma` lalu menjalankan migrasi pertama.
 
 ### Variabel yang sudah terkumpul
 
@@ -49,7 +61,7 @@ repositori.
 | `EMAIL_FROM` | Resend | terisi |
 | `AUTH_SECRET` | dibuat lokal | terisi |
 | `CRON_SECRET` | dibuat lokal | terisi |
-| `OWNER_EMAIL` | Anda sendiri | kosong |
+| `OWNER_EMAIL` | Anda sendiri | terisi |
 | `AUTH_GOOGLE_ID` | Google Cloud Console | kosong |
 | `AUTH_GOOGLE_SECRET` | Google Cloud Console | kosong |
 | `DATABASE_URL` | Neon | kosong |
@@ -73,6 +85,14 @@ repositori.
 harus **cocok persis** dengan alamat yang dikembalikan Google saat
 masuk. Ini satu-satunya penentu peran `OWNER`, dan tidak ada antarmuka
 untuk mengubahnya.
+
+**Ditetapkan 20 Agustus 2026: `laluardiansyah903@gmail.com`.** Nilainya
+sudah tertulis di `.env.local`. Perhatikan bahwa alamat ini **berbeda**
+dari alamat yang terdaftar di sesi pengembangan
+(`laluardian23@gmail.com`) dan berbeda pula dari akun GitHub
+(`diannidaayman`) — yang berlaku adalah alamat di atas. Masuk dengan
+akun Google mana pun selain itu akan diperlakukan sebagai pengunjung
+biasa dan ditolak masuk dashboard.
 
 ---
 
@@ -251,18 +271,46 @@ mendapat 2.000 menit sebulan — dan jadwal lima menit menghabiskan
 sekitar 8.640 menit sebulan, karena setiap job ditagih minimal satu
 menit meski hanya berjalan beberapa detik.
 
-1. Buat repositori baru bernama `kumpulink`, visibilitas **Public**,
-   tanpa README, tanpa `.gitignore`, tanpa lisensi — semuanya sudah ada
-   di repositori lokal.
-2. Hubungkan repositori lokal:
+**Akun GitHub sudah ada: `diannidaayman`.** GitHub CLI (`gh`) juga sudah
+terpasang dan sudah login di mesin ini, jadi pembuatan repositori,
+pemasangan remote, dan push pertama cukup satu perintah — tidak perlu
+membuka peramban untuk langkah 1 dan 2.
+
+**Identitas commit sudah diperbaiki, 20 Agustus 2026.** Kelima commit
+lama memakai alamat karangan `lalu@users.noreply.github.com`. Seluruhnya
+sudah ditulis ulang ke alamat noreply asli akun `diannidaayman`, dengan
+tanggal aslinya terjaga. Tidak ada lagi yang perlu dikerjakan di sini
+sebelum push.
+
+1. Periksa dulu bahwa rahasia benar-benar tertahan. Perintah pertama
+   harus tidak mengeluarkan apa pun; perintah kedua harus menyebut baris
+   `.gitignore` yang menahannya:
 
    ```
-   git remote add origin https://github.com/«akun»/kumpulink.git
+   git status --porcelain
+   git check-ignore -v .env.local
    ```
+
+   Bila `.env.local` justru muncul di `git status`, hentikan dan
+   perbaiki sebelum melanjutkan.
+
+2. Buat repositori publik, pasang remote `origin`, dan push cabang
+   `main` — sekaligus, dijalankan dari `D:\Kumpulink\kumpulink-app`:
+
+   ```
+   gh repo create kumpulink --public --source=. --remote=origin --push
+   ```
+
+   Bentuk lama yang manual (buat repo lewat peramban, lalu
+   `git remote add origin ...`) tetap sah bila `gh` tidak tersedia di
+   mesin lain.
 
 3. Aktifkan perlindungan cabang `main` lewat **Settings → Rules →
-   Rulesets**, atau **Settings → Branches** pada tampilan lama.
-   Setidaknya: larang `force push` dan larang penghapusan cabang.
+   Rulesets** → **New ruleset** → **New branch ruleset**, target `main`.
+   Setidaknya aktifkan **Restrict deletions** dan **Block force pushes**.
+
+   Tautan langsungnya:
+   `https://github.com/diannidaayman/kumpulink/settings/rules`
 
 **Repositori publik dan rahasia.** Tidak ada rahasia yang boleh masuk ke
 Git. `.gitignore` sudah menahan seluruh berkas `.env*` kecuali
@@ -340,15 +388,19 @@ Jangan menganggapnya sudah berubah hanya karena tombolnya sudah ditekan.
    ```
    http://localhost:3000/api/auth/callback/google
    https://diandiandian.web.id/api/auth/callback/google
-   https://«alias-preview».vercel.app/api/auth/callback/google
+   https://kumpulink-preview.vercel.app/api/auth/callback/google
    ```
 
    Alasan mendaftarkan sekaligus: Google hanya menerima redirect URI
    yang terdaftar **persis**, sedangkan setiap deployment preview Vercel
    mendapat URL acak yang berbeda tiap kali. Tanpa satu alias preview
    yang tetap, masuk dengan Google tidak akan berfungsi di preview.
-   Alias tetap itu dibuat di bagian Vercel; kembali ke sini untuk
-   melengkapi nilainya bila belum diketahui sekarang.
+
+   **Alias preview ditetapkan `kumpulink-preview.vercel.app`**, diputuskan
+   20 Agustus 2026. Alias itu dibuat di bagian 7.2. Karena bagian Google
+   dikerjakan **setelah** bagian Vercel, nilainya sudah diketahui saat
+   Anda sampai di sini — ketiganya terisi sekali jalan, tanpa perlu
+   kembali.
 4. Salin **Client ID** menjadi `AUTH_GOOGLE_ID`, dan **Client secret**
    menjadi `AUTH_GOOGLE_SECRET`.
 
@@ -408,15 +460,21 @@ karena penyebab sebenarnya tidak disebut di pesan galatnya.
 
 Bagian ini menjawab persoalan redirect URI di bagian 5.4.
 
-1. Di **Settings → Domains**, tambahkan satu domain lagi, misalnya
-   `kumpulink-preview.vercel.app`.
-2. Tetapkan agar menunjuk ke cabang pengembangan, bukan ke `main`.
-3. Kembali ke Google Cloud Console dan lengkapi redirect URI ketiga
-   dengan alias ini.
+**Diputuskan 20 Agustus 2026: alias preview dibuat.** Namanya
+`kumpulink-preview.vercel.app`, menunjuk ke cabang `dev`.
 
-Bila Anda memilih tidak membuat alias preview, terima konsekuensinya
-secara sadar: uji masuk dengan Google hanya dapat dilakukan di lokal dan
-di produksi, tidak di preview.
+1. Di **Settings → Domains**, tambahkan `kumpulink-preview.vercel.app`.
+2. Tetapkan agar menunjuk ke cabang **`dev`**, bukan ke `main`. Cabang
+   `dev` belum ada — Vercel tetap menerima konfigurasinya; cabangnya
+   dibuat saat Unit 1 mulai.
+3. Nama alias ini dipakai sebagai redirect URI ketiga di bagian 5.4.
+   Karena bagian Google dikerjakan setelah bagian ini, nilainya sudah
+   diketahui saat Anda sampai di sana.
+
+Pilihan sebaliknya — tidak membuat alias preview — sudah ditolak secara
+sadar. Konsekuensinya adalah uji masuk dengan Google hanya dapat
+dilakukan di lokal dan di produksi, sehingga alur uji utama Fase 10 baru
+pertama kali berjalan sungguhan langsung di produksi.
 
 ### 7.3 Blob store — WAJIB privat
 
@@ -431,17 +489,35 @@ baru. Perlakukan langkah ini sebagai keputusan sekali jalan.
    vercel login
    ```
 
-2. Buat store dengan akses privat sejak awal:
+   **Jebakan Windows.** Setelah pemasangan global, PowerShell sering
+   menolak menjalankan `vercel` dengan pesan *"running scripts is
+   disabled on this system"*. Bila itu terjadi, **jangan** mengubah
+   execution policy — cukup awali setiap perintah dengan `npx`:
+   `npx vercel login`, `npx vercel blob ...`, dan seterusnya.
+
+2. Periksa dulu bentuk perintahnya, karena sintaks CLI Vercel berubah
+   dari waktu ke waktu:
+
+   ```
+   vercel blob --help
+   ```
+
+3. Buat store dengan akses privat sejak awal:
 
    ```
    vercel blob create-store kumpulink-files --access private
    ```
 
-3. Hubungkan store ke proyek, agar `BLOB_STORE_ID` terpasang otomatis di
-   lingkungan Vercel.
-4. Buka dashboard Vercel, menu **Storage**, pilih store tersebut, lalu
-   **pastikan di layar bahwa aksesnya tertulis private.**
-5. Salin `BLOB_READ_WRITE_TOKEN` dari setelan store.
+   Bila `--help` menunjukkan bentuk yang berbeda, ikuti yang dari
+   `--help`. Yang tidak boleh berubah adalah **aksesnya harus private**.
+
+4. Hubungkan store ke proyek `kumpulink`, agar `BLOB_STORE_ID` terpasang
+   otomatis di lingkungan Vercel.
+5. Buka dashboard Vercel, menu **Storage**, pilih store tersebut, lalu
+   **pastikan di layar bahwa aksesnya tertulis private.** Jangan lanjut
+   sebelum melihatnya sendiri.
+6. Salin `BLOB_READ_WRITE_TOKEN` dan `BLOB_STORE_ID` dari setelan store
+   ke `.env.local`.
 
 **Untuk apa tiap nilai.** Di atas Vercel, autentikasi Blob memakai OIDC
 secara bawaan dan `BLOB_STORE_ID` sudah tersedia dari kaitan proyek.
@@ -500,6 +576,23 @@ jadwal.
 cp .env.example .env.local
 ```
 
+**Jebakan Windows saat menyunting berkas ini.**
+
+- **Jangan membuka Notepad lewat menu klik-kanan → New.** Notepad
+  menambahkan `.txt` di belakang nama saat menyimpan, dan
+  `.env.local.txt` tidak akan pernah dibaca aplikasi. Pakai VS Code,
+  atau perintah `notepad .env.local` dari dalam folder proyek — bentuk
+  ini aman karena berkasnya sudah ada.
+- **Bentuk baris: `NAMA=nilai`** — tanpa spasi sebelum dan sesudah `=`,
+  dan tanpa spasi nyasar di ujung baris. Spasi di ujung adalah penyebab
+  galat koneksi yang paling sering dan paling sulit terlihat.
+- **Tanda kutip hanya bila nilainya mengandung spasi.** `EMAIL_FROM`
+  memerlukannya karena berbentuk `Kumpulink <no-reply@…>`; kesepuluh
+  variabel lainnya tidak.
+- **Semua perintah dijalankan dari `D:\Kumpulink\kumpulink-app`.** Di
+  PowerShell, berpindah cukup `cd D:\Kumpulink\kumpulink-app` — tidak
+  perlu mengetik `D:` lebih dulu seperti di Command Prompt lama.
+
 Nilai yang sama nantinya juga dipasang di **Vercel → Settings →
 Environment Variables**, kecuali `BLOB_STORE_ID` yang terpasang sendiri
 dari kaitan store, dan `BLOB_READ_WRITE_TOKEN` yang di atas Vercel tidak
@@ -525,14 +618,20 @@ Setelan yang tidak berbentuk nilai:
 - [ ] Status publikasi OAuth tertulis **In production**
 - [ ] Ketiga redirect URI terdaftar di Google Cloud Console
 - [ ] Domain `diandiandian.web.id` berstatus **Valid Configuration** di Vercel
+- [ ] Alias `kumpulink-preview.vercel.app` terpasang ke cabang `dev`
 - [ ] Repositori GitHub berstatus **Public**
 - [ ] Cabang `main` terlindungi dari `force push` dan penghapusan
+- [x] Kelima commit memakai alamat noreply `294433957+diannidaayman@…`
 
 Sambungan:
 
 - [ ] Neon dapat dihubungi dari mesin lokal memakai `DATABASE_URL`
 - [ ] Neon dapat dihubungi dari mesin lokal memakai `DIRECT_URL`
 
-Dua baris terakhir baru dapat diuji setelah Prisma terpasang di Unit 1.
-Bila ingin mengujinya sekarang, pakai `psql` dengan connection string
-yang sama.
+**Dua baris terakhir sengaja ditunda ke Unit 1.** `psql` tidak terpasang
+di mesin ini, jadi tidak ada cara menguji sambungannya sekarang tanpa
+memasang perkakas tambahan yang toh hanya dipakai sekali. Keduanya akan
+teruji sendiri saat `prisma migrate dev` dijalankan pertama kali di Unit
+1 — migrasi memakai `DIRECT_URL`, aplikasinya memakai `DATABASE_URL`,
+sehingga keduanya terbukti dalam satu langkah yang memang harus
+dijalankan.
