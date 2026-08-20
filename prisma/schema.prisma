@@ -1,0 +1,213 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  OWNER
+  VIEWER
+}
+
+enum Visibility {
+  PRIVATE
+  REQUIRE_LOGIN
+  PUBLIC
+}
+
+enum ItemType {
+  LINK
+  PDF
+  IMAGE
+}
+
+enum ItemSource {
+  EXTERNAL
+  UPLOAD
+}
+
+enum AccessMode {
+  OPEN
+  IDENTITY
+  APPROVAL
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  REVOKED
+}
+
+enum EventType {
+  PAGE_VIEW
+  ITEM_ACCESS
+}
+
+enum Outcome {
+  GRANTED
+  DENIED
+}
+
+enum DenyReason {
+  NOT_FOUND
+  REVOKED
+  EXPIRED
+  PRIVATE
+  ITEM_INACTIVE
+  FILE_MISSING
+  RATE_LIMITED
+  REQUEST_REJECTED
+  REQUEST_REVOKED
+  APPROVAL_EXPIRED
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  image         String?
+  emailVerified DateTime?
+  role          Role      @default(VIEWER)
+  createdAt     DateTime  @default(now())
+
+  accounts Account[]
+  sessions Session[]
+  requests AccessRequest[]
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Group {
+  id           String     @id @default(cuid())
+  title        String
+  slug         String     @unique
+  description  String?
+  visibility   Visibility @default(PRIVATE)
+  shareEnabled Boolean    @default(false)
+  expiresAt    DateTime?
+  sortOrder    Int        @default(0)
+  notifiedAt   DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  items    Item[]
+  requests AccessRequest[]
+
+  @@index([slug])
+}
+
+model Item {
+  id          String     @id @default(cuid())
+  groupId     String
+  title       String
+  description String?
+  type        ItemType
+  source      ItemSource
+  targetUrl   String?
+  fileKey     String?
+  fileName    String?
+  mimeType    String?
+  sizeBytes   Int?
+  accessMode  AccessMode @default(OPEN)
+  isActive    Boolean    @default(true)
+  isBroken    Boolean    @default(false)
+  sortOrder   Int        @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  group    Group           @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  requests AccessRequest[]
+
+  @@index([groupId, sortOrder])
+}
+
+model AccessRequest {
+  id             String        @id @default(cuid())
+  itemId         String
+  groupId        String
+  userId         String
+  requesterName  String
+  requesterEmail String
+  message        String?
+  status         RequestStatus @default(PENDING)
+  ownerNote      String?
+  decidedAt      DateTime?
+  expiresAt      DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  item  Item  @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([itemId, userId])
+  @@index([groupId, status])
+  @@index([userId, status])
+}
+
+// K6 — AccessLog TIDAK memiliki relasi foreign key.
+//
+// code-standards.md mewajibkan penghapusan group ikut menghapus seluruh
+// item dan berkasnya, sementara baris AccessLog TETAP DISIMPAN. Sekaligus
+// groupId bertanda "Selalu terisi" sehingga tidak boleh null. Dengan
+// foreign key hanya ada dua hasil: cascade yang ikut menghapus riwayat,
+// atau constraint yang memblokir penghapusan group. Keduanya melanggar.
+//
+// Riwayat adalah catatan peristiwa, bukan pandangan atas keadaan
+// sekarang — alasan yang sama membuat nama dan email disalin, bukan
+// dirujuk.
+model AccessLog {
+  id           String      @id @default(cuid())
+  eventType    EventType
+  groupId      String
+  itemId       String?
+  userId       String?
+  visitorName  String?
+  visitorEmail String?
+  outcome      Outcome
+  denyReason   DenyReason?
+  ipAddress    String?
+  userAgent    String?
+  createdAt    DateTime    @default(now())
+
+  @@index([groupId, createdAt])
+  @@index([itemId, createdAt])
+}

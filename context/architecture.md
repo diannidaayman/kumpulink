@@ -265,10 +265,26 @@ sehingga dua acara yang berjauhan tidak dapat dibandingkan.
 Riwayat dipakai untuk menelusuri satu acara yang baru saja
 berlalu, bukan untuk menyusun statistik jangka panjang.
 
+**Tanpa relasi foreign key.** `groupId`, `itemId`, dan `userId` disimpan
+sebagai `String` biasa, tanpa relasi Prisma. Menghapus group wajib
+menyisakan riwayatnya, sedangkan `groupId` tidak boleh null — dengan
+foreign key hanya ada dua hasil, cascade yang ikut menghapus riwayat atau
+constraint yang memblokir penghapusan group, dan keduanya melanggar
+aturan di atas. Ini sejalan dengan alasan yang sama yang membuat nama dan
+email disalin alih-alih dirujuk: riwayat adalah catatan peristiwa, bukan
+pandangan atas keadaan sekarang.
+
 ## Storage Model
 
 - **PostgreSQL** — seluruh metadata: pengguna, group, item,
   riwayat akses, sesi, dan penghitung rate limit.
+
+Tabel penghitung rate limit **belum didefinisikan** dan sengaja ditunda ke
+Unit 4 (K7), tempat logikanya ditulis. Bentuknya tidak pernah dirinci di bagian
+Data Model, dan membuat tabel baru tidak memikul risiko yang mendasari
+aturan "skema lengkap sejak Unit 1" — risiko itu melekat pada penambahan
+kolom atau nilai enum ke tabel yang sudah berisi data.
+
 - **Vercel Blob (private store)** — isi berkas PDF dan gambar
   unggahan. Berkas hanya dapat dibaca melalui route gerbang
   aplikasi. Kunci Blob tidak pernah dikirim ke klien dalam

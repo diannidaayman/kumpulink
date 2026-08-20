@@ -136,6 +136,58 @@ yang berarti.
     seluruh dokumen memakai apex termasuk `EMAIL_FROM`, dan
     QR code yang dicetak jadi lebih pendek.
 
+- Sesi 21 Agustus 2026 — Task 5 (skema Prisma dan migrasi
+  pertama):
+  - **`prisma/schema.prisma` ditulis lengkap**: sembilan enum,
+    delapan model, disalin verbatim dari bagian Data Model
+    `architecture.md`. `AccessLog` sengaja tanpa relasi
+    foreign key; `AccessRequest` cascade dari `Item` dan
+    `Group`. Tidak ada tabel rate limit — sengaja ditunda ke
+    Unit 4. Kedua keputusan ini sekarang tercatat juga di
+    `architecture.md` (akhir bagian `### AccessLog` dan bagian
+    `## Storage Model`).
+  - **Migrasi pertama diterapkan ke Neon**:
+    `prisma/migrations/20260820233450_init/`. Dibuktikan lewat
+    `prisma db pull --print`: delapan baris `model`, sembilan
+    baris `enum`, persis seperti seharusnya. `DATABASE_URL` dan
+    `DIRECT_URL` sama-sama terbukti bekerja — menutup dua butir
+    terakhir daftar periksa Fase 0 yang sebelumnya tertunda
+    karena `psql` tidak terpasang.
+  - **Prisma di-pin ke `6.19.3`, bukan mengikuti `latest`.**
+    `npm i -D prisma` tanpa versi menarik `7.9.1`. Prisma 7
+    menghapus dukungan properti `url`/`directUrl` di dalam blok
+    `datasource` pada berkas skema — keduanya wajib dipindah ke
+    `prisma.config.ts` terpisah. Skema di brief Task 5 menulis
+    `url` dan `directUrl` langsung di `datasource db {}`, dan
+    isi skema itu tidak boleh dinegosiasikan ulang, jadi yang
+    disesuaikan adalah versi Prisma-nya, bukan bentuk skemanya.
+    `6.19.3` adalah rilis stabil 6.x terbaru yang masih
+    mendukung sintaks ini. **Catatan untuk kelak:** bila suatu
+    saat proyek ini sengaja pindah ke Prisma 7, ini perubahan
+    arsitektur konfigurasi (bukan sekadar bump versi) dan wajib
+    disertai pembaruan `architecture.md`.
+  - **Prisma CLI tidak membaca `.env.local` secara bawaan** —
+    hanya `.env`. Ini beda dari Next.js, yang memang memuat
+    `.env.local` sendiri (terbukti dari log `next build`:
+    baris "Environments: .env.local"). Untuk sesi ini,
+    `npx prisma validate`, `migrate dev`, dan `db pull`
+    dijalankan lewat skrip Node sekali pakai yang menggabungkan
+    isi `.env.local` ke environment proses anak, tanpa memakai
+    `source` (diblokir sandbox worktree) dan tanpa mencetak
+    nilainya. Skrip itu tidak masuk repositori. **Task 6/7 yang
+    perlu menjalankan perintah Prisma CLI lagi akan mengalami
+    galat "Environment variable not found" yang sama** kecuali
+    variabelnya disediakan dengan cara serupa — ini bukan
+    sesuatu yang sudah diperbaiki secara permanen di proyek,
+    hanya dikerjakan-sekitari untuk task ini.
+  - `lib/db/client.ts` ditulis: singleton `PrismaClient` di
+    `globalThis`, mencegah pool koneksi baru setiap hot reload.
+    Belum diimpor dari mana pun — konsumennya baru datang di
+    Task 6/7.
+  - Keempat gerbang lulus: `typecheck` bersih, `lint` nol
+    peringatan, `test` 32/32 di 3 berkas (tidak berubah dari
+    sebelumnya), `build` sukses.
+
 ## In Progress
 
 Prasyarat layanan eksternal **selesai**. Papan statusnya ada
@@ -165,13 +217,14 @@ Google dicoba di produksi.
    Mulai Unit 1 dari prompt **P1.1** di `PROMPT-PLAYBOOK.md`
    — brainstorming. Butir 1–6 di bawah adalah isi unit itu,
    bukan langkah yang dikerjakan satu per satu tanpa rencana.
-1. Inisialisasi proyek Next.js 15 dengan TypeScript dan
-   Tailwind.
-2. Pasang shadcn/ui dan tambahkan komponen yang disebut di
-   `ui-context.md`.
-3. Tulis `prisma/schema.prisma` lengkap sesuai bagian Data
+1. ~~Inisialisasi proyek Next.js 15 dengan TypeScript dan
+   Tailwind.~~ **Selesai** (Task 1–4).
+2. ~~Pasang shadcn/ui dan tambahkan komponen yang disebut di
+   `ui-context.md`.~~ **Selesai** (Task 1–4).
+3. ~~Tulis `prisma/schema.prisma` lengkap sesuai bagian Data
    Model di `architecture.md`, lalu jalankan migrasi
-   pertama.
+   pertama.~~ **Selesai, 21 Agustus 2026** (Task 5). Lihat
+   catatan lengkap di bagian Completed.
 4. Pasang Auth.js v5 dengan provider Google dan adapter
    Prisma.
 5. Terapkan penentuan peran `OWNER` dari `OWNER_EMAIL` saat
