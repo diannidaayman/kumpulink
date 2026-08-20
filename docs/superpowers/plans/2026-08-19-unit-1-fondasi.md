@@ -28,6 +28,14 @@ Berlaku untuk **setiap** task. Kebutuhan tiap task secara implisit memuat seluru
 
 **Skema Prisma ditulis LENGKAP di unit ini**, termasuk `AccessRequest` dan nilai `APPROVAL`, meski fiturnya baru dibangun di Unit 7. Alasannya sudah dicatat di `progress-tracker.md` dan tidak dinegosiasikan ulang: migrasi belakangan tidak boleh menyentuh tabel yang sudah berisi data produksi.
 
+### Dua pengecualian, diputuskan pemilik di Pre-Flight Plan Review
+
+Keduanya adalah konflik nyata antara rencana ini dan Global Constraints di atas, dibawa ke pemilik sebelum task pertama dan diputuskan 20 Agustus 2026. Keduanya **bukan** kelalaian, dan tidak perlu diangkat ulang sebagai temuan.
+
+- **`prisma/schema.prisma` dikecualikan dari batas ±200 baris.** Berkasnya akan berukuran sekitar 215 baris. Aturan itu ada karena berkas panjang biasanya mengerjakan lebih dari satu hal; skema Prisma bersifat deklaratif dan mendeklarasikan satu model data, sehingga memecahnya tidak membuat satu pun bagiannya lebih mudah dipahami — sementara memecahnya menuntut fitur preview `prismaSchemaFolder` di fondasi proyek.
+
+- **Kedua puluh komponen shadcn dipasang di unit ini meski hanya sekitar dua yang terpakai.** Ini lingkup yang ditetapkan pemilik dan tertulis di `ROADMAP.md` Fase 1 serta `context/ui-context.md`. Memasangnya sekali jalan menjaga satu versi shadcn dan satu set dependensi; memasangnya sepotong-sepotong di Unit 2–7 berisiko menarik versi berbeda dan mengulang dialog konfigurasi.
+
 **Direktori kerja:** seluruh perintah dijalankan dari `D:\Kumpulink\kumpulink-app`.
 
 **Rahasia:** `.env.local` sudah terisi lengkap dan terbukti diabaikan Git. Jangan pernah mencetak isinya ke terminal, ke log, atau ke pesan commit.
