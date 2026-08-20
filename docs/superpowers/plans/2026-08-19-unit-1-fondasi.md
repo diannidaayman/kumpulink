@@ -26,7 +26,7 @@ Berlaku untuk **setiap** task. Kebutuhan tiap task secara implisit memuat seluru
 - bentuk respons galat seragam: `{ error: { code, message } }` dengan `message` dalam Bahasa Indonesia
 - tidak ada rahasia berawalan `NEXT_PUBLIC_`
 
-**Skema Prisma ditulis LENGKAP di unit ini**, termasuk `AccessRequest` dan nilai `APPROVAL`, meski fiturnya baru dibangun di Unit 7. Alasannya sudah dicatat di `progress-tracker.md` dan tidak dinegosiasikan ulang: migrasi belakangan tidak boleh menyentuh tabel yang sudah berisi data produksi.
+**Skema Prisma ditulis COMPLETE di unit ini**, termasuk `AccessRequest` dan nilai `APPROVAL`, meski fiturnya baru dibangun di Unit 7. Alasannya sudah dicatat di `progress-tracker.md` dan tidak dinegosiasikan ulang: migrasi belakangan tidak boleh menyentuh tabel yang sudah berisi data produksi.
 
 ### Kosakata domain — bukan pelanggaran aturan Bahasa Indonesia
 
@@ -162,8 +162,8 @@ import { describe, expect, it } from "vitest";
 
 describe("harness pengujian", () => {
   it("menjalankan berkas TypeScript tanpa langkah transformasi tambahan", () => {
-    const nilai: number = 1 + 1;
-    expect(nilai).toBe(2);
+    const value: number = 1 + 1;
+    expect(value).toBe(2);
   });
 });
 ```
@@ -617,7 +617,7 @@ shadcn. tests/styles/tokens.test.ts menjaga agar tidak tertukar kembali."
 **Interfaces:**
 - Consumes: —
 - Produces:
-  - `buildEnvSchema(opsi: { diVercel: boolean }): z.ZodObject<...>` dari `lib/env-schema.ts`
+  - `buildEnvSchema(options: { onVercel: boolean }): z.ZodObject<...>` dari `lib/env-schema.ts`
   - `env: Env` dari `lib/env.ts`, dengan `Env = z.infer<ReturnType<typeof buildEnvSchema>>`
 
 - [ ] **Step 1: Pasang dependensi**
@@ -634,7 +634,7 @@ npm i zod server-only
 import { describe, expect, it } from "vitest";
 import { buildEnvSchema } from "@/lib/env-schema";
 
-const LENGKAP = {
+const COMPLETE = {
   DATABASE_URL: "postgresql://u:p@host-pooler.example/db?sslmode=require",
   DIRECT_URL: "postgresql://u:p@host.example/db?sslmode=require",
   AUTH_SECRET: "a".repeat(43),
@@ -650,49 +650,49 @@ const LENGKAP = {
 
 describe("skema variabel lingkungan", () => {
   it("menerima sebelas nilai yang lengkap dan sah", () => {
-    const hasil = buildEnvSchema({ diVercel: false }).safeParse(LENGKAP);
-    expect(hasil.success).toBe(true);
+    const result = buildEnvSchema({ onVercel: false }).safeParse(COMPLETE);
+    expect(result.success).toBe(true);
   });
 
   it("menolak dan menyebut nama variabel yang kosong", () => {
-    const hasil = buildEnvSchema({ diVercel: false }).safeParse({
-      ...LENGKAP,
+    const result = buildEnvSchema({ onVercel: false }).safeParse({
+      ...COMPLETE,
       DATABASE_URL: "",
     });
-    expect(hasil.success).toBe(false);
-    if (hasil.success) return;
-    expect(hasil.error.issues[0]?.path).toContain("DATABASE_URL");
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.error.issues[0]?.path).toContain("DATABASE_URL");
   });
 
   it("menolak OWNER_EMAIL yang bukan alamat email", () => {
-    const hasil = buildEnvSchema({ diVercel: false }).safeParse({
-      ...LENGKAP,
+    const result = buildEnvSchema({ onVercel: false }).safeParse({
+      ...COMPLETE,
       OWNER_EMAIL: "bukan-email",
     });
-    expect(hasil.success).toBe(false);
+    expect(result.success).toBe(false);
   });
 
   it("menolak AUTH_SECRET yang terlalu pendek", () => {
-    const hasil = buildEnvSchema({ diVercel: false }).safeParse({
-      ...LENGKAP,
+    const result = buildEnvSchema({ onVercel: false }).safeParse({
+      ...COMPLETE,
       AUTH_SECRET: "pendek",
     });
-    expect(hasil.success).toBe(false);
+    expect(result.success).toBe(false);
   });
 
   // K3: di atas Vercel, BLOB_READ_WRITE_TOKEN sengaja tidak dipasang —
   // autentikasi Blob memakai OIDC. Mewajibkannya membuat aplikasi mati
   // saat start di produksi.
   it("membolehkan BLOB_READ_WRITE_TOKEN kosong ketika berjalan di Vercel", () => {
-    const { BLOB_READ_WRITE_TOKEN, ...tanpaToken } = LENGKAP;
-    const hasil = buildEnvSchema({ diVercel: true }).safeParse(tanpaToken);
-    expect(hasil.success).toBe(true);
+    const { BLOB_READ_WRITE_TOKEN: _omit, ...withoutToken } = COMPLETE;
+    const result = buildEnvSchema({ onVercel: true }).safeParse(withoutToken);
+    expect(result.success).toBe(true);
   });
 
   it("mewajibkan BLOB_READ_WRITE_TOKEN ketika berjalan di luar Vercel", () => {
-    const { BLOB_READ_WRITE_TOKEN, ...tanpaToken } = LENGKAP;
-    const hasil = buildEnvSchema({ diVercel: false }).safeParse(tanpaToken);
-    expect(hasil.success).toBe(false);
+    const { BLOB_READ_WRITE_TOKEN: _omit, ...withoutToken } = COMPLETE;
+    const result = buildEnvSchema({ onVercel: false }).safeParse(withoutToken);
+    expect(result.success).toBe(false);
   });
 });
 ```
@@ -712,27 +712,27 @@ Berkas ini **tidak** mengimpor `server-only`. Itu disengaja: `server-only` melem
 ```ts
 import { z } from "zod";
 
-const wajib = (nama: string) =>
-  z.string().min(1, `${nama} wajib diisi dan tidak boleh kosong`);
+const required = (name: string) =>
+  z.string().min(1, `${name} wajib diisi dan tidak boleh kosong`);
 
-export function buildEnvSchema(opsi: { diVercel: boolean }) {
+export function buildEnvSchema(options: { onVercel: boolean }) {
   return z.object({
-    DATABASE_URL: wajib("DATABASE_URL"),
-    DIRECT_URL: wajib("DIRECT_URL"),
+    DATABASE_URL: required("DATABASE_URL"),
+    DIRECT_URL: required("DIRECT_URL"),
     AUTH_SECRET: z
       .string()
       .min(32, "AUTH_SECRET harus minimal 32 karakter"),
-    AUTH_GOOGLE_ID: wajib("AUTH_GOOGLE_ID"),
-    AUTH_GOOGLE_SECRET: wajib("AUTH_GOOGLE_SECRET"),
+    AUTH_GOOGLE_ID: required("AUTH_GOOGLE_ID"),
+    AUTH_GOOGLE_SECRET: required("AUTH_GOOGLE_SECRET"),
     OWNER_EMAIL: z
       .string()
       .email("OWNER_EMAIL harus berupa alamat email yang sah"),
-    BLOB_READ_WRITE_TOKEN: opsi.diVercel
+    BLOB_READ_WRITE_TOKEN: options.onVercel
       ? z.string().optional()
-      : wajib("BLOB_READ_WRITE_TOKEN"),
-    BLOB_STORE_ID: wajib("BLOB_STORE_ID"),
-    RESEND_API_KEY: wajib("RESEND_API_KEY"),
-    EMAIL_FROM: wajib("EMAIL_FROM"),
+      : required("BLOB_READ_WRITE_TOKEN"),
+    BLOB_STORE_ID: required("BLOB_STORE_ID"),
+    RESEND_API_KEY: required("RESEND_API_KEY"),
+    EMAIL_FROM: required("EMAIL_FROM"),
     CRON_SECRET: z
       .string()
       .min(32, "CRON_SECRET harus minimal 32 karakter"),
@@ -756,34 +756,34 @@ Expected: PASS, enam kasus.
 import "server-only";
 import { buildEnvSchema, type Env } from "@/lib/env-schema";
 
-const FASE_BUILD = "phase-production-build";
+const BUILD_PHASE = "phase-production-build";
 
-function baca(): Env {
+function read(): Env {
   // Build Next.js berjalan tanpa variabel lingkungan runtime dan tidak
   // melayani satu permintaan pun. Melemparkan galat di sini hanya
   // menggagalkan build tanpa menambah keamanan apa pun.
-  if (process.env.NEXT_PHASE === FASE_BUILD) {
+  if (process.env.NEXT_PHASE === BUILD_PHASE) {
     return process.env as unknown as Env;
   }
 
-  const hasil = buildEnvSchema({
-    diVercel: Boolean(process.env.VERCEL),
+  const result = buildEnvSchema({
+    onVercel: Boolean(process.env.VERCEL),
   }).safeParse(process.env);
 
-  if (!hasil.success) {
-    const rincian = hasil.error.issues
+  if (!result.success) {
+    const details = result.error.issues
       .map((i) => `  - ${i.path.join(".")}: ${i.message}`)
       .join("\n");
     throw new Error(
-      `Variabel lingkungan tidak lengkap atau tidak sah:\n${rincian}\n\n` +
+      `Variabel lingkungan tidak lengkap atau tidak sah:\n${details}\n\n` +
         `Periksa .env.local. Cara memperoleh tiap nilai ada di docs/setup-layanan.md.`,
     );
   }
 
-  return hasil.data;
+  return result.data;
 }
 
-export const env: Env = baca();
+export const env: Env = read();
 ```
 
 - [ ] **Step 7: Buktikan galatnya benar-benar muncul dan menyebut nama variabelnya**
@@ -1180,11 +1180,11 @@ Fungsi ini berdiri terpisah dari Auth.js dan **tidak** mengimpor `lib/env.ts`, s
 import { describe, expect, it } from "vitest";
 import { resolveRole } from "@/lib/auth/role";
 
-const PEMILIK = "pemilik@contoh.com";
+const OWNER_ADDRESS = "pemilik@contoh.com";
 
 describe("resolveRole", () => {
   it("memberi OWNER pada alamat yang sama persis", () => {
-    expect(resolveRole("pemilik@contoh.com", PEMILIK)).toBe("OWNER");
+    expect(resolveRole("pemilik@contoh.com", OWNER_ADDRESS)).toBe("OWNER");
   });
 
   // K9 — OWNER_EMAIL diketik tangan ke .env.local sedangkan alamatnya
@@ -1192,11 +1192,11 @@ describe("resolveRole", () => {
   // dashboardnya sendiri, tanpa antarmuka untuk memperbaikinya.
   it.each([
     ["huruf besar di awal", "Pemilik@contoh.com"],
-    ["huruf besar seluruhnya", "PEMILIK@CONTOH.COM"],
+    ["huruf besar seluruhnya", "OWNER_ADDRESS@CONTOH.COM"],
     ["spasi di depan", "  pemilik@contoh.com"],
     ["spasi di belakang", "pemilik@contoh.com  "],
-  ])("memberi OWNER meski %s", (_nama, email) => {
-    expect(resolveRole(email, PEMILIK)).toBe("OWNER");
+  ])("memberi OWNER meski %s", (_label, email) => {
+    expect(resolveRole(email, OWNER_ADDRESS)).toBe("OWNER");
   });
 
   it("memberi OWNER meski OWNER_EMAIL sendiri yang berbeda huruf besar-kecil", () => {
@@ -1207,16 +1207,16 @@ describe("resolveRole", () => {
     ["alamat lain", "orang@contoh.com"],
     ["domain lain", "pemilik@lain.com"],
     ["subalamat plus", "pemilik+tag@contoh.com"],
-  ])("memberi VIEWER pada %s", (_nama, email) => {
-    expect(resolveRole(email, PEMILIK)).toBe("VIEWER");
+  ])("memberi VIEWER pada %s", (_label, email) => {
+    expect(resolveRole(email, OWNER_ADDRESS)).toBe("VIEWER");
   });
 
   it.each([
     ["null", null],
     ["undefined", undefined],
     ["string kosong", ""],
-  ])("memberi VIEWER ketika email %s", (_nama, email) => {
-    expect(resolveRole(email, PEMILIK)).toBe("VIEWER");
+  ])("memberi VIEWER ketika email %s", (_label, email) => {
+    expect(resolveRole(email, OWNER_ADDRESS)).toBe("VIEWER");
   });
 });
 ```
@@ -1236,18 +1236,18 @@ Expected: FAIL — `Cannot find module '@/lib/auth/role'`.
 ```ts
 export type Role = "OWNER" | "VIEWER";
 
-function normalkan(nilai: string): string {
-  return nilai.trim().toLowerCase();
+function normalize(value: string): string {
+  return value.trim().toLowerCase();
 }
 
 /**
  * Menentukan peran dari alamat email, tanpa menyentuh database maupun
  * sesi. Ini satu-satunya tempat aturan peran ditulis.
  *
- * Perbandingannya dinormalkan lebih dulu (K9): OWNER_EMAIL diketik tangan
+ * Perbandingannya dinormalize lebih dulu (K9): OWNER_EMAIL diketik tangan
  * sedangkan alamatnya datang dari Google, sehingga beda huruf kapital
  * atau spasi tersalin akan mengunci pemilik di luar dashboardnya sendiri.
- * Ini tidak melonggarkan keamanan — Google menormalkan alamatnya sendiri
+ * Ini tidak melonggarkan keamanan — Google menormalize alamatnya sendiri
  * dan tidak pernah menerbitkan dua akun yang hanya berbeda huruf.
  */
 export function resolveRole(
@@ -1255,7 +1255,7 @@ export function resolveRole(
   ownerEmail: string,
 ): Role {
   if (!email) return "VIEWER";
-  return normalkan(email) === normalkan(ownerEmail) ? "OWNER" : "VIEWER";
+  return normalize(email) === normalize(ownerEmail) ? "OWNER" : "VIEWER";
 }
 ```
 
@@ -1281,7 +1281,7 @@ Dari:
 Menjadi:
 ```markdown
 - Peran `OWNER` diberikan bila email pengguna cocok dengan variabel
-  lingkungan `OWNER_EMAIL` **setelah keduanya dinormalkan** — spasi di
+  lingkungan `OWNER_EMAIL` **setelah keduanya dinormalize** — spasi di
   kedua ujung dipangkas dan huruf besar-kecil disamakan. `OWNER_EMAIL`
   diketik tangan sedangkan alamatnya datang dari Google, jadi beda satu
   huruf kapital akan mengunci pemilik di luar dashboardnya sendiri, dan
@@ -1294,7 +1294,7 @@ Menjadi:
 ```bash
 npm run typecheck && npm run lint && npm test && npm run build
 git add -A
-git commit -m "resolveRole sebagai fungsi murni, perbandingan dinormalkan
+git commit -m "resolveRole sebagai fungsi murni, perbandingan dinormalize
 
 Berdiri terpisah dari Auth.js dan tidak mengimpor lib/env.ts, sehingga
 dapat diuji tanpa Next.js, sesi, maupun database.
@@ -1398,10 +1398,10 @@ export const authConfig: NextAuthConfig = {
       const role = resolveRole(user.email, env.OWNER_EMAIL);
       try {
         await prisma.user.update({ where: { id: user.id }, data: { role } });
-      } catch (galat) {
+      } catch (error) {
         // Kolom ini bukan sumber kebenaran, jadi kegagalannya tidak boleh
         // menggagalkan proses masuk. Dicatat, lalu ditelan.
-        console.error("Gagal menyegarkan kolom role:", galat);
+        console.error("Gagal menyegarkan kolom role:", error);
       }
     },
   },
@@ -1425,8 +1425,8 @@ import type { Session } from "next-auth";
 
 import { auth } from "@/lib/auth";
 
-export const JALUR_DASHBOARD = "/dashboard";
-export const JALUR_AKSES_DITOLAK = "/akses-ditolak";
+export const DASHBOARD_PATH = "/dashboard";
+export const ACCESS_DENIED_PATH = "/akses-ditolak";
 
 /**
  * Dipakai server component yang hanya boleh dibuka pemilik.
@@ -1442,12 +1442,12 @@ export async function requireOwner(): Promise<Session> {
 
   if (!session?.user) {
     redirect(
-      `/api/auth/signin?callbackUrl=${encodeURIComponent(JALUR_DASHBOARD)}`,
+      `/api/auth/signin?callbackUrl=${encodeURIComponent(DASHBOARD_PATH)}`,
     );
   }
 
   if (session.user.role !== "OWNER") {
-    redirect(JALUR_AKSES_DITOLAK);
+    redirect(ACCESS_DENIED_PATH);
   }
 
   return session;
@@ -1575,7 +1575,7 @@ export default function DashboardPage() {
 import { auth, signOut } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 
-export default async function AksesDitolakPage() {
+export default async function AccessDeniedPage() {
   const session = await auth();
 
   return (
