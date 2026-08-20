@@ -634,18 +634,27 @@ npm i zod server-only
 import { describe, expect, it } from "vitest";
 import { buildEnvSchema } from "@/lib/env-schema";
 
-const COMPLETE = {
+// Sepuluh variabel yang wajib di mana pun. BLOB_READ_WRITE_TOKEN sengaja
+// tidak ada di sini karena kewajibannya bersyarat — di atas Vercel ia
+// memang tidak dipasang. Menyusunnya begini, bukan dengan membuang satu
+// kunci dari objek lengkap, membuat kedua keadaan itu terbaca langsung
+// dan menghindari idiom destructuring yang ditandai ESLint.
+const WITHOUT_TOKEN = {
   DATABASE_URL: "postgresql://u:p@host-pooler.example/db?sslmode=require",
   DIRECT_URL: "postgresql://u:p@host.example/db?sslmode=require",
   AUTH_SECRET: "a".repeat(43),
   AUTH_GOOGLE_ID: "123-abc.apps.googleusercontent.com",
   AUTH_GOOGLE_SECRET: "GOCSPX-rahasia",
   OWNER_EMAIL: "pemilik@contoh.com",
-  BLOB_READ_WRITE_TOKEN: "vercel_blob_rw_token",
   BLOB_STORE_ID: "store_abc",
   RESEND_API_KEY: "re_kunci",
   EMAIL_FROM: "Kumpulink <no-reply@contoh.com>",
   CRON_SECRET: "b".repeat(43),
+};
+
+const COMPLETE = {
+  ...WITHOUT_TOKEN,
+  BLOB_READ_WRITE_TOKEN: "vercel_blob_rw_token",
 };
 
 describe("skema variabel lingkungan", () => {
@@ -684,14 +693,12 @@ describe("skema variabel lingkungan", () => {
   // autentikasi Blob memakai OIDC. Mewajibkannya membuat aplikasi mati
   // saat start di produksi.
   it("membolehkan BLOB_READ_WRITE_TOKEN kosong ketika berjalan di Vercel", () => {
-    const { BLOB_READ_WRITE_TOKEN: _omit, ...withoutToken } = COMPLETE;
-    const result = buildEnvSchema({ onVercel: true }).safeParse(withoutToken);
+    const result = buildEnvSchema({ onVercel: true }).safeParse(WITHOUT_TOKEN);
     expect(result.success).toBe(true);
   });
 
   it("mewajibkan BLOB_READ_WRITE_TOKEN ketika berjalan di luar Vercel", () => {
-    const { BLOB_READ_WRITE_TOKEN: _omit, ...withoutToken } = COMPLETE;
-    const result = buildEnvSchema({ onVercel: false }).safeParse(withoutToken);
+    const result = buildEnvSchema({ onVercel: false }).safeParse(WITHOUT_TOKEN);
     expect(result.success).toBe(false);
   });
 });
