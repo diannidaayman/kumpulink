@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
+/* Dua impor berikut ditulis `shadcn init` dan wajib dipertahankan.
+   Keduanya tidak memuat satu pun token warna — `shadcn/tailwind.css`
+   hanya berisi keyframes accordion, dan `tw-animate-css` menyediakan
+   utility animate-in, fade-in, zoom-in, slide-in. Enam dari dua puluh
+   komponen memakainya: accordion, dialog, dropdown-menu, popover,
+   select, sheet. Menjatuhkannya membuat animasi buka-tutup keenamnya
+   hilang diam-diam — komponennya tetap berfungsi, jadi tidak ada
+   gerbang yang gagal. */
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
 /* Mode gelap berbasis kelas, bukan prefers-color-scheme langsung,
    karena tombol manual harus dapat menang atas setelan sistem. */
 @custom-variant dark (&:where(.dark, .dark *));
