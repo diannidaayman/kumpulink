@@ -13,6 +13,10 @@ yang berarti.
   task dieksekusi lewat subagent, masing-masing dengan
   review dua putusan. Cabang kerjanya
   `worktree-unit-1-fondasi`, belum digabung ke `main`.
+- **Temuan review final sudah diterapkan, 21 Agustus 2026.**
+  Tiga temuan Important dan enam temuan minor, dalam dua commit
+  (`4189bea`, `b965381`). Rinciannya di entri terbaru bagian
+  *Completed* dan di `.superpowers/sdd/final-review-fixes.md`.
 - **Belum dinyatakan tutup.** Lima kriteria selesai menuntut
   masuk dengan Google di peramban sungguhan, dan itu hanya
   dapat dikerjakan pemilik — agen tidak boleh menangani
@@ -285,6 +289,78 @@ yang berarti.
     server component yang mengonsumsi `requireOwner()` yang sudah
     diuji tuntas di Task 7), `build` sukses. Grep nilai heksadesimal
     di `app/` dan `components/` tidak menemukan apa pun.
+
+- Sesi 21 Agustus 2026 — Penerapan temuan review final Unit 1 (sebelum
+  penggabungan), dua commit terpisah:
+  - **KELOMPOK 1 (`4189bea`), tiga temuan Important:**
+    - `tests/auth/config.test.ts` ditulis — callback `session` di
+      `lib/auth/config.ts` sebelumnya satu-satunya penegak K1 tanpa
+      test sama sekali. Kasus paling mengikat: `user.role = "OWNER"`
+      dengan email yang tidak cocok `OWNER_EMAIL` tetap menghasilkan
+      `VIEWER`, membuktikan kolom database bukan sumber kebenaran.
+      Alasan lama untuk melewatkannya (mengimpor `config.ts` menarik
+      `lib/env.ts`) diatasi dengan mem-mock `@/lib/env`,
+      `@/lib/db/client`, dan `@auth/prisma-adapter`, persis pola yang
+      sudah dipakai `tests/auth/session.test.ts` untuk `@/lib/auth`.
+    - Komentar `app/(dashboard)/layout.tsx` diperbaiki: sebelumnya
+      menjanjikan "halaman baru tidak dapat lupa memeriksanya" tanpa
+      menyebut tiga jalur yang tidak dilindungi layout ini — route
+      handler, server action (badan aksinya berjalan sebelum layout
+      dirender ulang), dan navigasi lunak antar segmen bersaudara.
+      Hanya komentar yang berubah, bukan kode.
+    - `docs/setup-layanan.md` baris checklist `DATABASE_URL`
+      dikembalikan ke `- [ ]` — migrasi dan introspeksi Task 5
+      keduanya memakai `DIRECT_URL`, belum ada query runtime Prisma
+      yang benar-benar menempuh `DATABASE_URL`. Baris `DIRECT_URL`
+      tidak disentuh, terbukti benar.
+  - **KELOMPOK 2 (`b965381`), enam temuan dirapikan selagi murah:**
+    - `prisma/schema.prisma`: `@@index([slug])` dihapus dari `Group`
+      — berlebih di atas `slug` yang sudah `@unique`, yang di Postgres
+      otomatis membuat indeks btree unik sendiri (`Group_slug_key`).
+      Migrasi baru diterapkan sungguhan ke Neon:
+      `prisma/migrations/20260821081525_drop_redundant_group_slug_index/`,
+      isinya hanya `DROP INDEX "Group_slug_idx"`. `architecture.md`
+      diberi catatan bahwa constraint unique itu sendiri yang
+      memenuhi "Indeks pada `slug`" — bukan penyimpangan.
+    - `lib/db/client.ts` sekarang membangun `PrismaClient` dari
+      `env.DATABASE_URL` tervalidasi (`datasourceUrl`), bukan
+      langsung dari skema Prisma. Modul ini kini ikut mewarisi
+      `server-only` lewat `lib/env.ts` — dikonfirmasi tidak
+      mematahkan test manapun, karena satu-satunya test yang
+      menyentuh rantai impor ini (`tests/auth/config.test.ts`)
+      mem-mock `@/lib/db/client` secara langsung.
+    - `app/akses-ditolak/page.tsx`: pengunjung anonim yang membuka
+      URL ini langsung tanpa sesi tidak lagi melihat "sedang masuk
+      sebagai: tidak diketahui" — dialihkan ke jalur masuk
+      (`/api/auth/signin?callbackUrl=/dashboard`). Tidak berputar
+      karena halaman ini di luar grup `(dashboard)` dan tidak
+      memanggil `requireOwner()`.
+    - Tiga ketidakcocokan dokumen diselaraskan: baris `role` di tabel
+      `User` `architecture.md` (baris 98) disamakan dengan kalimat
+      "diturunkan ulang tiap sesi dibaca" yang sudah ada di berkas
+      yang sama; baris `User.emailVerified` (dituntut adapter Prisma
+      Auth.js) ditambahkan ke tabel yang sama; `types/` didaftarkan
+      sebagai lokasi augmentasi tipe pihak ketiga di
+      `code-standards.md` (File Organization) dan `architecture.md`
+      (System Boundaries), terpisah dari `lib/types/` — isinya tidak
+      dipindah.
+    - `vitest.config.ts` diganti nama menjadi `vitest.config.mts`,
+      plugin `vite-tsconfig-paths` dilepas demi `resolve.tsconfigPaths`
+      bawaan Vite. Kedua peringatan deprecation saat `npm test` hilang;
+      alias `@/` dikonfirmasi tetap bekerja sebelum lanjut ke butir
+      berikutnya.
+    - `public/next.svg`, `vercel.svg`, `file.svg`, `globe.svg`,
+      `window.svg` dihapus — sisa branding `create-next-app`, dibuktikan
+      tidak dirujuk lewat grep di seluruh repo sebelum dihapus.
+  - Tidak ada satu pun butir yang dilewati. Keempat gerbang lulus
+    bersih setelah kedua commit: `typecheck` bersih, `lint` nol
+    peringatan, `test` **54/54 di 6 berkas** (naik dari 50 — bertambah
+    tepat 4 test baru dari `config.test.ts`), `build` sukses. Rincian
+    lengkap beserta keluaran mentah ada di
+    `.superpowers/sdd/final-review-fixes.md`.
+  - Cabang masih `worktree-unit-1-fondasi`, belum digabung. HEAD
+    sekarang `b9653814d06316639e8b6c1ad44387f2a0adb350`, menggantikan
+    `51fc5c0` sebagai commit terbaru sebelum penggabungan.
 
 ## In Progress
 
