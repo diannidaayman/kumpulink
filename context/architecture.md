@@ -318,9 +318,13 @@ bukan dari ekstensi nama.
 
 - Autentikasi melalui Auth.js dengan provider Google saja.
   Tidak ada kata sandi.
-- Peran `OWNER` diberikan saat masuk bila email pengguna
-  sama persis dengan variabel lingkungan `OWNER_EMAIL`.
-  Tidak ada antarmuka untuk mengubah peran.
+- Peran `OWNER` diberikan bila email pengguna cocok dengan variabel
+  lingkungan `OWNER_EMAIL` **setelah keduanya dinormalize** — spasi di
+  kedua ujung dipangkas dan huruf besar-kecil disamakan. `OWNER_EMAIL`
+  diketik tangan sedangkan alamatnya datang dari Google, jadi beda satu
+  huruf kapital akan mengunci pemilik di luar dashboardnya sendiri, dan
+  tidak ada antarmuka untuk memperbaikinya. Subalamat berawalan `+`
+  **tidak** dianggap sama. Tidak ada antarmuka untuk mengubah peran.
 - Semua pengguna lain berperan `VIEWER`. Peran `VIEWER`
   tidak memberikan akses apa pun ke dashboard.
 - Seluruh konten dimiliki oleh pemilik tunggal. Tidak ada
