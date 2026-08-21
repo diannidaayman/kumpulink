@@ -396,7 +396,64 @@ yang berarti.
 
 ## In Progress
 
-Tidak ada pekerjaan yang berjalan. Unit 1 tutup dan bersih:
+### Unit 2 BERJALAN — dijeda 21 Agustus 2026 karena limit mingguan
+
+Eksekusi Unit 2 sudah dimulai dengan alur **Subagent-Driven
+Development** dan dijeda di tengah jalan. Bacalah bagian ini
+lebih dulu sebelum melanjutkan.
+
+**Di mana kita berhenti**
+
+| | |
+| --- | --- |
+| Branch kerja | `unit-2-cms-group`, dicabang dari `a896901` |
+| `main` | `a896901`, sejajar dengan pangkal branch |
+| Rencana | `docs/superpowers/plans/2026-08-21-unit-2-cms-group.md`, 13 task |
+| Task 1 | **Ter-commit di `786770d`, TETAPI BELUM DIREVIEW** |
+| Task 2–13 | Belum disentuh |
+| Working tree | Bersih |
+
+**Langkah berikutnya, persis:** jalankan task reviewer untuk
+Task 1. Paket diff-nya sudah dibuat di
+`.superpowers/sdd/review-a896901..786770d.diff`. Jangan
+menandai Task 1 selesai sebelum review itu bersih, dan jangan
+mengirim Task 2 sebelum Task 1 lolos.
+
+Task 1 menghasilkan `lib/groups/slugify.ts` dan
+`tests/groups/slugify.test.ts` — 24 test baru, 78 test total,
+ketiga gerbang lulus.
+
+**Peringatan tentang berkas kerja.** Seluruh isi
+`.superpowers/sdd/` — ledger, task brief, laporan implementer,
+dan paket diff — diabaikan Git oleh `.superpowers/sdd/.gitignore`
+dan **tidak ikut ter-commit**. `git clean -fdx` akan
+menghapusnya tanpa sisa. Bila itu terjadi, peta pemulihannya
+adalah `git log` ditambah bagian ini; task brief dapat dibuat
+ulang dari berkas rencana kapan saja.
+
+Hal yang sama berlaku untuk `.impeccable/surfaces/` — kedua
+surface brief Fase 2 ada di sana dan diabaikan `.gitignore:24`.
+
+**Empat keputusan Pre-Flight yang sudah diambil pemilik** dan
+tidak perlu ditanyakan ulang saat melanjutkan:
+
+1. Pekerjaan Fase 2 di-commit lebih dulu di `main`, lalu
+   branch `unit-2-cms-group` dibuat dari sana.
+2. Rencana menang atas reviewer soal ketiadaan pengujian
+   komponen. Kendalanya disalin apa adanya ke prompt reviewer
+   sebagai batasan proyek yang mengikat — reviewer tetap bebas
+   menandai, dan pengadilannya dilakukan dengan teks rencana di
+   tangan. Task 1–6 tetap dituntut TDD penuh.
+3. Task 12 boleh menulis ulang `group-list.tsx` secara utuh;
+   alasannya dijelaskan ke reviewernya sebagai fakta.
+4. Model per peran: implementer task bertranskripsi kode
+   lengkap memakai model termurah, task antarmuka memakai model
+   menengah, dan review akhir seluruh branch memakai model
+   paling mampu.
+
+### Riwayat sebelumnya
+
+Unit 1 tutup dan bersih:
 `main` sudah di-push ke `origin` pada `6b9ec0c`, dependensi
 terpasang di checkout utama, worktree `unit-1-fondasi` beserta
 cabangnya dihapus setelah terbukti tergabung penuh.
