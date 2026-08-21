@@ -31,8 +31,8 @@ yang berarti.
   antarmuka sungguhan mulai ditulis di Unit 2. Urutannya di
   `ROADMAP.md` Fase 2, prompt P2.1–P2.4 di
   `PROMPT-PLAYBOOK.md`.
-- Satu keputusan menunggu di gerbang itu: **Radix atau Base
-  UI** sebagai mesin primitif shadcn. Lihat *Next Up*.
+- Tidak ada keputusan yang menggantung. D9 menetapkan mesin
+  primitif shadcn tetap Radix.
 
 ## Completed
 
@@ -396,25 +396,17 @@ yang berarti.
 
 ## In Progress
 
-Tidak ada pekerjaan implementasi yang berjalan. Unit 1 tutup,
+Tidak ada pekerjaan yang berjalan. Unit 1 tutup dan bersih:
+`main` sudah di-push ke `origin` pada `6b9ec0c`, dependensi
+terpasang di checkout utama, worktree `unit-1-fondasi` beserta
+cabangnya dihapus setelah terbukti tergabung penuh.
+
+Ledger eksekusi sembilan task diselamatkan ke
+`docs/superpowers/riwayat/2026-08-21-unit-1-ledger.md` sebelum
+worktree-nya dibuang — isinya keputusan per task, temuan
+reviewer, dan temuan yang ditolak beserta buktinya.
+
 Fase 2 belum dimulai.
-
-**Tiga pekerjaan rumah tangga yang tertunda**, tidak satu pun
-menahan Fase 2:
-
-1. **`main` belum di-push.** `origin/main` masih di `28fc3b9`
-   sementara `main` lokal di `53e6abc`. Digabung secara lokal
-   atas pilihan pemilik; push ke cabang publik terlindungi
-   sengaja tidak dilakukan tanpa aba-aba.
-2. **Checkout utama belum punya `node_modules`.** Seluruh kode
-   sudah ada di `D:\Kumpulink\kumpulink-app`, tetapi
-   dependensinya hanya terpasang di worktree. Jalankan
-   `npm install` di checkout utama sebelum menjalankan
-   `npm run dev` dari sana.
-3. **Worktree `unit-1-fondasi` masih ada** beserta cabangnya.
-   Sengaja dipertahankan: sampai butir 2 dikerjakan, di sanalah
-   satu-satunya tempat proyek ini dapat dijalankan. Aman
-   dihapus sesudahnya.
 
 ## Next Up
 
@@ -423,15 +415,9 @@ menahan Fase 2:
    `PRODUCT.md`, dua surface brief, dan satu direction
    contract — belum ada kode antarmuka.
 
-   **Satu keputusan wajib diambil di gerbang ini: Radix atau
-   Base UI** sebagai mesin primitif shadcn. CLI shadcn versi
-   sekarang menawarkan pilihan itu dan justru menyarankan
-   Base; Task 2 memilih Radix karena seluruh file konteks
-   ditulis saat shadcn identik dengan Radix. Dua puluh
-   komponen sudah bergantung padanya, tetapi jalur baliknya
-   masih murah selama belum ada antarmuka sungguhan — hapus
-   `components/ui/` lalu jalankan `shadcn add` ulang. Setelah
-   Unit 2 menulis komponen di atasnya, biayanya naik tajam.
+   **Mesin primitif shadcn sudah ditetapkan: Radix** (D9),
+   jadi tidak ada keputusan yang menahan gerbang ini. Pemicu
+   peninjauan ulangnya dicatat di D9 dan wajib dipantau.
 
 2. **Fase 3 — Unit 2, CMS group.** Membuat, mengubah,
    menghapus, dan menyusun ulang group; akordeon dashboard;
@@ -594,6 +580,36 @@ sebelum satu baris kode aplikasi ditulis.
   `email`, dan `profile` — seluruhnya tidak sensitif —
   peninjauan penuh umumnya tidak berlaku, tetapi ini wajib
   dipastikan sendiri di konsol sebelum acara pertama.
+
+### Keputusan Unit 1 — 21 Agustus 2026
+
+- **D9 — Mesin primitif shadcn tetap Radix, bukan Base UI.**
+  CLI shadcn versi sekarang menawarkan tiga pilihan — base,
+  radix, aria — dan justru melabeli **base** sebagai
+  *Recommended*. Task 2 memilih radix; keputusan itu
+  dikonfirmasi pemilik dan ditetapkan di sini.
+
+  Alasannya bukan bahwa Radix lebih baik secara teknis,
+  melainkan tiga hal yang berlaku khusus untuk proyek ini.
+  Pertama, dua puluh komponen sudah tergenerate dan terbukti
+  bekerja — menukarnya berarti membuang keadaan terverifikasi
+  demi keadaan yang belum. Kedua, seluruh file konteks ditulis
+  saat shadcn identik dengan Radix, termasuk anatomi kartu item
+  dan tujuh keadaan izin di `ui-context.md`. Ketiga, dan yang
+  paling menentukan: proyek ini dikerjakan satu orang yang
+  sedang belajar, dan bahan rujukan tentang Radix jauh lebih
+  banyak — bobot itu nyata saat macet sendirian.
+
+  Horizon proyeknya juga pendek. Kumpulink dibangun untuk satu
+  acara; keunggulan pustaka yang lebih baru umumnya baru
+  terasa dalam hitungan tahun.
+
+  **Pemicu peninjauan ulang, wajib dipantau:** bila `shadcn
+  add` berhenti menghasilkan varian Radix, atau bila komponen
+  yang dibutuhkan hanya tersedia untuk Base UI. Bila salah
+  satu terjadi, tukar saat itu juga — jangan menunggu. Biaya
+  penukaran naik tajam setiap unit yang menulis komponen di
+  atasnya, dan sekarang adalah titik termurahnya.
 
 ### Keputusan rancangan awal
 
