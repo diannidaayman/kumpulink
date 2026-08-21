@@ -9,26 +9,30 @@ yang berarti.
   terkumpul, seluruh konsol dikerjakan, arah pengalihan
   domain dibalik sehingga apex yang berstatus Production.
   Daftar periksanya bersih seluruhnya.
-- **Unit 1 selesai di sisi kode, 21 Agustus 2026.** Sembilan
-  task dieksekusi lewat subagent, masing-masing dengan
-  review dua putusan. Cabang kerjanya
-  `worktree-unit-1-fondasi`, belum digabung ke `main`.
-- **Temuan review final sudah diterapkan, 21 Agustus 2026.**
-  Tiga temuan Important dan enam temuan minor, dalam dua commit
-  (`4189bea`, `b965381`). Rinciannya di entri terbaru bagian
-  *Completed* dan di `.superpowers/sdd/final-review-fixes.md`.
-- **Belum dinyatakan tutup.** Lima kriteria selesai menuntut
-  masuk dengan Google di peramban sungguhan, dan itu hanya
-  dapat dikerjakan pemilik — agen tidak boleh menangani
-  kredensial siapa pun. Rinciannya di bagian *In Progress*.
+- **Unit 1 TUTUP, 21 Agustus 2026.** Sembilan task dieksekusi
+  lewat subagent, masing-masing dengan review dua putusan,
+  ditutup review menyeluruh satu cabang penuh dengan model
+  paling mampu memakai empat belas invarian
+  `architecture.md` sebagai lensa.
+- **Digabung ke `main` pada `53e6abc`**, fast-forward, 32
+  commit dari `28fc3b9`. Keempat gerbang lulus: `typecheck` 0,
+  `lint` 0 tanpa peringatan, 54 test di 6 berkas, `build` 0.
+- **Kelima pemeriksaan peramban dijalankan pemilik dan
+  lulus** — termasuk yang membuktikan K1: mengubah
+  `OWNER_EMAIL` lalu menjalankan ulang server mengubah peran
+  tanpa keluar-masuk sekali pun. Peran memang diturunkan
+  ulang tiap sesi dibaca, bukan dibaca dari kolom yang bisa
+  basi.
 - Tidak ada lagi pertanyaan terbuka.
 
 ## Current Goal
 
-- Menutup Unit 1: pemilik menjalankan lima pemeriksaan
-  peramban yang tersisa, lalu cabangnya digabung.
-- Sesudah itu Fase 2 — arah desain lewat skill impeccable,
-  sebelum antarmuka sungguhan mulai ditulis di Unit 2.
+- **Fase 2 — arah desain lewat skill impeccable**, sebelum
+  antarmuka sungguhan mulai ditulis di Unit 2. Urutannya di
+  `ROADMAP.md` Fase 2, prompt P2.1–P2.4 di
+  `PROMPT-PLAYBOOK.md`.
+- Satu keputusan menunggu di gerbang itu: **Radix atau Base
+  UI** sebagai mesin primitif shadcn. Lihat *Next Up*.
 
 ## Completed
 
@@ -362,66 +366,91 @@ yang berarti.
     sekarang `b9653814d06316639e8b6c1ad44387f2a0adb350`, menggantikan
     `51fc5c0` sebagai commit terbaru sebelum penggabungan.
 
+- Sesi 21 Agustus 2026 — penutupan Unit 1:
+  - **Review menyeluruh satu cabang penuh** dengan model paling
+    mampu, memakai empat belas invarian `architecture.md`
+    sebagai lensa. Putusannya *fix first*: tiga temuan Important
+    dan enam minor, seluruhnya diterapkan. Yang paling
+    menentukan: callback `session` — satu-satunya penegak K1 —
+    ter-ship tanpa test, dan mengganti `resolveRole(...)`
+    menjadi `user.role` akan membalik K1 sepenuhnya tanpa satu
+    pun dari lima puluh test gagal. Sekarang diuji.
+  - **Indeks ganda `Group.slug` dihapus** lewat migrasi
+    sungguhan ke Neon. `@unique` sudah membuat indeks btree
+    unik, jadi `@@index([slug])` hanya menambah beban tulis.
+    Dikerjakan selagi tabelnya masih kosong — persis alasan
+    skema ditulis lengkap sejak Unit 1.
+  - **Kelima pemeriksaan peramban dijalankan pemilik, lulus
+    semua.** Termasuk yang membuktikan K1 tanpa keluar-masuk.
+  - **Tombol keluar dan nama akun ditambahkan di bilah atas
+    dashboard**, lalu diuji pemilik dan bekerja. Celahnya ada di
+    spesifikasi, bukan implementasi: `ui-context.md` mewajibkan
+    bilah identitas hanya untuk halaman publik dan diam soal
+    dashboard, sehingga rencana, implementasi, dan tujuh putaran
+    review lolos bersama-sama. Tidak ada gerbang atau reviewer
+    yang bisa menangkap sesuatu yang tidak pernah diminta —
+    yang menangkapnya adalah pemilik yang mencoba memakainya.
+    Aturannya kini tertulis di `ui-context.md`.
+  - **Digabung ke `main` pada `53e6abc`**, fast-forward, 32
+    commit. Belum di-push ke `origin`.
+
 ## In Progress
 
-**Lima pemeriksaan peramban yang menutup Unit 1.** Seluruhnya
-menuntut masuk dengan Google sungguhan, jadi hanya pemilik
-yang dapat mengerjakannya — agen tidak boleh menangani
-kredensial siapa pun.
+Tidak ada pekerjaan implementasi yang berjalan. Unit 1 tutup,
+Fase 2 belum dimulai.
 
-Jalankan `npm run dev` dari
-`.claude/worktrees/unit-1-fondasi`, lalu:
+**Tiga pekerjaan rumah tangga yang tertunda**, tidak satu pun
+menahan Fase 2:
 
-1. Buka `http://localhost:3000/` tanpa masuk → harus
-   dialihkan ke Google.
-2. Masuk dengan `laluardiansyah903@gmail.com` → harus
-   mendarat di `/dashboard` dan melihat "Belum ada group."
-3. Tekan tombol tema, lalu **arahkan kursor ke tombol itu di
-   kedua mode** → teksnya harus terbaca. Ini pemeriksaan K8;
-   tabrakan token `--accent-foreground` dulu membuat teks
-   putih di atas latar abu muda, dan tidak ada gerbang yang
-   menangkapnya.
-4. Keluar, lalu masuk dengan akun Google **lain** → harus
-   mendarat di `/akses-ditolak` dan melihat alamat email
-   akun itu sendiri, bukan "tidak diketahui".
-5. Ubah `OWNER_EMAIL` di `.env.local`, jalankan ulang server,
-   muat `/dashboard` **tanpa keluar-masuk** → perannya harus
-   ikut berubah. Ini membuktikan K1: peran diturunkan ulang
-   tiap sesi dibaca, bukan dibaca dari kolom yang bisa basi.
-   Kembalikan nilainya sesudah itu.
-
-Yang sudah terbukti tanpa peramban, lewat `curl` pada dev
-server: `/dashboard` tanpa sesi mengalihkan 307 ke jalur
-masuk dengan `callbackUrl=%2Fdashboard`; `/` mengalihkan 307
-ke `/dashboard`; `/akses-ditolak` menjawab 200 tanpa
-berputar.
+1. **`main` belum di-push.** `origin/main` masih di `28fc3b9`
+   sementara `main` lokal di `53e6abc`. Digabung secara lokal
+   atas pilihan pemilik; push ke cabang publik terlindungi
+   sengaja tidak dilakukan tanpa aba-aba.
+2. **Checkout utama belum punya `node_modules`.** Seluruh kode
+   sudah ada di `D:\Kumpulink\kumpulink-app`, tetapi
+   dependensinya hanya terpasang di worktree. Jalankan
+   `npm install` di checkout utama sebelum menjalankan
+   `npm run dev` dari sana.
+3. **Worktree `unit-1-fondasi` masih ada** beserta cabangnya.
+   Sengaja dipertahankan: sampai butir 2 dikerjakan, di sanalah
+   satu-satunya tempat proyek ini dapat dijalankan. Aman
+   dihapus sesudahnya.
 
 ## Next Up
 
-1. **Pemilik menjalankan lima pemeriksaan peramban** di bagian
-   *In Progress*. Kelimanya menutup kriteria selesai Unit 1
-   yang tidak dapat dibuktikan tanpa masuk dengan Google.
+1. **Fase 2 — arah desain lewat impeccable.** Empat prompt,
+   P2.1 sampai P2.4 di `PROMPT-PLAYBOOK.md`. Menghasilkan
+   `PRODUCT.md`, dua surface brief, dan satu direction
+   contract — belum ada kode antarmuka.
 
-2. **Gabungkan `worktree-unit-1-fondasi`.** Cabangnya belum
-   masuk `main` maupun `dev`. Jalankan
-   `superpowers:finishing-a-development-branch` untuk memilih
-   cara integrasinya.
+   **Satu keputusan wajib diambil di gerbang ini: Radix atau
+   Base UI** sebagai mesin primitif shadcn. CLI shadcn versi
+   sekarang menawarkan pilihan itu dan justru menyarankan
+   Base; Task 2 memilih Radix karena seluruh file konteks
+   ditulis saat shadcn identik dengan Radix. Dua puluh
+   komponen sudah bergantung padanya, tetapi jalur baliknya
+   masih murah selama belum ada antarmuka sungguhan — hapus
+   `components/ui/` lalu jalankan `shadcn add` ulang. Setelah
+   Unit 2 menulis komponen di atasnya, biayanya naik tajam.
 
-3. **Fase 2 — arah desain lewat impeccable**, sebelum
-   antarmuka sungguhan ditulis di Unit 2. Urutannya ada di
-   `ROADMAP.md` Fase 2 dan prompt P2.1–P2.4 di
-   `PROMPT-PLAYBOOK.md`.
+2. **Fase 3 — Unit 2, CMS group.** Membuat, mengubah,
+   menghapus, dan menyusun ulang group; akordeon dashboard;
+   pembuatan dan validasi keunikan slug.
 
-   Satu keputusan menunggu di sini dan harus diambil sebelum
-   UI sungguhan dibangun: **Radix atau Base UI** sebagai mesin
-   primitif shadcn. CLI shadcn versi sekarang menawarkan
-   pilihan itu dan justru menyarankan Base; Task 2 memilih
-   Radix karena seluruh file konteks ditulis saat shadcn
-   identik dengan Radix. Dua puluh komponen sudah bergantung
-   padanya, tetapi jalur baliknya masih murah — hapus
-   `components/ui/` dan jalankan `shadcn add` ulang.
-
-4. Fase 3 — Unit 2, CMS group.
+   Dua hal dari Unit 1 yang wajib ditangani begitu unit ini
+   mulai, keduanya sudah terdiagnosis:
+   - **`requireOwner()` di layout hanya melindungi halaman.**
+     Route handler tidak pernah dibungkus layout; badan server
+     action berjalan sebelum layout dirender ulang; navigasi
+     lunak antar segmen bersaudara tidak menjalankan ulang
+     layout bersarang. Ketiganya wajib memanggil
+     `requireOwner()` sendiri. Sudah tertulis sebagai komentar
+     di `app/(dashboard)/layout.tsx`.
+   - **`callbackUrl` selalu menunjuk `/dashboard`**, bukan URL
+     yang diminta. Benar selama `/dashboard` satu-satunya rute
+     di grup; begitu `/dashboard/requests` ada, pengunjung yang
+     belum masuk akan mendarat di tempat yang salah. Ini
+     penyimpangan dari K2 yang diterima sementara.
 
 ## Open Questions
 
