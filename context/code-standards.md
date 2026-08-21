@@ -182,6 +182,14 @@
 - `lib/db/` — klien Prisma dan fungsi query
 - `lib/storage/` — pembungkus object storage
 - `lib/validation/` — skema Zod
+- `lib/groups/` — logika group sebagai fungsi murni: turunan
+  slug, slug acak, penyelesaian bentrok, penomoran ulang
+  urutan. Tidak menyentuh database, sehingga seluruh
+  aturannya dapat diuji tanpa Prisma — alasan yang sama
+  yang memisahkan `lib/access/`
+- `lib/time/` — pemformatan waktu ke `Asia/Jayapura` beserta
+  label zonanya. Berdiri sendiri karena label itu wajib di
+  setiap waktu yang terlihat pengguna, di kedua permukaan
 - `lib/types/` — tipe bersama
 - `types/` — augmentasi tipe modul pihak ketiga (mis.
   `next-auth.d.ts`), bukan tipe bersama aplikasi

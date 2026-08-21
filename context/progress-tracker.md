@@ -406,20 +406,43 @@ Ledger eksekusi sembilan task diselamatkan ke
 worktree-nya dibuang — isinya keputusan per task, temuan
 reviewer, dan temuan yang ditolak beserta buktinya.
 
-Fase 2 belum dimulai.
+**Fase 2 SELESAI, 21 Agustus 2026.** Seluruh exit criteria
+terpenuhi, dan belum ada satu baris kode antarmuka pun
+ditulis:
+
+- `PRODUCT.md` ada di akar `kumpulink-app/`, memuat Brand
+  Commitments dari `ui-context.md` — kedua tabel token
+  lengkap dengan nilai heksadesimalnya, tipografi, skala
+  radius, dan tujuh komitmen lain. Ditulis lewat `init`.
+- Dua surface brief tersimpan lewat `surface-brief.mjs`:
+  `.impeccable/surfaces/app-public-g-slug.md` dan
+  `.impeccable/surfaces/app-dashboard.md`.
+- Direction contract terpasang di `app/layout.tsx` sebagai
+  komentar HTML — lima blok, 137 kata, plus baris `FINISH`.
+  **Diverifikasi bertahan di build produksi:** komentarnya
+  utuh di `.next/server/app/_not-found.html` dan
+  `pages/404.html`, 79 karakter setelah `<body>`. Tidak
+  muncul di `index.html` karena rute `/` hanya `redirect()`
+  dan tidak pernah merender badan halaman.
+- `.impeccable/config.json` mencatat `"buildPath": "code"`
+  sesuai D7.
+
+Konsekuensi yang menyentuh berkas lain, seluruhnya disetujui
+pemilik butir demi butir: `ui-context.md` diperbarui pada
+lima belas titik, `project-overview.md` langkah 8 berubah
+(riwayat jadi halaman tersendiri, bukan tab), dan
+`architecture.md` menegaskan `localStorage` menyimpan satu id
+group, bukan sekumpulan.
+
+Empat keputusan produk baru yang lahir di fase ini dan
+sebelumnya tidak ada di dokumen mana pun: jumlah group
+realistis 20–50 dan menumpuk; tambah item lewat baris sisip
+di tempat; riwayat sebagai halaman tersendiri; dan
+penayangan proyektor **tidak lagi** mengunci arah visual.
 
 ## Next Up
 
-1. **Fase 2 — arah desain lewat impeccable.** Empat prompt,
-   P2.1 sampai P2.4 di `PROMPT-PLAYBOOK.md`. Menghasilkan
-   `PRODUCT.md`, dua surface brief, dan satu direction
-   contract — belum ada kode antarmuka.
-
-   **Mesin primitif shadcn sudah ditetapkan: Radix** (D9),
-   jadi tidak ada keputusan yang menahan gerbang ini. Pemicu
-   peninjauan ulangnya dicatat di D9 dan wajib dipantau.
-
-2. **Fase 3 — Unit 2, CMS group.** Membuat, mengubah,
+1. **Fase 3 — Unit 2, CMS group.** Membuat, mengubah,
    menghapus, dan menyusun ulang group; akordeon dashboard;
    pembuatan dan validasi keunikan slug.
 

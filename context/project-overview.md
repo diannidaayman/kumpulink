@@ -63,9 +63,14 @@ yang sudah membuka dokumen penting, itu yang belum ada.
    Permintaan di dashboard, melihat daftar pemohon beserta
    keperluannya, lalu menyetujui atau menolak — satu per
    satu, atau sekaligus untuk satu pemohon.
-8. Setelah acara selesai, pemilik membuka tab Riwayat
-   Akses pada group tersebut untuk melihat siapa saja
+8. Setelah acara selesai, pemilik membuka halaman Riwayat
+   Akses milik group tersebut untuk melihat siapa saja
    yang membuka item terproteksi dan pada jam berapa.
+   Riwayat berada di halaman tersendiri per group, bukan
+   tab di dalam akordeon: penyaring item, penyaring rentang
+   tanggal, dan paginasi tidak muat di dalam akordeon.
+   Diubah 21 Agustus 2026; rumusan sebelumnya menyebutnya
+   sebagai tab.
 9. Pemilik mencabut link dengan satu saklar, atau
    membiarkannya mati sendiri saat kedaluwarsa. Izin yang
    sudah disetujui ikut mati bersamanya.

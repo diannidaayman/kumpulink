@@ -129,7 +129,10 @@ Postgres otomatis membuat indeks btree unik; tidak ada `@@index` terpisah
 untuk kolom yang sama, karena itu hanya menambah beban tulis tanpa
 manfaat query. Keadaan terlipat atau terbuka akordeon di dashboard
 adalah keadaan antarmuka, disimpan di `localStorage` peramban, bukan di
-database.
+database. Yang disimpan adalah **satu** id group, bukan sekumpulan id:
+hanya satu akordeon boleh terbuka pada satu waktu, dan membuka group
+berikutnya menutup yang sedang terbuka. Alasannya ada di
+`ui-context.md` bagian Layout Patterns.
 
 ### Item
 

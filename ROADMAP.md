@@ -287,12 +287,17 @@ kosong yang sudah ditulis kalimatnya tetapi belum ditetapkan bentuknya.
 
 **Exit criteria.**
 
-- [ ] `PRODUCT.md` ada, memuat Brand Commitments dari `ui-context.md`
-- [ ] Dua surface brief tersimpan lewat `surface-brief.mjs`
-- [ ] Arah terpilih dicatat sebagai *direction contract* untuk dipasang di layout
-- [ ] `.impeccable/config.json` memuat `buildPath` sesuai D7
-- [ ] Tidak ada token, font, atau teks Bahasa Indonesia yang berubah tanpa persetujuan eksplisit
-- [ ] Bila ada yang berubah dengan persetujuan → `context/ui-context.md` diperbarui **dalam fase ini juga**
+- [x] `PRODUCT.md` ada, memuat Brand Commitments dari `ui-context.md`
+- [x] Dua surface brief tersimpan lewat `surface-brief.mjs`
+- [x] Arah terpilih dicatat sebagai *direction contract* untuk dipasang di layout —
+      terpasang di `app/layout.tsx`, terbukti bertahan di build produksi
+- [x] `.impeccable/config.json` memuat `buildPath` sesuai D7
+- [x] Tidak ada token, font, atau teks Bahasa Indonesia yang berubah tanpa persetujuan eksplisit —
+      kesebelas token dan kedua font tidak tersentuh; teks yang bertambah disetujui butir demi butir
+- [x] Bila ada yang berubah dengan persetujuan → `context/ui-context.md` diperbarui **dalam fase ini juga** —
+      lima belas titik, ditambah `project-overview.md` dan `architecture.md`
+
+**Fase 2 ditutup 21 Agustus 2026.**
 
 **`DESIGN.md` sengaja belum ditulis di fase ini.** impeccable menulisnya
 dari dunia visual yang sudah terbangun, bukan dari niat — rulebook yang
