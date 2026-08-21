@@ -797,13 +797,21 @@ export const env: Env = read();
 
 Ini pemeriksaan manual, dan hasilnya wajib dibaca — bukan diasumsikan.
 
+**Pemeriksaan ini baru dapat dijalankan setelah Task 7**, karena sampai saat itu belum ada satu berkas pun yang mengimpor `lib/env.ts` dan dev server tidak akan pernah memuatnya.
+
+**Menyalakan server saja tidak cukup.** Next.js App Router meng-compile rute sesuai permintaan, jadi `npm run dev` hanya mencetak *Ready* dan tampak baik-baik saja meski variabelnya kosong. Galatnya baru muncul ketika ada permintaan HTTP yang benar-benar menyentuh rute yang mengimpor `env` — dan pada Unit 1 satu-satunya rute semacam itu adalah `/api/auth/*`.
+
 ```bash
 cp .env.local .env.local.bak
 sed -i 's/^OWNER_EMAIL=.*$/OWNER_EMAIL=/' .env.local
-npm run dev
+timeout 60 npm run dev &
+sleep 15
+curl -s -o /dev/null -w '%{http_code}\n' http://localhost:3000/api/auth/providers
 ```
 
-Expected: server menolak start, pesannya memuat baris `- OWNER_EMAIL: OWNER_EMAIL harus berupa alamat email yang sah`.
+Expected: **HTTP 500**, dan log server memuat baris `- OWNER_EMAIL: OWNER_EMAIL harus berupa alamat email yang sah` dengan stack trace menunjuk `read()` di `lib/env.ts`.
+
+Jangan menjalankan `npm run dev` polos tanpa batas waktu — ia menggantung menunggu dihentikan.
 
 Kembalikan segera:
 
