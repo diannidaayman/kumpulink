@@ -150,6 +150,18 @@ URL aslinya. Sarankan mengunggah berkasnya.
 - **Dashboard** — bilah atas dengan garis batas bawah,
   lalu satu kolom terpusat `max-w-4xl`. Isi utamanya
   daftar group berbentuk akordeon.
+- **Bilah identitas dashboard** — bilah atasnya memuat nama
+  akun yang sedang masuk dan tombol keluar, selalu terlihat
+  tanpa perlu membuka menu. Aturan ini sama dengan bilah
+  identitas halaman publik, dan alasannya sama: laptop ruang
+  rapat dipakai bergantian. Tanpa jalan keluar yang terlihat,
+  riwayat akses mencatat orang berikutnya sebagai orang yang
+  pertama masuk.
+
+  Ditambahkan 21 Agustus 2026, setelah pemilik menemukannya
+  saat menguji Unit 1 — dokumen ini semula hanya mewajibkan
+  tombol keluar di halaman publik, sehingga dashboard lolos
+  tanpa jalan keluar sama sekali.
 - **Akordeon group** — dalam keadaan terlipat menampilkan
   judul, jumlah item, lencana status berbagi, dan tanggal
   kedaluwarsa. Saat dibuka menampilkan daftar item yang
