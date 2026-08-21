@@ -8,10 +8,10 @@ function normalize(value: string): string {
  * Menentukan peran dari alamat email, tanpa menyentuh database maupun
  * sesi. Ini satu-satunya tempat aturan peran ditulis.
  *
- * Perbandingannya dinormalize lebih dulu (K9): OWNER_EMAIL diketik tangan
+ * Perbandingannya dinormalkan lebih dulu (K9): OWNER_EMAIL diketik tangan
  * sedangkan alamatnya datang dari Google, sehingga beda huruf kapital
  * atau spasi tersalin akan mengunci pemilik di luar dashboardnya sendiri.
- * Ini tidak melonggarkan keamanan — Google menormalize alamatnya sendiri
+ * Ini tidak melonggarkan keamanan — Google menormalkan alamatnya sendiri
  * dan tidak pernah menerbitkan dua akun yang hanya berbeda huruf.
  */
 export function resolveRole(

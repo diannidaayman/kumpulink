@@ -319,7 +319,7 @@ bukan dari ekstensi nama.
 - Autentikasi melalui Auth.js dengan provider Google saja.
   Tidak ada kata sandi.
 - Peran `OWNER` diberikan bila email pengguna cocok dengan variabel
-  lingkungan `OWNER_EMAIL` **setelah keduanya dinormalize** — spasi di
+  lingkungan `OWNER_EMAIL` **setelah keduanya dinormalkan** — spasi di
   kedua ujung dipangkas dan huruf besar-kecil disamakan. `OWNER_EMAIL`
   diketik tangan sedangkan alamatnya datang dari Google, jadi beda satu
   huruf kapital akan mengunci pemilik di luar dashboardnya sendiri, dan

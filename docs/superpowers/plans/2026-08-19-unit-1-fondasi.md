@@ -1251,10 +1251,10 @@ function normalize(value: string): string {
  * Menentukan peran dari alamat email, tanpa menyentuh database maupun
  * sesi. Ini satu-satunya tempat aturan peran ditulis.
  *
- * Perbandingannya dinormalize lebih dulu (K9): OWNER_EMAIL diketik tangan
+ * Perbandingannya dinormalkan lebih dulu (K9): OWNER_EMAIL diketik tangan
  * sedangkan alamatnya datang dari Google, sehingga beda huruf kapital
  * atau spasi tersalin akan mengunci pemilik di luar dashboardnya sendiri.
- * Ini tidak melonggarkan keamanan — Google menormalize alamatnya sendiri
+ * Ini tidak melonggarkan keamanan — Google menormalkan alamatnya sendiri
  * dan tidak pernah menerbitkan dua akun yang hanya berbeda huruf.
  */
 export function resolveRole(
@@ -1288,7 +1288,7 @@ Dari:
 Menjadi:
 ```markdown
 - Peran `OWNER` diberikan bila email pengguna cocok dengan variabel
-  lingkungan `OWNER_EMAIL` **setelah keduanya dinormalize** — spasi di
+  lingkungan `OWNER_EMAIL` **setelah keduanya dinormalkan** — spasi di
   kedua ujung dipangkas dan huruf besar-kecil disamakan. `OWNER_EMAIL`
   diketik tangan sedangkan alamatnya datang dari Google, jadi beda satu
   huruf kapital akan mengunci pemilik di luar dashboardnya sendiri, dan
@@ -1301,7 +1301,7 @@ Menjadi:
 ```bash
 npm run typecheck && npm run lint && npm test && npm run build
 git add -A
-git commit -m "resolveRole sebagai fungsi murni, perbandingan dinormalize
+git commit -m "resolveRole sebagai fungsi murni, perbandingan dinormalkan
 
 Berdiri terpisah dari Auth.js dan tidak mengimpor lib/env.ts, sehingga
 dapat diuji tanpa Next.js, sesi, maupun database.
