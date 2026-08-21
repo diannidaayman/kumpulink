@@ -496,6 +496,15 @@ dilupakan:
 - **Workflow GitHub Actions terjadwal harus aktif.** GitHub
   menonaktifkannya otomatis setelah 60 hari repositori tidak
   aktif. Periksa sebelum tiap acara.
+- **Cabang `dev` harus disusulkan sebelum Fase 10.** Alias
+  preview Vercel `kumpulink-preview.vercel.app` menunjuk ke
+  `dev`, sementara per 21 Agustus 2026 `dev` tertinggal 37
+  commit di belakang `main` — isinya masih keadaan Fase 0.
+  Tidak ada yang gagal karenanya sampai Fase 10, tempat alur
+  uji utama dijalankan di lingkungan preview; di titik itu
+  preview akan menampilkan aplikasi yang salah tanpa
+  peringatan apa pun.
+
 - **Repositori harus tetap publik** selama penjadwalan
   memakai GitHub Actions tiap lima menit. Repositori privat
   menembus kuota gratis; lihat keputusan D5.
@@ -737,6 +746,53 @@ sebelum satu baris kode aplikasi ditulis.
   memerlukan perubahan model data.
 
 ## Session Notes
+
+- **Sesi 21 Agustus 2026 mengeksekusi Unit 1 penuh** lewat
+  sembilan task subagent, dan menutupnya. Lima pelajaran proses
+  di bawah tidak terbaca dari kode mana pun, jadi dicatat di
+  sini supaya tidak ditemukan ulang dengan biaya yang sama.
+
+- **Spesifikasi yang diam tidak dapat ditangkap pemeriksa mana
+  pun.** Dashboard ter-ship tanpa tombol keluar, lolos dari
+  tujuh putaran review, empat gerbang otomatis, dan 54 test —
+  bukan karena lalai, melainkan karena `ui-context.md` hanya
+  mewajibkan bilah identitas untuk halaman publik dan diam soal
+  dashboard. Yang menangkapnya adalah pemilik yang mencoba
+  memakainya. Pemeriksaan peramban oleh pemilik di tiap unit
+  bukan formalitas; ia menutup kelas cacat yang gerbang
+  otomatis tidak bisa sentuh.
+
+- **Laporan subagent mengarang ekor SHA.** Prefix pendeknya
+  benar, empat puluh karakternya karangan — dua kali, di dua
+  laporan berbeda. Ketahuan karena diverifikasi dengan `git
+  rev-parse`. Setiap klaim SHA dari subagent wajib diperiksa
+  sendiri, dan hal yang sama berlaku untuk klaim `npm audit`:
+  satu laporan menyatakan enam kerentanan pre-existing padahal
+  tiga di antaranya dibawa task itu sendiri.
+
+- **Pencarian-ganti global pada berkas rencana menabrak prosa
+  dan string literal, bukan hanya identifier.** Sapuan
+  `normalkan` → `normalize` mengubah kata Indonesia di dalam
+  komentar menjadi "dinormalize"; sapuan `PEMILIK` →
+  `OWNER_ADDRESS` mengubah isi alamat uji menjadi
+  `OWNER_ADDRESS@CONTOH.COM`, yang membuat testnya gagal bila
+  disalin apa adanya. Sapuan berikutnya harus dibatasi pada
+  bentuk kodenya, bukan seluruh berkas.
+
+- **`prisma db pull` tanpa `--print` menimpa
+  `prisma/schema.prisma`.** Terbukti saat menguji skrip: 88
+  baris tertulis ulang dari hasil introspeksi dan harus
+  dipulihkan dari commit. Di proyek ini skema adalah sumber
+  kebenaran, bukan database — karena itu skrip `db:inspect`
+  memakai `--print` dan tidak ada skrip yang bisa menimpanya.
+
+- **Menyalakan `npm run dev` tidak memicu validasi variabel
+  lingkungan.** Next.js App Router meng-compile rute sesuai
+  permintaan, jadi server mencetak *Ready* dan tampak sehat
+  meski variabelnya kosong. Galatnya baru muncul saat ada
+  permintaan HTTP yang menyentuh rute pengimpor `env`.
+  Prosedur pemeriksaannya kini menyertakan permintaan itu.
+
 
 - Dokumen perencanaan ini disusun pada 18 Agustus 2026
   melalui sesi brainstorming.
