@@ -1199,7 +1199,7 @@ describe("resolveRole", () => {
   // dashboardnya sendiri, tanpa antarmuka untuk memperbaikinya.
   it.each([
     ["huruf besar di awal", "Pemilik@contoh.com"],
-    ["huruf besar seluruhnya", "OWNER_ADDRESS@CONTOH.COM"],
+    ["huruf besar seluruhnya", "PEMILIK@CONTOH.COM"],
     ["spasi di depan", "  pemilik@contoh.com"],
     ["spasi di belakang", "pemilik@contoh.com  "],
   ])("memberi OWNER meski %s", (_label, email) => {
