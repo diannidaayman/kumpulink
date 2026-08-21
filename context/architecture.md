@@ -56,8 +56,12 @@ baris di database sendiri.
   bukan menyusun URL. Tidak ada kode lain yang mengimpor SDK
   Blob secara langsung.
 - `lib/db/` — klien Prisma dan fungsi query.
-- `lib/auth/` — konfigurasi Auth.js, helper sesi, dan
-  penentuan peran pemilik.
+- `lib/auth/` — konfigurasi Auth.js, helper sesi, dan penentuan peran
+  pemilik. `role.ts` berisi `resolveRole()` sebagai fungsi murni tanpa
+  dependensi Auth.js maupun variabel lingkungan, sehingga dapat diuji
+  tanpa database. Peran diturunkan ulang di callback `session` setiap
+  kali sesi dibaca; kolom `User.role` hanya salinan agar dapat di-query
+  dan **bukan** sumber kebenaran.
 - `components/ui/` — komponen shadcn hasil generate. Tidak
   diedit manual.
 - `components/dashboard/` — komponen khusus CMS.
