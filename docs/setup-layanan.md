@@ -691,8 +691,8 @@ Setelan yang tidak berbentuk nilai:
 
 Sambungan:
 
-- [ ] Neon dapat dihubungi dari mesin lokal memakai `DATABASE_URL`
-- [ ] Neon dapat dihubungi dari mesin lokal memakai `DIRECT_URL`
+- [x] Neon dapat dihubungi dari mesin lokal memakai `DATABASE_URL`
+- [x] Neon dapat dihubungi dari mesin lokal memakai `DIRECT_URL`
 
 **Dua baris terakhir sengaja ditunda ke Unit 1.** `psql` tidak terpasang
 di mesin ini, jadi tidak ada cara menguji sambungannya sekarang tanpa

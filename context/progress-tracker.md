@@ -6,24 +6,25 @@ yang berarti.
 ## Current Phase
 
 - **Fase 0 selesai, 20 Agustus 2026.** Kesebelas variabel
-  terkumpul dan diverifikasi bentuknya, seluruh konsol
-  dikerjakan, dan setelan yang tidak berbentuk nilai
-  diperiksa di layar oleh pemilik.
-- Menyisakan satu pekerjaan konfigurasi: membalik arah
-  pengalihan domain agar apex `diandiandian.web.id` yang
-  berstatus Production dan `www` yang mengalihkan ke sana.
-  Lihat bagian 7.1a di `docs/setup-layanan.md`.
+  terkumpul, seluruh konsol dikerjakan, arah pengalihan
+  domain dibalik sehingga apex yang berstatus Production.
+  Daftar periksanya bersih seluruhnya.
+- **Unit 1 selesai di sisi kode, 21 Agustus 2026.** Sembilan
+  task dieksekusi lewat subagent, masing-masing dengan
+  review dua putusan. Cabang kerjanya
+  `worktree-unit-1-fondasi`, belum digabung ke `main`.
+- **Belum dinyatakan tutup.** Lima kriteria selesai menuntut
+  masuk dengan Google di peramban sungguhan, dan itu hanya
+  dapat dikerjakan pemilik — agen tidak boleh menangani
+  kredensial siapa pun. Rinciannya di bagian *In Progress*.
 - Tidak ada lagi pertanyaan terbuka.
-- Belum ada satu baris pun kode aplikasi. **Unit 1 siap
-  dimulai** dari prompt P1.1 di `PROMPT-PLAYBOOK.md`.
 
 ## Current Goal
 
-- Masuk ke Unit 1 — Fondasi dan autentikasi: Next.js,
-  Prisma, skema database lengkap, dan Auth.js dengan provider
-  Google, sampai pemilik dapat masuk dan melihat dashboard
-  kosong. Prasyarat layanannya sudah tuntas, jadi tidak ada
-  lagi yang menahan.
+- Menutup Unit 1: pemilik menjalankan lima pemeriksaan
+  peramban yang tersisa, lalu cabangnya digabung.
+- Sesudah itu Fase 2 — arah desain lewat skill impeccable,
+  sebelum antarmuka sungguhan mulai ditulis di Unit 2.
 
 ## Completed
 
@@ -287,54 +288,64 @@ yang berarti.
 
 ## In Progress
 
-Prasyarat layanan eksternal **selesai**. Papan statusnya ada
-di bagian **Urutan pengerjaan** pada `docs/setup-layanan.md`,
-dan seluruh barisnya bertanda selesai.
+**Lima pemeriksaan peramban yang menutup Unit 1.** Seluruhnya
+menuntut masuk dengan Google sungguhan, jadi hanya pemilik
+yang dapat mengerjakannya — agen tidak boleh menangani
+kredensial siapa pun.
 
-Menyisakan satu pekerjaan konfigurasi di Vercel: membalik arah
-pengalihan domain agar apex `diandiandian.web.id` berstatus
-Production dan `www.diandiandian.web.id` yang mengalihkan 308
-ke sana. Langkahnya beserta alasannya ada di bagian **7.1a**
-`docs/setup-layanan.md`. Urutannya tidak boleh dibalik —
-menyetel `www` lebih dulu membuat Vercel menolaknya sebagai
-lingkaran pengalihan.
+Jalankan `npm run dev` dari
+`.claude/worktrees/unit-1-fondasi`, lalu:
 
-Selama belum dibalik, tidak ada yang tampak rusak, karena
-belum ada deployment. Yang rusak baru terlihat saat login
-Google dicoba di produksi.
+1. Buka `http://localhost:3000/` tanpa masuk → harus
+   dialihkan ke Google.
+2. Masuk dengan `laluardiansyah903@gmail.com` → harus
+   mendarat di `/dashboard` dan melihat "Belum ada group."
+3. Tekan tombol tema, lalu **arahkan kursor ke tombol itu di
+   kedua mode** → teksnya harus terbaca. Ini pemeriksaan K8;
+   tabrakan token `--accent-foreground` dulu membuat teks
+   putih di atas latar abu muda, dan tidak ada gerbang yang
+   menangkapnya.
+4. Keluar, lalu masuk dengan akun Google **lain** → harus
+   mendarat di `/akses-ditolak` dan melihat alamat email
+   akun itu sendiri, bukan "tidak diketahui".
+5. Ubah `OWNER_EMAIL` di `.env.local`, jalankan ulang server,
+   muat `/dashboard` **tanpa keluar-masuk** → perannya harus
+   ikut berubah. Ini membuktikan K1: peran diturunkan ulang
+   tiap sesi dibaca, bukan dibaca dari kolom yang bisa basi.
+   Kembalikan nilainya sesudah itu.
+
+Yang sudah terbukti tanpa peramban, lewat `curl` pada dev
+server: `/dashboard` tanpa sesi mengalihkan 307 ke jalur
+masuk dengan `callbackUrl=%2Fdashboard`; `/` mengalihkan 307
+ke `/dashboard`; `/akses-ditolak` menjawab 200 tanpa
+berputar.
 
 ## Next Up
 
-0. Balik arah pengalihan domain di Vercel — bagian 7.1a
-   `docs/setup-layanan.md`. Ini tidak menahan Unit 1, karena
-   pengembangan berjalan di `localhost:3000` yang redirect
-   URI-nya terpisah. Yang tertahan adalah uji di produksi,
-   jadi kerjakan sebelum Fase 10.
+1. **Pemilik menjalankan lima pemeriksaan peramban** di bagian
+   *In Progress*. Kelimanya menutup kriteria selesai Unit 1
+   yang tidak dapat dibuktikan tanpa masuk dengan Google.
 
-   Mulai Unit 1 dari prompt **P1.1** di `PROMPT-PLAYBOOK.md`
-   — brainstorming. Butir 1–6 di bawah adalah isi unit itu,
-   bukan langkah yang dikerjakan satu per satu tanpa rencana.
-1. ~~Inisialisasi proyek Next.js 15 dengan TypeScript dan
-   Tailwind.~~ **Selesai** (Task 1–4).
-2. ~~Pasang shadcn/ui dan tambahkan komponen yang disebut di
-   `ui-context.md`.~~ **Selesai** (Task 1–4).
-3. ~~Tulis `prisma/schema.prisma` lengkap sesuai bagian Data
-   Model di `architecture.md`, lalu jalankan migrasi
-   pertama.~~ **Selesai, 21 Agustus 2026** (Task 5). Lihat
-   catatan lengkap di bagian Completed.
-4. ~~Pasang Auth.js v5 dengan provider Google dan adapter
-   Prisma.~~ **Selesai, 21 Agustus 2026** (Task 7). Lihat
-   catatan lengkap di bagian Completed.
-5. ~~Terapkan penentuan peran `OWNER` dari `OWNER_EMAIL` saat
-   masuk.~~ **Selesai, 21 Agustus 2026** (Task 7) — diturunkan
-   ulang di callback `session` setiap kali sesi dibaca, bukan
-   dibaca dari kolom `User.role`.
-6. ~~Buat layout `app/(dashboard)/` yang menolak siapa pun
-   selain pemilik.~~ **Selesai, 21 Agustus 2026** (Task 8) —
-   beserta dashboard kosong, halaman `/akses-ditolak`, dan
-   pengalihan `/`. Verifikasi login Google sungguhan (pemilik
-   dan non-pemilik) diserahkan ke pemilik; lihat catatan Task 8
-   di bagian Completed.
+2. **Gabungkan `worktree-unit-1-fondasi`.** Cabangnya belum
+   masuk `main` maupun `dev`. Jalankan
+   `superpowers:finishing-a-development-branch` untuk memilih
+   cara integrasinya.
+
+3. **Fase 2 — arah desain lewat impeccable**, sebelum
+   antarmuka sungguhan ditulis di Unit 2. Urutannya ada di
+   `ROADMAP.md` Fase 2 dan prompt P2.1–P2.4 di
+   `PROMPT-PLAYBOOK.md`.
+
+   Satu keputusan menunggu di sini dan harus diambil sebelum
+   UI sungguhan dibangun: **Radix atau Base UI** sebagai mesin
+   primitif shadcn. CLI shadcn versi sekarang menawarkan
+   pilihan itu dan justru menyarankan Base; Task 2 memilih
+   Radix karena seluruh file konteks ditulis saat shadcn
+   identik dengan Radix. Dua puluh komponen sudah bergantung
+   padanya, tetapi jalur baliknya masih murah — hapus
+   `components/ui/` dan jalankan `shadcn add` ulang.
+
+4. Fase 3 — Unit 2, CMS group.
 
 ## Open Questions
 
