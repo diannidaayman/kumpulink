@@ -233,6 +233,58 @@ yang berarti.
     peringatan, `test` 44/44 di 4 berkas (tidak berubah), `build`
     sukses.
 
+- Sesi 21 Agustus 2026 — Task 8 (dashboard, gerbang pemilik, dan
+  halaman akses ditolak):
+  - **`app/(dashboard)/layout.tsx` ditulis.** Memanggil
+    `requireOwner()` sekali di sini, bukan di tiap halaman, sehingga
+    seluruh rute di bawah grup ini terlindungi secara bawaan dan
+    halaman baru tidak dapat lupa memeriksanya — menegakkan
+    invarian 5 di `architecture.md`. Header berisi nama aplikasi dan
+    `ThemeToggle`.
+  - **`app/(dashboard)/dashboard/page.tsx` ditulis**: keadaan kosong
+    "Belum ada group", teksnya disalin persis dari bagian Empty and
+    Error States `ui-context.md`.
+  - **`app/akses-ditolak/page.tsx` ditulis, sengaja di luar grup
+    `(dashboard)`.** Kalau di dalam, ia akan melewati gerbangnya
+    sendiri dan pengalihannya berputar tanpa henti. Menampilkan
+    alamat email sesi yang sedang masuk (`"tidak diketahui"` bila
+    tidak ada sesi) dan tombol Keluar berupa server action yang
+    memanggil `signOut({ redirectTo: "/" })`.
+  - **`app/page.tsx` diganti** dari placeholder statis menjadi
+    `redirect("/dashboard")`. Aplikasi ini tidak memiliki halaman
+    depan publik; dicatat di `architecture.md`.
+  - **`context/architecture.md` bagian System Boundaries
+    diperbarui**: dua baris baru mencatat `app/page.tsx` dan
+    `app/akses-ditolak/`.
+  - **Verifikasi peramban dengan login Google sungguhan (brief Step
+    5 dan 6) sengaja tidak dijalankan oleh agen** — alur OAuth
+    menuntut kredensial manusia sungguhan yang tidak boleh
+    dimasukkan agen, dan Step 6 juga menuntut sesi aktif yang hanya
+    ada setelah login sungguhan. **Diserahkan ke pemilik sebelum
+    unit ini ditutup.** Sebagai gantinya, diverifikasi lewat
+    `npm run dev` sungguhan tanpa sesi apa pun: `GET /dashboard` →
+    307 ke `/api/auth/signin?callbackUrl=%2Fdashboard`; `GET /` →
+    307 ke `/dashboard`; `GET /akses-ditolak` → 200, teks Bahasa
+    Indonesia tampil apa adanya, tanpa pengalihan berputar.
+    `npm run build` memuat ketiga rute baru, dengan `/dashboard`
+    dan `/akses-ditolak` otomatis terdeteksi Next.js sebagai
+    dinamis karena memanggil `auth()` — tidak perlu
+    `export const dynamic` manual dan build tidak gagal.
+  - **Checklist yang masih perlu tangan pemilik**: masuk sungguhan
+    sebagai `laluardiansyah903@gmail.com` untuk membuktikan
+    dashboard kosong tampil; memeriksa kontras tombol tema di kedua
+    mode (K8); keluar lalu masuk dengan akun Google lain untuk
+    membuktikan `/akses-ditolak` menampilkan email yang benar dan
+    tombol Keluar mengembalikan ke keadaan belum masuk; dan uji
+    perbaikan `OWNER_EMAIL` (brief Step 6) yang menuntut memuat
+    ulang `/dashboard` dengan sesi yang sudah ada, tanpa keluar-masuk.
+  - Keempat gerbang lulus: `typecheck` bersih, `lint` nol
+    peringatan, `test` 50/50 di 5 berkas (tidak berubah — task ini
+    tidak menambah logika baru untuk diuji unit, hanya halaman
+    server component yang mengonsumsi `requireOwner()` yang sudah
+    diuji tuntas di Task 7), `build` sukses. Grep nilai heksadesimal
+    di `app/` dan `components/` tidak menemukan apa pun.
+
 ## In Progress
 
 Prasyarat layanan eksternal **selesai**. Papan statusnya ada
@@ -277,8 +329,12 @@ Google dicoba di produksi.
    masuk.~~ **Selesai, 21 Agustus 2026** (Task 7) — diturunkan
    ulang di callback `session` setiap kali sesi dibaca, bukan
    dibaca dari kolom `User.role`.
-6. Buat layout `app/(dashboard)/` yang menolak siapa pun
-   selain pemilik.
+6. ~~Buat layout `app/(dashboard)/` yang menolak siapa pun
+   selain pemilik.~~ **Selesai, 21 Agustus 2026** (Task 8) —
+   beserta dashboard kosong, halaman `/akses-ditolak`, dan
+   pengalihan `/`. Verifikasi login Google sungguhan (pemilik
+   dan non-pemilik) diserahkan ke pemilik; lihat catatan Task 8
+   di bagian Completed.
 
 ## Open Questions
 

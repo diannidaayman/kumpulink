@@ -30,6 +30,12 @@ baris di database sendiri.
 - `app/(dashboard)/` — antarmuka CMS, hanya untuk pemilik.
   Dilindungi di lapisan layout melalui pemeriksaan sesi
   sisi server.
+- `app/page.tsx` — mengalihkan `/` ke `/dashboard`. Aplikasi ini tidak
+  memiliki halaman depan publik; pengunjung selalu tiba lewat
+  `/g/[slug]`, tidak pernah lewat akar.
+- `app/akses-ditolak/` — halaman untuk sesi yang bukan pemilik. Berada di
+  luar grup `(dashboard)` supaya tidak melewati gerbangnya sendiri, yang
+  akan membuat pengalihannya berputar tanpa henti.
 - `app/(public)/g/[slug]/` — halaman group publik dan route
   gerbang item. Satu-satunya jalan masuk pengunjung ke
   konten.
