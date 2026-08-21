@@ -188,6 +188,51 @@ yang berarti.
     peringatan, `test` 32/32 di 3 berkas (tidak berubah dari
     sebelumnya), `build` sukses.
 
+- Sesi 21 Agustus 2026 — Task 7 (Auth.js v5 dengan provider
+  Google):
+  - **`next-auth@beta` terpasang, resolve ke `5.0.0-beta.32`**
+    — tetap di jalur mayor 5, sesuai ekspektasi brief.
+    `@auth/prisma-adapter@2.11.3` terpasang berdampingan. Tidak
+    ada keluhan adapter Prisma soal tipe `email` non-null pada
+    model `User`.
+  - **`lib/auth/config.ts` ditulis**: adapter Prisma, strategi
+    sesi `database` (bukan JWT, sesuai `architecture.md`),
+    provider Google dari `env.AUTH_GOOGLE_ID` dan
+    `env.AUTH_GOOGLE_SECRET`. Callback `session` menurunkan
+    ULANG peran lewat `resolveRole()` (Task 6) setiap kali sesi
+    dibaca; kolom `User.role` hanya disegarkan lewat
+    `events.signIn` agar dapat di-query, bukan sumber kebenaran.
+  - **`lib/auth/index.ts`, `lib/auth/session.ts`,
+    `app/api/auth/[...nextauth]/route.ts`, dan
+    `types/next-auth.d.ts` ditulis** sesuai brief.
+    `session.ts` mengekspor `requireOwner()`: tanpa sesi
+    dialihkan ke Google, ada sesi tapi bukan `OWNER` dialihkan
+    ke `/akses-ditolak` (halaman ini sendiri belum dibuat —
+    menyusul di Task 8).
+  - **`tsconfig.json` diperiksa, sengaja tidak diubah.** Pola
+    `include` bawaan `**/*.ts` sudah mencakup
+    `types/**/*.d.ts` — dibuktikan lewat `typecheck` bersih
+    begitu `types/next-auth.d.ts` ditambahkan.
+  - **Verifikasi tertunda dari Task 4 ditutup, dengan satu
+    catatan penting untuk Task 8.** Mengosongkan `OWNER_EMAIL`
+    lalu menjalankan `npm run dev` saja **tidak** membuat server
+    menolak start — Next.js dev server meng-compile route
+    on-demand, dan belum ada berkas yang eager mengimpor
+    `lib/auth` (tidak ada `middleware.ts`; `app/layout.tsx`
+    tidak menyentuhnya). Galat yang diharapkan baru muncul
+    setelah route `/api/auth/[...nextauth]` benar-benar diminta
+    (diuji lewat `GET /api/auth/providers`): HTTP 500 dengan
+    pesan yang menyebut `OWNER_EMAIL` persis. **Task 8 yang
+    memasang layout dashboard perlu tahu ini** — begitu
+    `requireOwner()` dipanggil dari sebuah route yang diminta
+    pengunjung, jalur ini otomatis tersentuh dan tidak perlu
+    trik serupa lagi, tetapi pemeriksaan env manual berikutnya
+    yang hanya mengandalkan "jalankan `npm run dev`" tanpa
+    permintaan HTTP akan memberi hasil negatif palsu.
+  - Keempat gerbang lulus: `typecheck` bersih, `lint` nol
+    peringatan, `test` 44/44 di 4 berkas (tidak berubah), `build`
+    sukses.
+
 ## In Progress
 
 Prasyarat layanan eksternal **selesai**. Papan statusnya ada
@@ -225,10 +270,13 @@ Google dicoba di produksi.
    Model di `architecture.md`, lalu jalankan migrasi
    pertama.~~ **Selesai, 21 Agustus 2026** (Task 5). Lihat
    catatan lengkap di bagian Completed.
-4. Pasang Auth.js v5 dengan provider Google dan adapter
-   Prisma.
-5. Terapkan penentuan peran `OWNER` dari `OWNER_EMAIL` saat
-   masuk.
+4. ~~Pasang Auth.js v5 dengan provider Google dan adapter
+   Prisma.~~ **Selesai, 21 Agustus 2026** (Task 7). Lihat
+   catatan lengkap di bagian Completed.
+5. ~~Terapkan penentuan peran `OWNER` dari `OWNER_EMAIL` saat
+   masuk.~~ **Selesai, 21 Agustus 2026** (Task 7) — diturunkan
+   ulang di callback `session` setiap kali sesi dibaca, bukan
+   dibaca dari kolom `User.role`.
 6. Buat layout `app/(dashboard)/` yang menolak siapa pun
    selain pemilik.
 
