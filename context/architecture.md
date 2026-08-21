@@ -68,6 +68,9 @@ baris di database sendiri.
   tanpa database. Peran diturunkan ulang di callback `session` setiap
   kali sesi dibaca; kolom `User.role` hanya salinan agar dapat di-query
   dan **bukan** sumber kebenaran.
+- `types/` — augmentasi tipe modul pihak ketiga, seperti
+  `next-auth.d.ts` yang memperluas `Session` dan `User` dari next-auth.
+  Bukan tipe bersama aplikasi — itu tetap di `lib/types/`.
 - `components/ui/` — komponen shadcn hasil generate. Tidak
   diedit manual.
 - `components/dashboard/` — komponen khusus CMS.
@@ -95,7 +98,8 @@ pemilik.
 | `email`     | `String` unik       | Dari Google, terverifikasi                   |
 | `name`      | `String?`           | Dari Google                                  |
 | `image`     | `String?`           | URL avatar Google                            |
-| `role`      | `OWNER \| VIEWER`   | Dihitung saat masuk dari `OWNER_EMAIL`       |
+| `emailVerified` | `DateTime?`     | Dituntut skema adapter Prisma Auth.js; tidak dipakai logika aplikasi |
+| `role`      | `OWNER \| VIEWER`   | Diturunkan ulang dari `OWNER_EMAIL` setiap kali sesi dibaca; kolom ini hanya salinan, bukan sumber kebenaran |
 | `createdAt` | `DateTime`          |                                              |
 
 Tabel `Account`, `Session`, dan `VerificationToken` mengikuti
@@ -120,9 +124,12 @@ dibagikan. Struktur datar — tidak ada group di dalam group.
 | `createdAt`     | `DateTime`                             |                                                   |
 | `updatedAt`     | `DateTime`                             |                                                   |
 
-Indeks pada `slug`. Keadaan terlipat atau terbuka akordeon
-di dashboard adalah keadaan antarmuka, disimpan di
-`localStorage` peramban, bukan di database.
+Indeks pada `slug` — dipenuhi oleh constraint `@unique` di atas, yang di
+Postgres otomatis membuat indeks btree unik; tidak ada `@@index` terpisah
+untuk kolom yang sama, karena itu hanya menambah beban tulis tanpa
+manfaat query. Keadaan terlipat atau terbuka akordeon di dashboard
+adalah keadaan antarmuka, disimpan di `localStorage` peramban, bukan di
+database.
 
 ### Item
 

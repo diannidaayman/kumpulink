@@ -1,8 +1,22 @@
+import { redirect } from "next/navigation";
+
 import { auth, signOut } from "@/lib/auth";
+import { DASHBOARD_PATH } from "@/lib/auth/session";
 import { Button } from "@/components/ui/button";
 
 export default async function AccessDeniedPage() {
   const session = await auth();
+
+  // Pengunjung anonim yang membuka URL ini langsung tidak "sedang masuk
+  // sebagai tidak diketahui" — ia belum masuk sama sekali. Alihkan ke
+  // jalur masuk alih-alih menampilkan pernyataan yang keliru. Tidak ada
+  // risiko berputar: halaman ini berada di luar grup (dashboard) dan
+  // tidak memanggil requireOwner().
+  if (!session?.user) {
+    redirect(
+      `/api/auth/signin?callbackUrl=${encodeURIComponent(DASHBOARD_PATH)}`,
+    );
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">

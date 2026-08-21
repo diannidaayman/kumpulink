@@ -183,6 +183,8 @@
 - `lib/storage/` — pembungkus object storage
 - `lib/validation/` — skema Zod
 - `lib/types/` — tipe bersama
+- `types/` — augmentasi tipe modul pihak ketiga (mis.
+  `next-auth.d.ts`), bukan tipe bersama aplikasi
 - `components/ui/` — komponen shadcn hasil generate
 - `components/dashboard/` — komponen CMS
 - `components/public/` — komponen halaman publik

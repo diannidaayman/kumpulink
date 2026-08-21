@@ -130,8 +130,6 @@ model Group {
 
   items    Item[]
   requests AccessRequest[]
-
-  @@index([slug])
 }
 
 model Item {
