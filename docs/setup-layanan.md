@@ -691,8 +691,14 @@ Setelan yang tidak berbentuk nilai:
 
 Sambungan:
 
-- [x] Neon dapat dihubungi dari mesin lokal memakai `DATABASE_URL`
+- [ ] Neon dapat dihubungi dari mesin lokal memakai `DATABASE_URL`
 - [x] Neon dapat dihubungi dari mesin lokal memakai `DIRECT_URL`
+
+Migrasi dan introspeksi di atas keduanya menempuh `DIRECT_URL`, bukan
+`DATABASE_URL` — belum ada satu query runtime Prisma pun yang berjalan
+lewat koneksi ter-pool. Baris pertama baru teruji saat pemilik masuk
+dengan Google untuk pertama kalinya, karena itulah permintaan pertama
+yang benar-benar menempuh `DATABASE_URL`.
 
 **Dua baris terakhir sengaja ditunda ke Unit 1.** `psql` tidak terpasang
 di mesin ini, jadi tidak ada cara menguji sambungannya sekarang tanpa

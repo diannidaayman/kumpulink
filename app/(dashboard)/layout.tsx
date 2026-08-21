@@ -4,9 +4,16 @@ import { ThemeToggle } from "@/components/theme-toggle";
 export default async function DashboardLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  // Memanggil requireOwner() di sini, bukan di tiap halaman, membuat
-  // seluruh rute di bawah grup ini terlindungi secara bawaan. Halaman
-  // baru tidak dapat lupa memeriksanya.
+  // Memanggil requireOwner() di sini melindungi setiap HALAMAN di bawah
+  // grup ini secara bawaan — halaman baru tidak dapat lupa memeriksanya.
+  // Jaminan itu TIDAK berlaku untuk tiga jalur lain:
+  //   - Route handler (route.ts) tidak pernah dibungkus layout sama sekali.
+  //   - Server action: badan aksinya berjalan SEBELUM layout ini dirender
+  //     ulang, sehingga tulisannya sudah terjadi sebelum pengalihan baru
+  //     dari sini sempat berlaku.
+  //   - Navigasi lunak antar segmen bersaudara sengaja tidak menjalankan
+  //     ulang layout bersarang.
+  // Route handler dan server action wajib memanggil requireOwner() sendiri.
   await requireOwner();
 
   return (
