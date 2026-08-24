@@ -1,7 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useOptimistic, useState, useTransition } from "react";
 import { Plus, Trash2 } from "lucide-react";
+
+import { moveGroupAction } from "@/app/(dashboard)/dashboard/actions";
+import { GroupDeleteDialog } from "@/components/dashboard/group-delete-dialog";
+import { GroupEmptyState } from "@/components/dashboard/group-empty-state";
+import { GroupFilterBar, type GroupSegment } from "@/components/dashboard/group-filter-bar";
+import { GroupFormRow } from "@/components/dashboard/group-form-row";
+import { GroupReorderButtons } from "@/components/dashboard/group-reorder-buttons";
+import { GroupRow } from "@/components/dashboard/group-row";
 import {
   Accordion,
   AccordionContent,
@@ -9,16 +17,21 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { GroupDeleteDialog } from "@/components/dashboard/group-delete-dialog";
-import { GroupFormRow } from "@/components/dashboard/group-form-row";
-import { GroupRow } from "@/components/dashboard/group-row";
-import { GroupFilterBar, type GroupSegment } from "@/components/dashboard/group-filter-bar";
-import { GroupEmptyState } from "@/components/dashboard/group-empty-state";
+import { moveGroup } from "@/lib/groups/order";
 import { resolveGroupStatus } from "@/lib/groups/status";
 import type { GroupListItem } from "@/lib/types/group";
 import { cn } from "@/lib/utils";
 
 const OPEN_GROUP_KEY = "kumpulink:open-group";
+
+const TRIGGER_ICON_LEFT = cn(
+  // ui-context.md menempatkan chevron di KIRI, sedangkan komponen shadcn
+  // hasil generate menaruhnya di kanan dengan ml-auto. components/ui/
+  // tidak boleh diedit, jadi posisinya digeser lewat className di sini.
+  "[&_[data-slot=accordion-trigger-icon]]:order-first",
+  "[&_[data-slot=accordion-trigger-icon]]:ml-0",
+  "[&_[data-slot=accordion-trigger-icon]]:mr-3",
+);
 
 export function GroupList({ groups, now }: { groups: GroupListItem[]; now: Date }) {
   const [openId, setOpenId] = useState("");
@@ -27,15 +40,14 @@ export function GroupList({ groups, now }: { groups: GroupListItem[]; now: Date 
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [segment, setSegment] = useState<GroupSegment>("active");
+  const [announcement, setAnnouncement] = useState("");
+  const [, startTransition] = useTransition();
 
-  const filtering = query.trim() !== "" || segment !== "all";
-  const visible = groups.filter((group) => {
-    const status = resolveGroupStatus(group, now);
-    const inactive = status === "UNSHARED" || status === "EXPIRED";
-    if (segment === "active" && inactive) return false;
-    if (segment === "inactive" && !inactive) return false;
-    return group.title.toLowerCase().includes(query.trim().toLowerCase());
-  });
+  const [order, applyMove] = useOptimistic(
+    groups,
+    (current: GroupListItem[], move: { id: string; direction: "up" | "down" }) =>
+      moveGroup(current, move.id, move.direction),
+  );
 
   // Bawaannya TERLIPAT, lalu group yang tersimpan dibuka setelah mount.
   // Membacanya saat render pertama akan membuat keluaran server berbeda
@@ -49,34 +61,62 @@ export function GroupList({ groups, now }: { groups: GroupListItem[]; now: Date 
     setOpenId(next);
     window.localStorage.setItem(OPEN_GROUP_KEY, next);
     if (next === "") return;
-    // Isi yang baru muncul digulirkan ke atas viewport supaya tidak
-    // tertinggal di bawah lipatan. behavior "auto", bukan "smooth":
-    // gerakan gulir yang tidak diminta melanggar prefers-reduced-motion.
+    // behavior "auto", bukan "smooth": gulir yang tidak diminta melanggar
+    // prefers-reduced-motion.
     requestAnimationFrame(() => {
       document.getElementById(`group-${next}`)?.scrollIntoView({ block: "start" });
     });
   }
 
+  const filtering = query.trim() !== "" || segment !== "all";
+  const visible = order.filter((group) => {
+    const status = resolveGroupStatus(group, now);
+    const inactive = status === "UNSHARED" || status === "EXPIRED";
+    if (segment === "active" && inactive) return false;
+    if (segment === "inactive" && !inactive) return false;
+    return group.title.toLowerCase().includes(query.trim().toLowerCase());
+  });
+
+  function handleMove(group: GroupListItem, direction: "up" | "down") {
+    const moved = moveGroup(order, group.id, direction);
+    const position = moved.findIndex((entry) => entry.id === group.id) + 1;
+    setAnnouncement(`${group.title} dipindah ke posisi ${position} dari ${moved.length}.`);
+    startTransition(async () => {
+      applyMove({ id: group.id, direction });
+      const formData = new FormData();
+      formData.set("id", group.id);
+      formData.set("direction", direction);
+      await moveGroupAction(formData);
+    });
+  }
+
+  const stopCreating = useCallback(() => setCreating(false), []);
+  const stopEditing = useCallback(() => setEditingId(null), []);
+
   return (
     <>
-      <div className="mb-3 flex justify-end">
-        <Button type="button" onClick={() => setCreating(true)}>
-          <Plus className="h-5 w-5" aria-hidden />
-          Group baru
-        </Button>
-      </div>
-      {creating && (
-        <div className="mb-2">
-          <GroupFormRow mode="create" onDone={() => setCreating(false)} />
-        </div>
-      )}
       <GroupFilterBar
         query={query}
         segment={segment}
         onQueryChange={setQuery}
         onSegmentChange={setSegment}
       />
+
+      <div className="mb-3 flex justify-end">
+        <Button type="button" onClick={() => setCreating(true)}>
+          <Plus className="h-5 w-5" aria-hidden />
+          Group baru
+        </Button>
+      </div>
+
+      {creating && (
+        <div className="mb-2">
+          <GroupFormRow mode="create" onDone={stopCreating} />
+        </div>
+      )}
+
       {visible.length === 0 && <GroupEmptyState reason={filtering ? "filtered" : "none"} />}
+
       <Accordion
         type="single"
         collapsible
@@ -84,62 +124,60 @@ export function GroupList({ groups, now }: { groups: GroupListItem[]; now: Date 
         onValueChange={handleOpenChange}
         className="flex flex-col gap-2"
       >
-        {visible.map((group) => (
+        {visible.map((group, index) => (
           <AccordionItem
             key={group.id}
             value={group.id}
             id={`group-${group.id}`}
             className="rounded-xl border border-border bg-card px-4"
           >
-            {/* Pemicu akordeon adalah sebuah <button>. Tombol naik/turun di
-                Task 12 WAJIB menjadi saudaranya, bukan anaknya — tombol di
-                dalam tombol adalah HTML tak sah dan merusak papan ketik.
-                Pembungkus flex ini yang menyediakan tempatnya. */}
+            {/* Pemicu akordeon adalah sebuah <button>. Tombol naik/turun
+                WAJIB menjadi saudaranya, bukan anaknya — tombol di dalam
+                tombol adalah HTML tak sah dan merusak papan ketik. */}
             <div className="flex items-center gap-2">
               <div className="min-w-0 flex-1">
-                <AccordionTrigger
-                  className={cn(
-                    "gap-3 py-3 hover:no-underline",
-                    // ui-context.md menempatkan chevron di KIRI, sedangkan
-                    // komponen shadcn hasil generate menaruhnya di kanan
-                    // dengan ml-auto. components/ui/ tidak boleh diedit,
-                    // jadi posisinya digeser lewat className di sini.
-                    "[&_[data-slot=accordion-trigger-icon]]:order-first",
-                    "[&_[data-slot=accordion-trigger-icon]]:ml-0",
-                    "[&_[data-slot=accordion-trigger-icon]]:mr-3",
-                  )}
-                >
+                <AccordionTrigger className={cn("gap-3 py-3 hover:no-underline", TRIGGER_ICON_LEFT)}>
                   <GroupRow group={group} now={now} />
                 </AccordionTrigger>
               </div>
+              {!filtering && (
+                <GroupReorderButtons
+                  group={group}
+                  index={index}
+                  total={visible.length}
+                  onMove={(direction) => handleMove(group, direction)}
+                />
+              )}
             </div>
+
             <AccordionContent className="pb-4">
               {editingId === group.id ? (
-                <GroupFormRow mode="edit" group={group} onDone={() => setEditingId(null)} />
+                <GroupFormRow mode="edit" group={group} onDone={stopEditing} />
               ) : (
                 <>
                   <p className="text-sm text-muted-foreground">
                     Group ini belum berisi apa-apa. Tambah tautan, PDF, atau gambar.
                   </p>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="mt-3"
-                    onClick={() => setEditingId(group.id)}
-                  >
-                    Ubah judul dan slug
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="mt-3 text-state-error"
-                    onClick={() => setDeletingId(group.id)}
-                  >
-                    <Trash2 className="h-4 w-4" aria-hidden />
-                    Hapus group
-                  </Button>
+                  <div className="mt-3 flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setEditingId(group.id)}
+                    >
+                      Ubah judul dan slug
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="text-state-error"
+                      onClick={() => setDeletingId(group.id)}
+                    >
+                      <Trash2 className="h-4 w-4" aria-hidden />
+                      Hapus group
+                    </Button>
+                  </div>
                   {deletingId === group.id && (
                     <GroupDeleteDialog
                       group={group}
@@ -153,6 +191,16 @@ export function GroupList({ groups, now }: { groups: GroupListItem[]; now: Date 
           </AccordionItem>
         ))}
       </Accordion>
+
+      {filtering && (
+        <p className="mt-3 text-sm text-muted-foreground">
+          Urutan hanya dapat diubah saat menampilkan Semua.
+        </p>
+      )}
+
+      <p aria-live="polite" className="sr-only">
+        {announcement}
+      </p>
     </>
   );
 }
