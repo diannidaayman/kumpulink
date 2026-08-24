@@ -545,6 +545,40 @@ Git dan **tidak ikut ter-commit**. `git clean -fdx` menghapusnya tanpa
 sisa; peta pemulihannya adalah `git log` ditambah bagian ini. Hal yang
 sama berlaku untuk `.impeccable/surfaces/`.
 
+### Temuan pemilik, 24 Agustus 2026 — isi akordeon terpotong
+
+**Pemilik menjalankan sepuluh kelompok pemeriksaan, seluruhnya lulus,**
+lalu menemukan satu cacat yang tidak tertangkap gerbang mana pun: saat
+akordeon dibuka lalu "Ubah judul dan slug" ditekan, formulirnya terpotong
+dan halaman tidak dapat digulir sama sekali — pemilik terpaksa memakai
+`Tab` untuk berpindah kolom.
+
+**Akarnya di Radix, bukan di kode kita.** `CollapsibleContentImpl`
+mengukur tinggi isi di dalam `useLayoutEffect` yang bergantung pada
+`[context.open, present]` — **bukan** pada isinya — lalu mengunci
+hasilnya di `--radix-accordion-content-height`. Tidak ada
+`ResizeObserver`. Pembungkus bawaan shadcn memasang tinggi itu secara
+kaku lewat `h-(--radix-accordion-content-height)` dan menyertai
+`overflow-hidden`, sehingga isi yang tumbuh SETELAH akordeon terbuka
+akan terpotong. `Tab` tetap bekerja karena memfokuskan elemen terpotong
+membuat peramban menggulirnya di dalam wadah yang memotong — justru
+detail itulah yang memastikan diagnosisnya.
+
+Diperbaiki di `7f9df08` dengan `h-auto` lewat `className`, dipasang dari
+luar karena `components/ui/` tidak boleh diedit — pola yang sama dengan
+`TRIGGER_ICON_LEFT`. Keadaan akordeon sekaligus dipindah ke
+`useOpenGroup` supaya `group-list.tsx` tetap di bawah 200 baris (192).
+
+**Ini penting untuk Unit 3.** Akordeon yang sama akan diisi daftar item
+yang bertambah dan berkurang saat terbuka. Tanpa perbaikan ini, setiap
+item yang ditambahkan setelah akordeon terbuka akan terpotong diam-diam.
+
+**Dan ini bukti kedua bahwa batasan "tidak ada pengujian komponen" punya
+harga nyata.** Di Unit 1 celahnya tombol keluar yang hilang di dashboard;
+di Unit 2 celahnya isi akordeon yang terpotong. Keduanya lolos dari
+rencana, implementasi, dan seluruh putaran review — dan keduanya
+ditemukan pemilik dalam menit pertama memakainya.
+
 ### Pemeriksaan peramban Unit 2 — menunggu pemilik
 
 Jalankan `npm run dev` dari
@@ -585,6 +619,9 @@ masuk sebagai `laluardiansyah903@gmail.com`, lalu buka
       bertahan setelah muat ulang halaman
 - [ ] Judul panjang terpotong satu baris, judul utuhnya muncul
       sebagai tooltip
+- [ ] **(ULANG setelah `7f9df08`)** Buka akordeon → "Ubah judul dan
+      slug" → seluruh formulir terlihat dan halaman **dapat digulir
+      biasa**, tanpa perlu `Tab`
 - [ ] Ulangi seluruh langkah di atas di **mode gelap**, lalu di
       **lebar ponsel**
 
