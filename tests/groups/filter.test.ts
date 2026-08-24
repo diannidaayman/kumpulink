@@ -30,12 +30,12 @@ const ALL_STATUSES = [UNSHARED, EXPIRED, PRIVATE, REQUIRE_LOGIN, PUBLIC];
 
 describe("filterGroups — segmen", () => {
   it.each([
-    ["UNSHARED", UNSHARED, "active", false],
+    ["UNSHARED", UNSHARED, "active", true],
     ["EXPIRED", EXPIRED, "active", false],
     ["PRIVATE", PRIVATE, "active", true],
     ["REQUIRE_LOGIN", REQUIRE_LOGIN, "active", true],
     ["PUBLIC", PUBLIC, "active", true],
-    ["UNSHARED", UNSHARED, "inactive", true],
+    ["UNSHARED", UNSHARED, "inactive", false],
     ["EXPIRED", EXPIRED, "inactive", true],
     ["PRIVATE", PRIVATE, "inactive", false],
     ["REQUIRE_LOGIN", REQUIRE_LOGIN, "inactive", false],
@@ -79,7 +79,7 @@ describe("filterGroups — pencarian judul", () => {
 
   it("query dan segmen digabung: hanya group aktif yang judulnya cocok", () => {
     const visible = filterGroups(ALL_STATUSES, { query: "a", segment: "active" }, NOW);
-    expect(visible.map((g) => g.id).sort()).toEqual(["c", "e"]);
+    expect(visible.map((g) => g.id).sort()).toEqual(["a", "c", "e"]);
   });
 });
 

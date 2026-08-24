@@ -2109,12 +2109,21 @@ const [segment, setSegment] = useState<GroupSegment>("active");
 const filtering = query.trim() !== "" || segment !== "all";
 const visible = groups.filter((group) => {
   const status = resolveGroupStatus(group, now);
-  const inactive = status === "UNSHARED" || status === "EXPIRED";
+  const inactive = status === "EXPIRED";
   if (segment === "active" && inactive) return false;
   if (segment === "inactive" && !inactive) return false;
   return group.title.toLowerCase().includes(query.trim().toLowerCase());
 });
 ```
+
+> **Diubah oleh keputusan pemilik saat eksekusi (PD-1):** predikat semula
+> `status === "UNSHARED" || status === "EXPIRED"`. Ditinjau ulang karena di
+> Unit 2 tidak ada aksi yang bisa membuat `shareEnabled` bernilai `true` —
+> saklar berbagi baru datang di unit berikutnya — sehingga SETIAP group
+> yang bisa dibuat di unit ini selalu berstatus `UNSHARED`. Dengan predikat
+> lama, bawaan segmen "Aktif" akan menyembunyikan seluruh group yang baru
+> saja dibuat pemilik. Sekarang hanya `EXPIRED` yang dihitung tidak aktif;
+> `UNSHARED` tetap tampil di segmen Aktif.
 
 Render `<GroupFilterBar …>` di atas `<Accordion>`, ganti `groups.map` menjadi `visible.map`, dan sisipkan sebelum akordeon:
 
@@ -2124,7 +2133,7 @@ Render `<GroupFilterBar …>` di atas `<Accordion>`, ganti `groups.map` menjadi 
 
 - [ ] **Step 4: Verifikasi manual**
 
-- [ ] Bawaan segmen adalah **Aktif**, dan group yang belum dibagikan tidak tampil
+- [ ] Bawaan segmen adalah **Aktif**; group yang belum dibagikan (UNSHARED) tetap tampil di situ, dan hanya group yang sudah kedaluwarsa (EXPIRED) yang disembunyikan
 - [ ] Segmen **Semua** menampilkan seluruhnya
 - [ ] Mengetik di kolom pencarian menyaring menurut judul, tanpa memuat ulang halaman
 - [ ] Pencarian yang tidak menemukan apa pun → "Tidak ada group yang cocok…" — **bukan** "Belum ada group"
@@ -2408,7 +2417,7 @@ export function GroupList({ groups, now }: { groups: GroupListItem[]; now: Date 
   const filtering = query.trim() !== "" || segment !== "all";
   const visible = order.filter((group) => {
     const status = resolveGroupStatus(group, now);
-    const inactive = status === "UNSHARED" || status === "EXPIRED";
+    const inactive = status === "EXPIRED";
     if (segment === "active" && inactive) return false;
     if (segment === "inactive" && !inactive) return false;
     return group.title.toLowerCase().includes(query.trim().toLowerCase());
@@ -2601,7 +2610,7 @@ Expected: `True`.
 
 - [ ] Pemilik membuat tiga group berturut-turut, seluruhnya di bawah satu menit
 - [ ] Dua di antaranya berjudul sama → slugnya `rapat-kerja` dan `rapat-kerja-2`
-- [ ] Judul salah satunya diubah, slugnya ikut mengikuti
+- [ ] Judul salah satu group yang SUDAH ADA diubah, slugnya TIDAK ikut berubah — tautan yang mungkin sudah beredar tetap berfungsi; slug hanya berubah bila pemilik sendiri yang mengetik ulang field slug (lihat `slugTouched` di Task 9 — disengaja, JANGAN "diperbaiki" jadi ikut judul)
 - [ ] Slug salah satunya diketik tangan menjadi milik group lain → ditolak beserta usulan
 - [ ] Ketiganya disusun ulang dengan tombol, urutannya bertahan setelah muat ulang
 - [ ] Satu group dihapus lewat dialog, sisanya tetap berurut rapat
