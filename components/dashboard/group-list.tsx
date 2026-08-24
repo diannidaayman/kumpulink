@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useOptimistic, useState, useTransition } from "react";
+import { useCallback, useOptimistic, useState, useTransition } from "react";
 import { Plus, Trash2 } from "lucide-react";
 
 import { moveGroupAction } from "@/app/(dashboard)/dashboard/actions";
@@ -11,6 +11,7 @@ import { GroupFormRow } from "@/components/dashboard/group-form-row";
 import { GroupReorderButtons } from "@/components/dashboard/group-reorder-buttons";
 import { GroupRow } from "@/components/dashboard/group-row";
 import { useGroupFilter } from "@/components/dashboard/use-group-filter";
+import { useOpenGroup } from "@/components/dashboard/use-open-group";
 import {
   Accordion,
   AccordionContent,
@@ -22,8 +23,6 @@ import { moveGroup } from "@/lib/groups/order";
 import type { GroupListItem } from "@/lib/types/group";
 import { cn } from "@/lib/utils";
 
-const OPEN_GROUP_KEY = "kumpulink:open-group";
-
 const TRIGGER_ICON_LEFT = cn(
   // ui-context.md menempatkan chevron di KIRI, sedangkan komponen shadcn
   // hasil generate menaruhnya di kanan dengan ml-auto. components/ui/
@@ -34,7 +33,6 @@ const TRIGGER_ICON_LEFT = cn(
 );
 
 export function GroupList({ groups, now }: { groups: GroupListItem[]; now: Date }) {
-  const [openId, setOpenId] = useState("");
   const [creating, setCreating] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -47,24 +45,7 @@ export function GroupList({ groups, now }: { groups: GroupListItem[]; now: Date 
       moveGroup(current, move.id, move.direction),
   );
 
-  // Bawaannya TERLIPAT, lalu group yang tersimpan dibuka setelah mount.
-  // Membacanya saat render pertama akan membuat keluaran server berbeda
-  // dari klien. Id yang groupnya sudah dihapus diabaikan begitu saja.
-  useEffect(() => {
-    const stored = window.localStorage.getItem(OPEN_GROUP_KEY);
-    if (stored && groups.some((group) => group.id === stored)) setOpenId(stored);
-  }, [groups]);
-
-  function handleOpenChange(next: string) {
-    setOpenId(next);
-    window.localStorage.setItem(OPEN_GROUP_KEY, next);
-    if (next === "") return;
-    // behavior "auto", bukan "smooth": gulir yang tidak diminta melanggar
-    // prefers-reduced-motion.
-    requestAnimationFrame(() => {
-      document.getElementById(`group-${next}`)?.scrollIntoView({ block: "start" });
-    });
-  }
+  const { openId, handleOpenChange } = useOpenGroup(groups);
 
   const { query, setQuery, segment, setSegment, filtering, visible } = useGroupFilter(order, now);
 
@@ -141,7 +122,21 @@ export function GroupList({ groups, now }: { groups: GroupListItem[]; now: Date 
               )}
             </div>
 
-            <AccordionContent className="pb-4">
+            {/* `h-auto` WAJIB, bukan hiasan. Radix mengukur tinggi isi
+                akordeon sekali saja — layout effect-nya bergantung pada
+                [open, present], bukan pada isinya — lalu mengunci hasilnya
+                di `--radix-accordion-content-height`. Pembungkus bawaan
+                shadcn memasang tinggi itu secara kaku dan menyertai
+                `overflow-hidden`, sehingga isi yang TUMBUH setelah akordeon
+                terbuka akan terpotong: menekan "Ubah judul dan slug"
+                menukar paragraf pendek dengan formulir yang jauh lebih
+                tinggi, dan sisanya terpotong tanpa bisa digulir sama
+                sekali. `h-auto` menang atas tinggi kaku itu lewat
+                tailwind-merge, sehingga akordeon ikut tumbuh mengikuti
+                isinya. components/ui/ tidak boleh diedit, jadi
+                perbaikannya dipasang dari luar — pola yang sama dengan
+                TRIGGER_ICON_LEFT di atas. */}
+            <AccordionContent className="h-auto pb-4">
               {editingId === group.id ? (
                 <GroupFormRow mode="edit" group={group} onDone={stopEditing} />
               ) : (
