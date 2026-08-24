@@ -691,14 +691,17 @@ Setelan yang tidak berbentuk nilai:
 
 Sambungan:
 
-- [ ] Neon dapat dihubungi dari mesin lokal memakai `DATABASE_URL`
+- [x] Neon dapat dihubungi dari mesin lokal memakai `DATABASE_URL`
 - [x] Neon dapat dihubungi dari mesin lokal memakai `DIRECT_URL`
 
-Migrasi dan introspeksi di atas keduanya menempuh `DIRECT_URL`, bukan
-`DATABASE_URL` — belum ada satu query runtime Prisma pun yang berjalan
-lewat koneksi ter-pool. Baris pertama baru teruji saat pemilik masuk
-dengan Google untuk pertama kalinya, karena itulah permintaan pertama
-yang benar-benar menempuh `DATABASE_URL`.
+**Baris pertama ditutup 24 Agustus 2026**, di akhir Unit 2. Sebelumnya
+migrasi dan introspeksi sama-sama menempuh `DIRECT_URL`, sehingga belum
+ada satu query runtime Prisma pun yang berjalan lewat koneksi ter-pool.
+Dibuktikan dengan menjalankan `prisma.group.count()` sungguhan lewat
+`PrismaClient({ datasourceUrl: env.DATABASE_URL })` — persis jalur yang
+dipakai `lib/db/client.ts` — dan dijawab `0`, yaitu jumlah baris `Group`
+yang memang benar untuk tabel yang belum pernah diisi. Skripnya sekali
+pakai dan sudah dihapus, tidak masuk repositori.
 
 **Dua baris terakhir sengaja ditunda ke Unit 1.** `psql` tidak terpasang
 di mesin ini, jadi tidak ada cara menguji sambungannya sekarang tanpa
