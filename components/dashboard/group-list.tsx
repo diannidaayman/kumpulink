@@ -11,6 +11,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { GroupFormRow } from "@/components/dashboard/group-form-row";
 import { GroupRow } from "@/components/dashboard/group-row";
+import { GroupFilterBar, type GroupSegment } from "@/components/dashboard/group-filter-bar";
+import { GroupEmptyState } from "@/components/dashboard/group-empty-state";
+import { resolveGroupStatus } from "@/lib/groups/status";
 import type { GroupListItem } from "@/lib/types/group";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +23,17 @@ export function GroupList({ groups, now }: { groups: GroupListItem[]; now: Date 
   const [openId, setOpenId] = useState("");
   const [creating, setCreating] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [segment, setSegment] = useState<GroupSegment>("active");
+
+  const filtering = query.trim() !== "" || segment !== "all";
+  const visible = groups.filter((group) => {
+    const status = resolveGroupStatus(group, now);
+    const inactive = status === "UNSHARED" || status === "EXPIRED";
+    if (segment === "active" && inactive) return false;
+    if (segment === "inactive" && !inactive) return false;
+    return group.title.toLowerCase().includes(query.trim().toLowerCase());
+  });
 
   // Bawaannya TERLIPAT, lalu group yang tersimpan dibuka setelah mount.
   // Membacanya saat render pertama akan membuat keluaran server berbeda
@@ -54,6 +68,13 @@ export function GroupList({ groups, now }: { groups: GroupListItem[]; now: Date 
           <GroupFormRow mode="create" onDone={() => setCreating(false)} />
         </div>
       )}
+      <GroupFilterBar
+        query={query}
+        segment={segment}
+        onQueryChange={setQuery}
+        onSegmentChange={setSegment}
+      />
+      {visible.length === 0 && <GroupEmptyState reason={filtering ? "filtered" : "none"} />}
       <Accordion
         type="single"
         collapsible
@@ -61,15 +82,7 @@ export function GroupList({ groups, now }: { groups: GroupListItem[]; now: Date 
         onValueChange={handleOpenChange}
         className="flex flex-col gap-2"
       >
-        {groups.length === 0 && (
-          <div className="rounded-xl border border-border bg-card p-8 text-center">
-            <h2 className="text-base font-medium text-card-foreground">Belum ada group</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Buat group pertama untuk mulai menghimpun tautan dan berkas.
-            </p>
-          </div>
-        )}
-        {groups.map((group) => (
+        {visible.map((group) => (
           <AccordionItem
             key={group.id}
             value={group.id}
