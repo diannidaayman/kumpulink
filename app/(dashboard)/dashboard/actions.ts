@@ -2,22 +2,23 @@
 
 import { revalidatePath } from "next/cache";
 
-import { requireOwner } from "@/lib/auth/session";
+import { DASHBOARD_PATH, requireOwner } from "@/lib/auth/session";
 import {
-  applyGroupOrder,
   deleteGroupById,
+  getGroupSlugById,
   insertGroup,
   listAllSlugs,
-  listGroupsForDashboard,
+  moveGroupInTransaction,
   updateGroupTitleAndSlug,
 } from "@/lib/db/groups";
-import { isUniqueConstraintError } from "@/lib/db/prisma-errors";
-import { moveGroup, renumberGroups } from "@/lib/groups/order";
+import { isRecordNotFoundError, isUniqueConstraintError } from "@/lib/db/prisma-errors";
 import { resolveSlug } from "@/lib/groups/resolve-slug";
 import type { GroupActionState } from "@/lib/types/group-action";
-import { groupFormSchema } from "@/lib/validation/group";
-
-const DASHBOARD_PATH = "/dashboard";
+import {
+  groupFormSchema,
+  groupIdSchema,
+  moveDirectionSchema,
+} from "@/lib/validation/group";
 
 function fieldError(
   field: "title" | "slug",
@@ -91,11 +92,17 @@ export async function updateGroupAction(
 ): Promise<GroupActionState> {
   await requireOwner();
 
-  const id = String(formData.get("id") ?? "");
-  const currentSlug = String(formData.get("currentSlug") ?? "");
-  if (id.length === 0) {
-    return { status: "error", error: { code: "NOT_FOUND", message: "Group tidak ditemukan." } };
-  }
+  const NOT_FOUND_STATE: GroupActionState = {
+    status: "error",
+    error: { code: "NOT_FOUND", message: "Group tidak ditemukan." },
+  };
+
+  const idResult = groupIdSchema.safeParse(formData.get("id"));
+  if (!idResult.success) return NOT_FOUND_STATE;
+  const id = idResult.data;
+
+  const currentSlug = await getGroupSlugById(id);
+  if (currentSlug === null) return NOT_FOUND_STATE;
 
   const form = await readForm(formData);
   if (!form.ok) return form.state;
@@ -118,6 +125,7 @@ export async function updateGroupAction(
   try {
     await updateGroupTitleAndSlug({ id, title: form.data.title, slug: resolution.slug });
   } catch (error) {
+    if (isRecordNotFoundError(error)) return NOT_FOUND_STATE;
     if (isUniqueConstraintError(error)) {
       return fieldError("slug", TAKEN_MESSAGE(resolution.slug, `${resolution.slug}-2`), `${resolution.slug}-2`);
     }
@@ -130,21 +138,30 @@ export async function updateGroupAction(
 
 export async function deleteGroupAction(formData: FormData): Promise<void> {
   await requireOwner();
-  const id = String(formData.get("id") ?? "");
-  if (id.length === 0) return;
 
-  await deleteGroupById(id);
+  const idResult = groupIdSchema.safeParse(formData.get("id"));
+  if (!idResult.success) return;
+
+  try {
+    await deleteGroupById(idResult.data);
+  } catch (error) {
+    // Group sudah terhapus (kirim-ganda dialog, atau dua tab terbuka):
+    // no-op, bukan galat.
+    if (isRecordNotFoundError(error)) return;
+    throw error;
+  }
   revalidatePath(DASHBOARD_PATH);
 }
 
 export async function moveGroupAction(formData: FormData): Promise<void> {
   await requireOwner();
 
-  const id = String(formData.get("id") ?? "");
-  const direction = formData.get("direction") === "up" ? "up" : "down";
-  if (id.length === 0) return;
+  const idResult = groupIdSchema.safeParse(formData.get("id"));
+  const directionResult = moveDirectionSchema.safeParse(formData.get("direction"));
+  // Keadaan yang tidak dapat diuraikan berarti TOLAK, bukan jatuh ke
+  // cabang permisif terakhir ("down") — batal diam-diam, tanpa menulis.
+  if (!idResult.success || !directionResult.success) return;
 
-  const groups = await listGroupsForDashboard();
-  await applyGroupOrder(renumberGroups(moveGroup(groups, id, direction)));
+  await moveGroupInTransaction(idResult.data, directionResult.data);
   revalidatePath(DASHBOARD_PATH);
 }

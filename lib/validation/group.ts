@@ -45,3 +45,11 @@ export const groupFormSchema = z.object({
 });
 
 export type GroupFormInput = z.infer<typeof groupFormSchema>;
+
+export const groupIdSchema = z.string().trim().superRefine((value, ctx) => {
+  if (value.length === 0) {
+    ctx.addIssue({ code: "custom", message: "Group tidak ditemukan." });
+  }
+});
+
+export const moveDirectionSchema = z.enum(["up", "down"]);

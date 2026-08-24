@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { groupSlugSchema, groupTitleSchema } from "@/lib/validation/group";
+import { groupIdSchema, groupSlugSchema, groupTitleSchema, moveDirectionSchema } from "@/lib/validation/group";
 
 function firstMessage(result: { success: boolean; error?: { issues: { message: string }[] } }): string {
   return result.error?.issues[0]?.message ?? "";
@@ -43,5 +43,42 @@ describe("groupSlugSchema", () => {
     const result = groupSlugSchema.safeParse(value);
     expect(result.success).toBe(false);
     expect(firstMessage(result)).toBe(message);
+  });
+});
+
+describe("groupIdSchema", () => {
+  it.each([
+    ["id biasa", "clx123abc"],
+    ["id dengan spasi di pinggir", "  clx123abc  "],
+  ])("menerima %s", (_label, value) => {
+    expect(groupIdSchema.safeParse(value).success).toBe(true);
+  });
+
+  it.each([
+    ["kosong", ""],
+    ["spasi saja", "   "],
+  ])("menolak id %s dengan pesan Group tidak ditemukan.", (_label, value) => {
+    const result = groupIdSchema.safeParse(value);
+    expect(result.success).toBe(false);
+    expect(firstMessage(result)).toBe("Group tidak ditemukan.");
+  });
+});
+
+describe("moveDirectionSchema", () => {
+  it.each([
+    ["up", "up"],
+    ["down", "down"],
+  ])("menerima %s", (_label, value) => {
+    expect(moveDirectionSchema.safeParse(value).success).toBe(true);
+  });
+
+  it.each([
+    ["string kosong", ""],
+    ["nilai acak", "sideways"],
+    ["huruf besar", "UP"],
+    ["undefined", undefined],
+    ["null", null],
+  ])("menolak %s", (_label, value) => {
+    expect(moveDirectionSchema.safeParse(value).success).toBe(false);
   });
 });

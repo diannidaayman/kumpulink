@@ -1,7 +1,14 @@
 import { GroupList } from "@/components/dashboard/group-list";
+import { requireOwner } from "@/lib/auth/session";
 import { listGroupsForDashboard } from "@/lib/db/groups";
 
 export default async function DashboardPage() {
+  // Layout tidak menjamin gerbang ini saat navigasi lunak antar saudara,
+  // dan Next.js merender layout serta halaman secara bersamaan — jadi
+  // halaman ini memanggil gerbangnya sendiri, seperti setiap server action.
+  // auth() sudah di-cache per permintaan, jadi ini tidak menambah biaya.
+  await requireOwner();
+
   const groups = await listGroupsForDashboard();
 
   // Keadaan kosong dirender DI DALAM GroupList, bukan sebagai kembalian

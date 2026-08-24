@@ -1,6 +1,7 @@
 import "server-only";
 
 import { prisma } from "@/lib/db/client";
+import { moveGroup, renumberGroups } from "@/lib/groups/order";
 import type { GroupListItem } from "@/lib/types/group";
 
 /**
@@ -30,6 +31,11 @@ export async function listGroupsForDashboard(): Promise<GroupListItem[]> {
 export async function listAllSlugs(): Promise<string[]> {
   const rows = await prisma.group.findMany({ select: { slug: true } });
   return rows.map((row) => row.slug);
+}
+
+export async function getGroupSlugById(id: string): Promise<string | null> {
+  const row = await prisma.group.findUnique({ where: { id }, select: { slug: true } });
+  return row?.slug ?? null;
 }
 
 /** Group baru duduk di puncak daftar, sejajar dengan baris sisipnya. */
@@ -68,14 +74,31 @@ export async function deleteGroupById(id: string): Promise<void> {
   });
 }
 
-export async function applyGroupOrder(
-  entries: { id: string; sortOrder: number }[],
+/**
+ * Membaca urutan dan menuliskannya kembali dalam SATU transaksi. Membaca di
+ * luar transaksi (seperti versi lama fungsi ini) membuka celah balapan:
+ * dua klik cepat mengirim dua permintaan, dan permintaan kedua bisa membaca
+ * urutan sebelum permintaan pertama selesai menulis, lalu menimpanya diam-
+ * diam dengan urutan yang sudah basi. Membaca dan menulis dalam satu
+ * transaksi interaktif membuat keduanya atomik terhadap pemindahan lain.
+ */
+export async function moveGroupInTransaction(
+  id: string,
+  direction: "up" | "down",
 ): Promise<void> {
-  await prisma.$transaction(
-    entries.map((entry) =>
-      prisma.group.update({ where: { id: entry.id }, data: { sortOrder: entry.sortOrder } }),
-    ),
-  );
+  await prisma.$transaction(async (tx) => {
+    const groups = await tx.group.findMany({
+      orderBy: { sortOrder: "asc" },
+      select: { id: true },
+    });
+    const reordered = renumberGroups(moveGroup(groups, id, direction));
+    // Berurutan, bukan Promise.all: transaksi interaktif Prisma memakai
+    // satu koneksi, dan menembakkan pembaruan serentak ke dalamnya adalah
+    // sumber kebuntuan yang muncul hanya sesekali.
+    for (const entry of reordered) {
+      await tx.group.update({ where: { id: entry.id }, data: { sortOrder: entry.sortOrder } });
+    }
+  });
 }
 
 export async function countGroupItems(id: string): Promise<number> {

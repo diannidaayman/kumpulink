@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useId, useState } from "react";
 
 import { createGroupAction, updateGroupAction } from "@/app/(dashboard)/dashboard/actions";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,12 @@ export type GroupFormRowProps = {
 };
 
 export function GroupFormRow({ mode, group, onDone }: GroupFormRowProps) {
+  // Id unik per instans: "creating" dan "editingId" bisa aktif bersamaan,
+  // dan id DOM yang sama pada dua form membuat <label htmlFor> keduanya
+  // resolve ke input form yang pertama.
+  const uid = useId();
+  const titleId = `${uid}-title`;
+  const slugId = `${uid}-slug`;
   const action = mode === "create" ? createGroupAction : updateGroupAction;
   const [state, formAction, pending] = useActionState<GroupActionState, FormData>(
     action,
@@ -40,18 +46,13 @@ export function GroupFormRow({ mode, group, onDone }: GroupFormRowProps) {
 
   return (
     <form action={formAction} className="rounded-xl border border-border bg-card p-4">
-      {mode === "edit" && group && (
-        <>
-          <input type="hidden" name="id" value={group.id} />
-          <input type="hidden" name="currentSlug" value={group.slug} />
-        </>
-      )}
+      {mode === "edit" && group && <input type="hidden" name="id" value={group.id} />}
 
-      <label className="block text-sm text-muted-foreground" htmlFor="group-title">
+      <label className="block text-sm text-muted-foreground" htmlFor={titleId}>
         Judul
       </label>
       <Input
-        id="group-title"
+        id={titleId}
         name="title"
         value={title}
         autoFocus
@@ -65,11 +66,11 @@ export function GroupFormRow({ mode, group, onDone }: GroupFormRowProps) {
         <p className="mt-1 text-sm text-state-error">{error.error.message}</p>
       )}
 
-      <label className="mt-3 block text-sm text-muted-foreground" htmlFor="group-slug">
+      <label className="mt-3 block text-sm text-muted-foreground" htmlFor={slugId}>
         Slug
       </label>
       <Input
-        id="group-slug"
+        id={slugId}
         name="slug"
         value={slug}
         className="font-mono"
