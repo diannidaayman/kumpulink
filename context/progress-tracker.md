@@ -30,6 +30,12 @@ yang berarti.
   sukses. Ditutup review menyeluruh satu cabang penuh dengan model
   paling mampu memakai empat belas invarian `architecture.md`
   sebagai lensa.
+- **Ketujuh exit criteria Fase 3 ditutup pemilik, 24 Agustus 2026.**
+  Sepuluh kelompok pemeriksaan peramban dijalankan dan lulus, termasuk
+  mode gelap dan lebar ponsel. Pemeriksaan itu menemukan satu cacat yang
+  lolos dari rencana, implementasi, dan seluruh putaran review — isi
+  akordeon yang tumbuh ikut terpotong — diperbaiki di `7f9df08` lalu
+  diperiksa ulang.
 - Tidak ada lagi pertanyaan terbuka.
 
 ## Current Goal
@@ -579,128 +585,54 @@ di Unit 2 celahnya isi akordeon yang terpotong. Keduanya lolos dari
 rencana, implementasi, dan seluruh putaran review — dan keduanya
 ditemukan pemilik dalam menit pertama memakainya.
 
-### Pemeriksaan peramban Unit 2 — menunggu pemilik
+### Pemeriksaan peramban Unit 2 — SELESAI, 24 Agustus 2026
 
-Jalankan `npm run dev` dari
-`D:\Kumpulink\kumpulink-app\.claude\worktrees\unit-2-cms-group`,
-masuk sebagai `laluardiansyah903@gmail.com`, lalu buka
-`http://localhost:3000/dashboard`.
+Dijalankan pemilik dari worktree, masuk sebagai
+`laluardiansyah903@gmail.com`. **Sepuluh kelompok pemeriksaan, seluruhnya
+lulus** — pembuatan group, slug bentrok turunan dan ketikan tangan,
+tombol urutan termasuk ketukan ganda cepat, dialog hapus, papan ketik,
+ketahanan keadaan lipat setelah muat ulang, serta pengulangan di mode
+gelap dan lebar ponsel.
 
-- [ ] Buat tiga group berturut-turut; ketiganya **langsung tampil**
-      di segmen bawaan Aktif (inilah yang diperbaiki putusan
-      `UNSHARED` ikut aktif — sebelumnya group baru lenyap)
-- [ ] Dua di antaranya diberi judul sama → slugnya `rapat-kerja` dan
-      `rapat-kerja-2`, **tanpa galat**
-- [ ] Ubah judul salah satunya → **slugnya TIDAK ikut berubah**;
-      link lama tetap hidup
-- [ ] Ketik tangan slug yang sudah dipakai group lain → ditolak
-      beserta tombol "Pakai …", dan menekannya mengisi kolom
-- [ ] Ketik `Rapat Kerja:` di kolom Slug → tampil `rapat-kerja-`
-      dan tanda hubung di ujung **tetap ada**
-- [ ] Susun ulang dengan tombol naik/turun → bergerak seketika,
-      dan urutannya bertahan setelah muat ulang
-- [ ] Ketuk tombol urutan **dua kali cepat** → urutan akhirnya benar,
-      tidak ada pemindahan yang membatalkan diri (ini yang dijaga
-      perbaikan balapan transaksi)
-- [ ] Saring dengan kolom pencarian → tombol urutan **hilang** dan
-      keterangan "Urutan hanya dapat diubah saat menampilkan Semua."
-      muncul
-- [ ] Pencarian tanpa hasil → "Tidak ada group yang cocok…",
-      **bukan** "Belum ada group"
-- [ ] Hapus satu group di tengah daftar → dialog menyebut **jumlah
-      item sungguhan**, fokus mendarat di **Batal**, `Esc` menutup
-      tanpa menghapus, dan sisanya tetap berurut rapat
-- [ ] Buka baris "Group baru" **dan** baris "Ubah judul dan slug"
-      bersamaan → klik label "Judul" di baris ubah memfokuskan kolom
-      baris ubah, bukan kolom baris buat (perbaikan id DOM ganda)
-- [ ] Akordeon: `Tab` ke pemicu, lalu `Enter` dan `Space` keduanya
-      membuka dan menutup; `aria-expanded` berubah `false` ↔ `true`
-- [ ] Hanya satu akordeon terbuka pada satu waktu, dan yang terbuka
-      bertahan setelah muat ulang halaman
-- [ ] Judul panjang terpotong satu baris, judul utuhnya muncul
-      sebagai tooltip
-- [ ] **(ULANG setelah `7f9df08`)** Buka akordeon → "Ubah judul dan
-      slug" → seluruh formulir terlihat dan halaman **dapat digulir
-      biasa**, tanpa perlu `Tab`
-- [ ] Ulangi seluruh langkah di atas di **mode gelap**, lalu di
-      **lebar ponsel**
+Satu cacat ditemukan di luar daftar dan diperbaiki (`7f9df08`), lalu
+diperiksa ulang pemilik: formulir ubah judul kini terlihat utuh dan
+halaman dapat digulir biasa.
 
-### Riwayat sebelumnya
-
-Unit 1 tutup dan bersih:
-`main` sudah di-push ke `origin` pada `6b9ec0c`, dependensi
-terpasang di checkout utama, worktree `unit-1-fondasi` beserta
-cabangnya dihapus setelah terbukti tergabung penuh.
-
-Ledger eksekusi sembilan task diselamatkan ke
-`docs/superpowers/riwayat/2026-08-21-unit-1-ledger.md` sebelum
-worktree-nya dibuang — isinya keputusan per task, temuan
-reviewer, dan temuan yang ditolak beserta buktinya.
-
-**Fase 2 SELESAI, 21 Agustus 2026.** Seluruh exit criteria
-terpenuhi, dan belum ada satu baris kode antarmuka pun
-ditulis:
-
-- `PRODUCT.md` ada di akar `kumpulink-app/`, memuat Brand
-  Commitments dari `ui-context.md` — kedua tabel token
-  lengkap dengan nilai heksadesimalnya, tipografi, skala
-  radius, dan tujuh komitmen lain. Ditulis lewat `init`.
-- Dua surface brief tersimpan lewat `surface-brief.mjs`:
-  `.impeccable/surfaces/app-public-g-slug.md` dan
-  `.impeccable/surfaces/app-dashboard.md`.
-- Direction contract terpasang di `app/layout.tsx` sebagai
-  komentar HTML — lima blok, 137 kata, plus baris `FINISH`.
-  **Diverifikasi bertahan di build produksi:** komentarnya
-  utuh di `.next/server/app/_not-found.html` dan
-  `pages/404.html`, 79 karakter setelah `<body>`. Tidak
-  muncul di `index.html` karena rute `/` hanya `redirect()`
-  dan tidak pernah merender badan halaman.
-- `.impeccable/config.json` mencatat `"buildPath": "code"`
-  sesuai D7.
-
-Konsekuensi yang menyentuh berkas lain, seluruhnya disetujui
-pemilik butir demi butir: `ui-context.md` diperbarui pada
-lima belas titik, `project-overview.md` langkah 8 berubah
-(riwayat jadi halaman tersendiri, bukan tab), dan
-`architecture.md` menegaskan `localStorage` menyimpan satu id
-group, bukan sekumpulan.
-
-Empat keputusan produk baru yang lahir di fase ini dan
-sebelumnya tidak ada di dokumen mana pun: jumlah group
-realistis 20–50 dan menumpuk; tambah item lewat baris sisip
-di tempat; riwayat sebagai halaman tersendiri; dan
-penayangan proyektor **tidak lagi** mengunci arah visual.
+Riwayat lengkap eksekusi unit ini — termasuk ketiga putusan pemilik atas
+rencana yang bertentangan dengan dirinya sendiri, temuan review akhir,
+dan pelajaran prosesnya — diselamatkan ke
+`docs/superpowers/riwayat/2026-08-24-unit-2-ledger.md`.
 
 ## Next Up
 
-1. **Pemilik menjalankan pemeriksaan peramban Unit 2** di atas.
-   Sampai itu selesai, tujuh exit criteria Fase 3 di `ROADMAP.md`
-   tetap terbuka — bukan karena kodenya kurang, melainkan karena
-   tidak ada agen yang boleh membuktikannya.
+1. **Fase 4 — Unit 3, item dan unggahan.** Item bertipe `LINK`, `PDF`,
+   `IMAGE` dari sumber `EXTERNAL` maupun `UPLOAD`; `lib/storage/` sebagai
+   satu-satunya pengimpor SDK Blob; batas 10 MB dan pemeriksaan tipe
+   **dari isi berkas**; penyusunan ulang dengan geser beserta alternatif
+   tombol naik/turun; `accessMode` dibatasi pada `OPEN` dan `IDENTITY`.
 
-2. **Gabungkan `unit-2-cms-group`** setelah pemeriksaan itu lulus,
-   lalu buang worktree-nya. Ledger eksekusinya sebaiknya
-   diselamatkan ke `docs/superpowers/riwayat/` lebih dulu, seperti
-   yang dilakukan untuk Unit 1 — isinya seluruh putusan pemilik dan
-   temuan reviewer di atas.
+   Lima hal yang diwariskan Unit 2 dan wajib ditangani di task yang
+   menyentuhnya. Rinciannya di ledger Unit 2:
 
-3. **Fase 4 — Unit 3, item dan unggahan.** Item bertipe `LINK`,
-   `PDF`, `IMAGE`; `lib/storage/` sebagai satu-satunya pengimpor SDK
-   Blob; batas 10 MB dan pemeriksaan tipe dari isi berkas;
-   penyusunan ulang dengan geser beserta alternatif tombol.
-
-   Tiga hal yang wajib ditangani begitu unit itu mulai:
-   - **`callbackUrl` masih menunjuk `/dashboard`.** Rute saudara
-     pertama di bawah `(dashboard)` membuat penyimpangan K2 ini
-     mulai menggigit. Perbaiki di task yang menambahkannya.
-   - **Route handler wajib memanggil `requireOwner()` sendiri.**
-     Unit 2 tidak menambah satu pun route handler, jadi kaki ketiga
-     penyimpangan Unit 1 belum pernah diuji di praktik.
+   - **`callbackUrl` masih menunjuk `/dashboard`.** Rute saudara pertama
+     di bawah `(dashboard)` membuat penyimpangan K2 ini mulai menggigit.
+   - **Route handler wajib memanggil `requireOwner()` sendiri.** Unit 2
+     tidak menambah satu pun, jadi kaki ketiga penyimpangan Unit 1 belum
+     pernah teruji di praktik.
    - **`resolveGroupStatus()` jangan dipakai ulang di
-     `lib/access/evaluate-access.ts`.** Masukannya nyaris sama
-     sehingga godaannya besar, tetapi ia fungsi tampilan yang
-     cabang terakhirnya permisif. Evaluator akses menuntut `switch`
-     eksplisit dengan `default` yang menolak.
+     `lib/access/evaluate-access.ts`.** Ia fungsi tampilan yang cabang
+     terakhirnya permisif; evaluator akses menuntut penolakan sebagai
+     bawaan.
+   - **Akordeon yang isinya berubah saat terbuka.** Daftar item akan
+     tumbuh dan menyusut di dalam `AccordionContent`. Perbaikan `h-auto`
+     di `7f9df08` yang membuatnya mungkin — jangan dicabut.
+   - **`countGroupItems()` belum dipakai siapa pun.** Pakai atau hapus.
+
+2. **Cabang `dev` masih tertinggal jauh di belakang `main`.** Alias
+   preview Vercel menunjuk ke sana, dan Fase 10 menjalankan alur uji
+   utamanya di lingkungan preview. Tidak ada yang gagal sampai saat itu,
+   tetapi di titik itu preview akan menampilkan aplikasi yang salah tanpa
+   peringatan apa pun.
 
 ## Open Questions
 

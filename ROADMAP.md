@@ -318,28 +318,34 @@ judul; validasi keunikan slug; slug acak dari sumber acak kriptografis
 
 **Exit criteria.**
 
-- [ ] Buat, ubah, hapus, dan susun ulang group berfungsi
-      — kode lengkap dan ter-commit, menunggu pembuktian di peramban
+- [x] Buat, ubah, hapus, dan susun ulang group berfungsi
+      — dijalankan pemilik di peramban, 24 Agustus 2026
 - [x] Slug bentrok ditolak dengan pesan Bahasa Indonesia
       — dibuktikan `tests/groups/resolve-slug.test.ts` dan
-      `tests/validation/group.test.ts`, keenam kalimatnya kata per kata
-- [ ] Akordeon dapat dioperasikan penuh dengan papan ketik dan mengumumkan keadaannya
-      — menunggu pembuktian di peramban
-- [ ] Keadaan lipat bertahan setelah muat ulang halaman
-      — menunggu pembuktian di peramban
+      `tests/validation/group.test.ts`, keenam kalimatnya kata per kata,
+      lalu dikonfirmasi pemilik di peramban
+- [x] Akordeon dapat dioperasikan penuh dengan papan ketik dan mengumumkan keadaannya
+      — `Tab` → `Enter`/`Space` membuka dan menutup, diperiksa pemilik
+- [x] Keadaan lipat bertahan setelah muat ulang halaman
+      — diperiksa pemilik
 - [x] Setiap mutasi memeriksa `role === OWNER` di server
       — keempat server action DAN halaman dashboard memanggil
       `requireOwner()` sebagai pernyataan pertama; diaudit review akhir
       terhadap invarian 5
-- [ ] Terang, gelap, dan lebar ponsel diperiksa
-      — menunggu pembuktian di peramban
+- [x] Terang, gelap, dan lebar ponsel diperiksa
+      — diperiksa pemilik
 - [x] `npm run build` lulus
       — bersama `typecheck` 0, `lint` 0, dan 180 test di 15 berkas
 
-> Keempat butir yang belum tercentang menuntut login Google sungguhan
-> dan baris nyata di Neon, jadi tidak ada agen yang boleh
-> membuktikannya. Daftar langkahnya ada di `context/progress-tracker.md`
-> bagian "Pemeriksaan peramban Unit 2 — menunggu pemilik".
+> **Ketujuhnya ditutup 24 Agustus 2026.** Empat di antaranya menuntut
+> login Google sungguhan dan baris nyata di Neon, jadi tidak ada agen
+> yang boleh membuktikannya — pemilik menjalankannya sendiri.
+>
+> Pemeriksaan itu juga menemukan satu cacat yang lolos dari rencana,
+> implementasi, dan seluruh putaran review: isi akordeon yang tumbuh
+> setelah dibuka ikut terpotong dan tidak dapat digulir. Diperbaiki di
+> `7f9df08`, lalu diperiksa ulang pemilik. Riwayat lengkapnya di
+> `docs/superpowers/riwayat/2026-08-24-unit-2-ledger.md`.
 
 ---
 
