@@ -11,3 +11,6 @@ export type GroupListItem = GroupStatusInput & {
   sortOrder: number;
   itemCount: number;
 };
+
+/** Segmen penyaring bilah filter dashboard. */
+export type GroupSegment = "active" | "inactive" | "all";

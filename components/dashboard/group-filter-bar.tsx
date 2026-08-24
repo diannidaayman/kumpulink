@@ -3,9 +3,10 @@
 import { Search } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
+import type { GroupSegment } from "@/lib/types/group";
 import { cn } from "@/lib/utils";
 
-export type GroupSegment = "active" | "inactive" | "all";
+export type { GroupSegment };
 
 const SEGMENTS: { value: GroupSegment; label: string }[] = [
   { value: "active", label: "Aktif" },
