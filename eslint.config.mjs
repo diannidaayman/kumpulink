@@ -18,6 +18,15 @@ const eslintConfig = [
       "out/**",
       "build/**",
       "next-env.d.ts",
+      // Worktree terisolasi letaknya DI DALAM direktori kerja repo, dan
+      // ESLint v9 tidak membaca `.gitignore`. Tanpa baris ini, `npm run
+      // lint` dari repo utama ikut memindai seluruh salinan worktree
+      // beserta keluaran `.next`-nya — saat Unit 2 digabung, itu berarti
+      // 7027 masalah palsu yang mudah disalahartikan sebagai kode rusak.
+      // Pola `node_modules/**` dan `.next/**` di atas relatif terhadap
+      // akar repo, jadi keduanya TIDAK menjangkau yang bersarang di
+      // dalam worktree.
+      ".claude/worktrees/**",
     ],
   },
 ];
