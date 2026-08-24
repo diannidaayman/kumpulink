@@ -635,6 +635,25 @@ bukti konkret, bukan diasumsikan dari status gerbang saja.
    dicetak lengkap di respons yang menyertai verifikasi ini, empat rute
    dikompilasi tanpa galat.
 
+### Integrasi Unit 2 — SELESAI, 24 Agustus 2026
+
+Cabang `unit-2-cms-group` sudah tergabung fast-forward ke `main` pada
+`2d46f90` di sesi sebelumnya (23 commit dari `a896901`), worktree-nya
+dibuang, dan cabangnya dihapus setelah terbukti tergabung penuh — lihat
+bagian "Unit 2 SELESAI" di atas untuk rinciannya.
+
+Sesi ini menambah tiga commit lagi di atas itu (perbaikan pengaturan
+lint, dan verifikasi tujuh butir "Before Moving to the Next Unit" di
+atas), lalu **`main` didorong ke `origin`**:
+
+```
+fd3da3f..4c14b24  main -> main
+```
+
+Dikonfirmasi lewat `git rev-list --count origin/main..main` → `0`,
+yaitu `main` lokal dan `origin/main` sekarang **sejajar sempurna**.
+Total 26 commit terkirim sejak `a896901`, HEAD sekarang `4c14b24`.
+
 ### Pemeriksaan peramban Unit 2 — SELESAI, 24 Agustus 2026
 
 Dijalankan pemilik dari worktree, masuk sebagai
