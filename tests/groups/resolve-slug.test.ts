@@ -131,4 +131,45 @@ describe("resolveSlug — saat mengubah group yang sudah ada", () => {
       suggestion: "rapat-kerja-2",
     });
   });
+
+  // Kontras dengan tes di atas: tanpa currentSlug (jalur buat baru), slug
+  // turunan yang bentrok tetap diberi akhiran diam-diam. Ini membuktikan
+  // cabang tolak-bentrok di atas tidak bocor ke jalur pembuatan group.
+  it("jalur buat baru tidak terpengaruh — tetap diberi akhiran diam-diam", () => {
+    const result = resolveSlug({
+      title: "Rapat Kerja",
+      requestedSlug: "rapat-kerja",
+      takenSlugs: ["rapat-kerja"],
+    }, FIXED_RANDOM);
+    expect(result).toEqual({ status: "ok", slug: "rapat-kerja-2" });
+  });
+
+  // Menyimpan ubahan tanpa mengganti judul: derived sama dengan currentSlug
+  // sendiri, dan takenSlugs memuat slug itu karena itu slug group ini
+  // sendiri. Group tidak boleh dianggap bentrok dengan dirinya sendiri.
+  it("menyimpan ubahan tanpa ganti judul tidak dianggap bentrok", () => {
+    const result = resolveSlug({
+      title: "Rapat Kerja",
+      requestedSlug: "rapat-kerja",
+      takenSlugs: ["rapat-kerja"],
+      currentSlug: "rapat-kerja",
+    }, FIXED_RANDOM);
+    expect(result).toEqual({ status: "ok", slug: "rapat-kerja" });
+  });
+
+  it("jatuh ke slug acak setelah lima puluh akhiran habis di jalur ubah", () => {
+    const taken = ["rapat-kerja"];
+    for (let n = 2; n <= 50; n += 1) taken.push(`rapat-kerja-${n}`);
+    const result = resolveSlug({
+      title: "Rapat Kerja",
+      requestedSlug: "rapat-kerja",
+      takenSlugs: taken,
+      currentSlug: "rakor",
+    }, FIXED_RANDOM);
+    expect(result).toEqual({
+      status: "conflict",
+      requested: "rapat-kerja",
+      suggestion: "k7m2q9x4rt3v",
+    });
+  });
 });

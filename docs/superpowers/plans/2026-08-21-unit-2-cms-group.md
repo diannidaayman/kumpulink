@@ -598,6 +598,21 @@ export function resolveSlug(
     return { status: "conflict", requested: input.requestedSlug, suggestion };
   }
 
+  // isDerived hanyalah heuristik: ia membandingkan requestedSlug dengan
+  // slugify(title), dan tidak bisa membedakan slug yang diisi otomatis oleh
+  // form dari slug yang kebetulan sama tapi diketik sendiri oleh pemilik.
+  // Pada mode ubah, field slug TIDAK PERNAH diisi otomatis (slugTouched
+  // mulai dari true) — jadi slug yang datang bersama currentSlug pasti
+  // ketikan tangan, sama seperti kasus !isDerived di atas. Karena itu,
+  // bentroknya ditolak dengan usulan, bukan diberi akhiran diam-diam:
+  // slug lama itu mungkin sudah beredar, dan mengubahnya tanpa sepengetahuan
+  // pemilik bisa mematahkan tautan yang sudah dibagikan.
+  if (input.currentSlug && taken.has(derived)) {
+    const suggestion =
+      firstFreeSuffixed(derived, taken) ?? generateRandom();
+    return { status: "conflict", requested: derived, suggestion };
+  }
+
   // Judul yang tidak menyisakan huruf atau angka sama sekali.
   if (derived.length === 0) {
     let candidate = generateRandom();
