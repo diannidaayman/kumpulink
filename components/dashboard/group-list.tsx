@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -9,6 +9,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
+import { GroupDeleteDialog } from "@/components/dashboard/group-delete-dialog";
 import { GroupFormRow } from "@/components/dashboard/group-form-row";
 import { GroupRow } from "@/components/dashboard/group-row";
 import { GroupFilterBar, type GroupSegment } from "@/components/dashboard/group-filter-bar";
@@ -23,6 +24,7 @@ export function GroupList({ groups, now }: { groups: GroupListItem[]; now: Date 
   const [openId, setOpenId] = useState("");
   const [creating, setCreating] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [segment, setSegment] = useState<GroupSegment>("active");
 
@@ -128,6 +130,23 @@ export function GroupList({ groups, now }: { groups: GroupListItem[]; now: Date 
                   >
                     Ubah judul dan slug
                   </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="mt-3 text-state-error"
+                    onClick={() => setDeletingId(group.id)}
+                  >
+                    <Trash2 className="h-4 w-4" aria-hidden />
+                    Hapus group
+                  </Button>
+                  {deletingId === group.id && (
+                    <GroupDeleteDialog
+                      group={group}
+                      open
+                      onOpenChange={(next) => setDeletingId(next ? group.id : null)}
+                    />
+                  )}
                 </>
               )}
             </AccordionContent>
