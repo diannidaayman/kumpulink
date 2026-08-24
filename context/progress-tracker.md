@@ -585,6 +585,56 @@ di Unit 2 celahnya isi akordeon yang terpotong. Keduanya lolos dari
 rencana, implementasi, dan seluruh putaran review — dan keduanya
 ditemukan pemilik dalam menit pertama memakainya.
 
+### Verifikasi "Before Moving to the Next Unit", 24 Agustus 2026
+
+Ketujuh butir di `ai-workflow-rules.md` diperiksa satu per satu dengan
+bukti konkret, bukan diasumsikan dari status gerbang saja.
+
+1. **Unit berjalan ujung ke ujung sesuai lingkupnya.** ✅ 24 commit dari
+   `a896901`, 180 test, dan sepuluh kelompok pemeriksaan peramban oleh
+   pemilik seluruhnya lulus (lihat bagian di atas).
+2. **Tidak ada invarian `architecture.md` yang dilanggar.** ✅ Review
+   akhir seluruh cabang mengaudit keempat belas invarian secara
+   eksplisit — nol Critical, invarian 5 (setiap mutasi memeriksa OWNER
+   di server) *upheld*, invarian 9 (validasi Zod) sempat dilanggar
+   sebagian lalu diperbaiki dan re-review memastikan tuntas. Commit
+   `b07f3fb` (pengaturan lint) tidak mengubah logika runtime apa pun —
+   180 test sebelum dan sesudah identik.
+3. **Matriks `evaluateAccess()` lulus.** — *Tidak berlaku.* `lib/access/`
+   belum ada (`ls lib/access/` → tidak ditemukan) dan tidak ada satu
+   rujukan pun ke `evaluateAccess` di `lib/`, `app/`, atau `components/`.
+   Unit 2 tidak menyentuh aturan izin — `resolveGroupStatus()` sengaja
+   dijaga sebagai fungsi tampilan terpisah, dicatat di bagian Next Up
+   agar tidak dipakai ulang sebagai evaluator akses nanti.
+4. **Antarmuka diperiksa di mode terang dan gelap.** ✅, dengan satu
+   keterbatasan yang diakui secara jujur: agen tidak diizinkan masuk
+   dengan Google OAuth, sehingga antarmuka dashboard yang sesungguhnya
+   (akordeon, formulir, dialog) tidak dapat dibuka langsung oleh agen.
+   Satu-satunya layar yang dapat dicapai tanpa sesi adalah layar masuk
+   bawaan Auth.js (`/api/auth/signin`, tanpa `pages.signIn` kustom —
+   dikonfirmasi lewat `grep -n "pages:" lib/auth/config.ts`) yang bukan
+   bagian dari antarmuka yang dibangun unit ini, jadi memeriksa
+   terang/gelapnya tidak bermakna apa pun. Mekanisme gelapnya sendiri
+   dikonfirmasi nyata dari kode: `components/theme-toggle.tsx` menyakelar
+   kelas `.dark` di `<html>` secara langsung, dan `app/globals.css`
+   mendefinisikan `@custom-variant dark (&:where(.dark, .dark *))` —
+   bukan hiasan tanpa efek. Pemeriksaan antarmuka sungguhan dijalankan
+   pemilik sendiri sesi ini: sepuluh kelompok, termasuk baris eksplisit
+   "Ulangi seluruh langkah di atas di mode gelap, lalu di lebar ponsel",
+   dan hasilnya lulus — termasuk menemukan lalu memverifikasi ulang
+   perbaikan akordeon terpotong.
+5. **Halaman publik diperiksa di lebar layar ponsel.** — *Tidak
+   berlaku.* Unit 2 tidak membangun satu pun halaman publik — dicek
+   dengan mencari `app/**/[slug]*` dan direktori `g/`, nol hasil.
+   Halaman publik `/g/[slug]` adalah lingkup unit yang lebih belakangan
+   per `architecture.md` dan `ROADMAP.md`.
+6. **`progress-tracker.md` mencerminkan pekerjaan yang selesai.** ✅
+   Bagian ini sendiri adalah buktinya — diperbarui pada commit yang
+   menyertai verifikasi ini.
+7. **`npm run build` lulus.** ✅ Keluaran mentah `EXIT_CODE=0`,
+   dicetak lengkap di respons yang menyertai verifikasi ini, empat rute
+   dikompilasi tanpa galat.
+
 ### Pemeriksaan peramban Unit 2 — SELESAI, 24 Agustus 2026
 
 Dijalankan pemilik dari worktree, masuk sebagai
