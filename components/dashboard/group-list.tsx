@@ -6,10 +6,11 @@ import { Plus, Trash2 } from "lucide-react";
 import { moveGroupAction } from "@/app/(dashboard)/dashboard/actions";
 import { GroupDeleteDialog } from "@/components/dashboard/group-delete-dialog";
 import { GroupEmptyState } from "@/components/dashboard/group-empty-state";
-import { GroupFilterBar, type GroupSegment } from "@/components/dashboard/group-filter-bar";
+import { GroupFilterBar } from "@/components/dashboard/group-filter-bar";
 import { GroupFormRow } from "@/components/dashboard/group-form-row";
 import { GroupReorderButtons } from "@/components/dashboard/group-reorder-buttons";
 import { GroupRow } from "@/components/dashboard/group-row";
+import { useGroupFilter } from "@/components/dashboard/use-group-filter";
 import {
   Accordion,
   AccordionContent,
@@ -18,7 +19,6 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { moveGroup } from "@/lib/groups/order";
-import { resolveGroupStatus } from "@/lib/groups/status";
 import type { GroupListItem } from "@/lib/types/group";
 import { cn } from "@/lib/utils";
 
@@ -38,8 +38,6 @@ export function GroupList({ groups, now }: { groups: GroupListItem[]; now: Date 
   const [creating, setCreating] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [query, setQuery] = useState("");
-  const [segment, setSegment] = useState<GroupSegment>("active");
   const [announcement, setAnnouncement] = useState("");
   const [, startTransition] = useTransition();
 
@@ -68,14 +66,7 @@ export function GroupList({ groups, now }: { groups: GroupListItem[]; now: Date 
     });
   }
 
-  const filtering = query.trim() !== "" || segment !== "all";
-  const visible = order.filter((group) => {
-    const status = resolveGroupStatus(group, now);
-    const inactive = status === "UNSHARED" || status === "EXPIRED";
-    if (segment === "active" && inactive) return false;
-    if (segment === "inactive" && !inactive) return false;
-    return group.title.toLowerCase().includes(query.trim().toLowerCase());
-  });
+  const { query, setQuery, segment, setSegment, filtering, visible } = useGroupFilter(order, now);
 
   function handleMove(group: GroupListItem, direction: "up" | "down") {
     const moved = moveGroup(order, group.id, direction);
