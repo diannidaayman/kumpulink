@@ -319,12 +319,27 @@ judul; validasi keunikan slug; slug acak dari sumber acak kriptografis
 **Exit criteria.**
 
 - [ ] Buat, ubah, hapus, dan susun ulang group berfungsi
-- [ ] Slug bentrok ditolak dengan pesan Bahasa Indonesia
+      — kode lengkap dan ter-commit, menunggu pembuktian di peramban
+- [x] Slug bentrok ditolak dengan pesan Bahasa Indonesia
+      — dibuktikan `tests/groups/resolve-slug.test.ts` dan
+      `tests/validation/group.test.ts`, keenam kalimatnya kata per kata
 - [ ] Akordeon dapat dioperasikan penuh dengan papan ketik dan mengumumkan keadaannya
+      — menunggu pembuktian di peramban
 - [ ] Keadaan lipat bertahan setelah muat ulang halaman
-- [ ] Setiap mutasi memeriksa `role === OWNER` di server
+      — menunggu pembuktian di peramban
+- [x] Setiap mutasi memeriksa `role === OWNER` di server
+      — keempat server action DAN halaman dashboard memanggil
+      `requireOwner()` sebagai pernyataan pertama; diaudit review akhir
+      terhadap invarian 5
 - [ ] Terang, gelap, dan lebar ponsel diperiksa
-- [ ] `npm run build` lulus
+      — menunggu pembuktian di peramban
+- [x] `npm run build` lulus
+      — bersama `typecheck` 0, `lint` 0, dan 180 test di 15 berkas
+
+> Keempat butir yang belum tercentang menuntut login Google sungguhan
+> dan baris nyata di Neon, jadi tidak ada agen yang boleh
+> membuktikannya. Daftar langkahnya ada di `context/progress-tracker.md`
+> bagian "Pemeriksaan peramban Unit 2 — menunggu pemilik".
 
 ---
 

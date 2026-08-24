@@ -23,6 +23,13 @@ yang berarti.
   tanpa keluar-masuk sekali pun. Peran memang diturunkan
   ulang tiap sesi dibaca, bukan dibaca dari kolom yang bisa
   basi.
+- **Unit 2 TUTUP, 24 Agustus 2026.** Tiga belas task dieksekusi
+  lewat subagent di worktree `.claude/worktrees/unit-2-cms-group`,
+  18 commit dari `a896901`. Keempat gerbang lulus: `typecheck` 0,
+  `lint` 0 tanpa peringatan, **180 test di 15 berkas**, `build`
+  sukses. Ditutup review menyeluruh satu cabang penuh dengan model
+  paling mampu memakai empat belas invarian `architecture.md`
+  sebagai lensa.
 - Tidak ada lagi pertanyaan terbuka.
 
 ## Current Goal
@@ -396,60 +403,190 @@ yang berarti.
 
 ## In Progress
 
-### Unit 2 BERJALAN — dijeda 21 Agustus 2026 karena limit mingguan
+**Kosong.** Unit 2 selesai; yang tersisa hanyalah pemeriksaan
+peramban oleh pemilik, didaftar di bawah.
 
-Eksekusi Unit 2 sudah dimulai dengan alur **Subagent-Driven
-Development** dan dijeda di tengah jalan. Bacalah bagian ini
-lebih dulu sebelum melanjutkan.
+### Unit 2 SELESAI — 24 Agustus 2026
 
-**Di mana kita berhenti**
+Branch `unit-2-cms-group`, 18 commit dari `a896901`, belum
+digabung. Rencana: `docs/superpowers/plans/2026-08-21-unit-2-cms-group.md`.
 
-| | |
-| --- | --- |
-| Branch kerja | `unit-2-cms-group`, dicabang dari `a896901` |
-| `main` | `a896901`, sejajar dengan pangkal branch |
-| Rencana | `docs/superpowers/plans/2026-08-21-unit-2-cms-group.md`, 13 task |
-| Task 1 | **Ter-commit di `786770d`, TETAPI BELUM DIREVIEW** |
-| Task 2–13 | Belum disentuh |
-| Working tree | Bersih |
+**Yang dibangun.** Pemilik dapat membuat, mengubah, menghapus,
+dan menyusun ulang group, serta melihat seluruhnya sebagai daftar
+akordeon yang dapat dilipat. Daftar dirender server, interaktivitas
+dipegang satu cangkang klien, seluruh mutasi lewat server action.
 
-**Langkah berikutnya, persis:** jalankan task reviewer untuk
-Task 1. Paket diff-nya sudah dibuat di
-`.superpowers/sdd/review-a896901..786770d.diff`. Jangan
-menandai Task 1 selesai sebelum review itu bersih, dan jangan
-mengirim Task 2 sebelum Task 1 lolos.
+**Bentuknya mengikuti satu keputusan arsitektur.** Setiap aturan
+yang *dapat diputuskan* ditulis sebagai fungsi murni di `lib/`,
+terpisah dari lapisan Prisma yang setipis mungkin. Proyek ini tidak
+punya database uji dan tidak punya lingkungan uji DOM, jadi
+pemisahan itu bukan estetika — ia satu-satunya cara aturan-aturan
+tersebut punya pengujian yang benar-benar dijalankan. Hasilnya 180
+test, seluruhnya atas fungsi murni.
 
-Task 1 menghasilkan `lib/groups/slugify.ts` dan
-`tests/groups/slugify.test.ts` — 24 test baru, 78 test total,
-ketiga gerbang lulus.
+**Empat keputusan yang lahir di sesi brainstorming**, seluruhnya
+terpasang:
 
-**Peringatan tentang berkas kerja.** Seluruh isi
-`.superpowers/sdd/` — ledger, task brief, laporan implementer,
-dan paket diff — diabaikan Git oleh `.superpowers/sdd/.gitignore`
-dan **tidak ikut ter-commit**. `git clean -fdx` akan
-menghapusnya tanpa sisa. Bila itu terjadi, peta pemulihannya
-adalah `git log` ditambah bagian ini; task brief dapat dibuat
-ulang dari berkas rencana kapan saja.
+1. Lencana **"Tidak dibagikan"** bernada netral menggantikan
+   "Nonaktif" untuk saklar berbagi yang mati. Nadanya mengikuti
+   siapa penyebabnya: saklar mati adalah pilihan sadar pemilik,
+   sedangkan kedaluwarsa terjadi tanpa ia memutuskan apa pun.
+2. Slug **turunan** yang bentrok diberi akhiran diam-diam;
+   slug **ketikan tangan** yang bentrok ditolak beserta usulan.
+   Pemilik tidak pernah mengetik slug turunan, jadi menghentikannya
+   dengan galat berarti menyalahkan orang atas sesuatu yang bukan
+   pilihannya.
+3. **Penomoran ulang rapat** pada setiap pemindahan dan setiap
+   penghapusan, sehingga keadaan basis data selalu kanonis dan tidak
+   ada jalur pemulihan celah yang harus ditulis dan diuji.
+4. **Kontrol urutan disembunyikan**, bukan diabukan, saat daftar
+   sedang tersaring. Kontrol nonaktif yang tetap terlihat sebagai
+   tombol hanya mengundang ketukan yang gagal.
 
-Hal yang sama berlaku untuk `.impeccable/surfaces/` — kedua
-surface brief Fase 2 ada di sana dan diabaikan `.gitignore:24`.
+**Tiga keputusan tambahan yang diambil pemilik saat eksekusi,**
+seluruhnya karena rencana bertentangan dengan dirinya sendiri:
 
-**Empat keputusan Pre-Flight yang sudah diambil pemilik** dan
-tidak perlu ditanyakan ulang saat melanjutkan:
+- **Rencana Task 2 tidak lolos berkas test-nya sendiri.** Kode
+  Step 7 verbatim menghasilkan `{ status: "ok", slug: "rapat-kerja-2" }`
+  pada kasus "mengubah group, slug turunan bentrok dengan group lain",
+  sedangkan test Step 5 menuntut `{ status: "conflict", ... }`.
+  Implementer diam-diam menambahkan cabang untuk merekonsiliasinya dan
+  melaporkannya sebagai transkripsi persis — klaim yang keliru dan
+  tertangkap review. **Putusan: test yang menang.** Cabangnya
+  dipertahankan lalu didaratkan dengan benar di `7125401`: komentar
+  alasannya, tiga test tambahan, dan teks rencana diperbaiki.
+  Alasannya kuat — di mode ubah kolom slug tidak pernah terisi
+  otomatis, jadi slug yang dikirim selalu ketikan tangan, dan
+  mengubahnya diam-diam dapat mematahkan link yang sudah disebarkan.
+- **Segmen bawaan "Aktif" menyembunyikan setiap group yang bisa
+  dibuat Unit 2.** Tidak ada satu pun aksi di unit ini yang menyalakan
+  `shareEnabled`, sehingga semua group berstatus `UNSHARED` — dan
+  klasifikasi lama menganggapnya nonaktif. Akibatnya group yang baru
+  disimpan langsung lenyap dan layar berbunyi "Tidak ada group yang
+  cocok". **Putusan: hanya `EXPIRED` yang nonaktif;** `UNSHARED` ikut
+  tampil di segmen Aktif. Alasannya sejalan dengan komentar
+  `lib/groups/status.ts` sendiri — kedaluwarsa adalah satu-satunya
+  keadaan yang mematikan group tanpa pemilik memutuskan apa pun.
+- **Daftar periksa Task 13 menuntut slug ikut berubah saat judul
+  diubah**, padahal kode Task 9 sengaja menghentikannya
+  (`slugTouched` mulai `true` di mode ubah). **Putusan: kode yang
+  menang**, daftar periksanya yang diperbaiki — dengan alasan yang
+  sama seperti butir pertama.
 
-1. Pekerjaan Fase 2 di-commit lebih dulu di `main`, lalu
-   branch `unit-2-cms-group` dibuat dari sana.
-2. Rencana menang atas reviewer soal ketiadaan pengujian
-   komponen. Kendalanya disalin apa adanya ke prompt reviewer
-   sebagai batasan proyek yang mengikat — reviewer tetap bebas
-   menandai, dan pengadilannya dilakukan dengan teks rencana di
-   tangan. Task 1–6 tetap dituntut TDD penuh.
-3. Task 12 boleh menulis ulang `group-list.tsx` secara utuh;
-   alasannya dijelaskan ke reviewernya sebagai fakta.
-4. Model per peran: implementer task bertranskripsi kode
-   lengkap memakai model termurah, task antarmuka memakai model
-   menengah, dan review akhir seluruh branch memakai model
-   paling mampu.
+**Temuan review akhir yang diterapkan.** Reviewer memakai empat belas
+invarian `architecture.md` sebagai lensa. Tidak ada temuan Critical.
+Lima temuan Important dan empat Minor diterapkan di `8adc371`,
+`2c7186c`, dan `5c95372`:
+
+- **`app/(dashboard)/dashboard/page.tsx` tidak menggerbangi dirinya
+  sendiri**, hanya bersandar pada layout. Next.js merender layout dan
+  halaman bersamaan, dan navigasi lunak antar segmen bersaudara tidak
+  menjalankan ulang layout bersarang — jadi begitu Unit 3 menambah
+  rute saudara, halaman ini terbuka tanpa gerbang. Sekarang memanggil
+  `requireOwner()` sebagai pernyataan pertamanya.
+- **`id`, `currentSlug`, dan `direction` tidak melewati Zod** —
+  pelanggaran invarian 9. `currentSlug` kini dibaca dari basis data
+  lewat `getGroupSlugById()`, bukan dari formulir, karena nilainya
+  menentukan cabang `resolveSlug()` dan isi himpunan `taken`.
+  `id` dan `direction` divalidasi skema. Yang paling menentukan:
+  `moveGroupAction` dulu menulis
+  `formData.get("direction") === "up" ? "up" : "down"`, sehingga nilai
+  yang tidak dikenali **jatuh diam-diam ke "down" dan tetap
+  memindahkan baris** — persis bentuk yang dilarang `CLAUDE.md`.
+  Sekarang arah yang tidak terbaca tidak mengubah apa pun.
+- **Balapan lost-update di `moveGroupAction`.** Pembacaan urutan ada
+  di luar transaksi, jadi dua ketukan cepat bisa menghitung dari
+  urutan basi lalu saling menimpa — dan karena klien menerapkan
+  keduanya secara optimistis, pemilik melihat dua pemindahan mendarat
+  lalu satu membatalkan diri. Sekarang `moveGroupInTransaction()`
+  membaca dan menulis di dalam satu transaksi, berurutan dalam
+  `for`, bukan `Promise.all`.
+- **Id DOM ganda** di `group-form-row.tsx` saat baris buat dan baris
+  ubah terbuka bersamaan; kini memakai `useId()`.
+- **`DASHBOARD_PATH` terduplikasi** — satu sasaran `redirect()`, satu
+  sasaran `revalidatePath()`, yang akan berselisih diam-diam begitu
+  dashboard pindah. Kini satu konstanta.
+- `P2025` yang tidak tertangkap, penyaring yang tidak dapat diuji
+  (kini `lib/groups/filter.ts` beserta testnya), dan `applyGroupOrder`
+  yang menjadi mati.
+
+**Yang MASIH menunggu tangan pemilik.** Tidak ada satu pun
+pemeriksaan peramban yang dijalankan agen — alur OAuth menuntut
+kredensial manusia sungguhan dan datanya menuntut baris nyata di
+Neon. Daftar lengkapnya ada di bagian "Pemeriksaan peramban Unit 2"
+di bawah, dan exit criteria Fase 3 di `ROADMAP.md` sengaja belum
+dicentang untuk butir-butir itu.
+
+**Penyimpangan Unit 1 yang ditangani dan yang tidak.**
+`requireOwner()` kini dipanggil sendiri oleh keempat server action
+DAN oleh halaman dashboard — penyimpangan pertama tertutup. Tetapi
+**`callbackUrl` masih selalu menunjuk `/dashboard`**, bukan URL yang
+diminta. Masih benar selama `/dashboard` satu-satunya rute di grup;
+**task pertama Unit 3 yang menambah rute saudara wajib
+memperbaikinya**, atau pemilik akan mendarat di tempat yang salah
+setelah masuk dari halaman detail.
+
+**Temuan Minor yang sengaja ditunda ke Unit 3:**
+
+- `countGroupItems()` di `lib/db/groups.ts` tidak dipakai siapa pun —
+  dialog hapus memakai `group.itemCount` dari payload daftar.
+  Keberadaannya diwajibkan rencana Task 6, jadi dibiarkan; Unit 3
+  akan memakainya atau menghapusnya.
+- `GroupDeleteDialog` dirender di dalam `AccordionContent`, sehingga
+  ikut terlepas bila akordeonnya ditutup. Sulit terpicu karena
+  dialognya modal.
+- `group-list.tsx` ada di 197 baris — di bawah batas ±200, tetapi
+  hanya sedikit. Potongan berikutnya yang wajar adalah memindahkan
+  keadaan akordeon terbuka ke `useOpenGroup(groups)`.
+
+**Peringatan tentang berkas kerja.** Seluruh isi `.superpowers/sdd/`
+— ledger, task brief, laporan implementer, dan paket diff — diabaikan
+Git dan **tidak ikut ter-commit**. `git clean -fdx` menghapusnya tanpa
+sisa; peta pemulihannya adalah `git log` ditambah bagian ini. Hal yang
+sama berlaku untuk `.impeccable/surfaces/`.
+
+### Pemeriksaan peramban Unit 2 — menunggu pemilik
+
+Jalankan `npm run dev` dari
+`D:\Kumpulink\kumpulink-app\.claude\worktrees\unit-2-cms-group`,
+masuk sebagai `laluardiansyah903@gmail.com`, lalu buka
+`http://localhost:3000/dashboard`.
+
+- [ ] Buat tiga group berturut-turut; ketiganya **langsung tampil**
+      di segmen bawaan Aktif (inilah yang diperbaiki putusan
+      `UNSHARED` ikut aktif — sebelumnya group baru lenyap)
+- [ ] Dua di antaranya diberi judul sama → slugnya `rapat-kerja` dan
+      `rapat-kerja-2`, **tanpa galat**
+- [ ] Ubah judul salah satunya → **slugnya TIDAK ikut berubah**;
+      link lama tetap hidup
+- [ ] Ketik tangan slug yang sudah dipakai group lain → ditolak
+      beserta tombol "Pakai …", dan menekannya mengisi kolom
+- [ ] Ketik `Rapat Kerja:` di kolom Slug → tampil `rapat-kerja-`
+      dan tanda hubung di ujung **tetap ada**
+- [ ] Susun ulang dengan tombol naik/turun → bergerak seketika,
+      dan urutannya bertahan setelah muat ulang
+- [ ] Ketuk tombol urutan **dua kali cepat** → urutan akhirnya benar,
+      tidak ada pemindahan yang membatalkan diri (ini yang dijaga
+      perbaikan balapan transaksi)
+- [ ] Saring dengan kolom pencarian → tombol urutan **hilang** dan
+      keterangan "Urutan hanya dapat diubah saat menampilkan Semua."
+      muncul
+- [ ] Pencarian tanpa hasil → "Tidak ada group yang cocok…",
+      **bukan** "Belum ada group"
+- [ ] Hapus satu group di tengah daftar → dialog menyebut **jumlah
+      item sungguhan**, fokus mendarat di **Batal**, `Esc` menutup
+      tanpa menghapus, dan sisanya tetap berurut rapat
+- [ ] Buka baris "Group baru" **dan** baris "Ubah judul dan slug"
+      bersamaan → klik label "Judul" di baris ubah memfokuskan kolom
+      baris ubah, bukan kolom baris buat (perbaikan id DOM ganda)
+- [ ] Akordeon: `Tab` ke pemicu, lalu `Enter` dan `Space` keduanya
+      membuka dan menutup; `aria-expanded` berubah `false` ↔ `true`
+- [ ] Hanya satu akordeon terbuka pada satu waktu, dan yang terbuka
+      bertahan setelah muat ulang halaman
+- [ ] Judul panjang terpotong satu baris, judul utuhnya muncul
+      sebagai tooltip
+- [ ] Ulangi seluruh langkah di atas di **mode gelap**, lalu di
+      **lebar ponsel**
 
 ### Riwayat sebelumnya
 
@@ -499,24 +636,34 @@ penayangan proyektor **tidak lagi** mengunci arah visual.
 
 ## Next Up
 
-1. **Fase 3 — Unit 2, CMS group.** Membuat, mengubah,
-   menghapus, dan menyusun ulang group; akordeon dashboard;
-   pembuatan dan validasi keunikan slug.
+1. **Pemilik menjalankan pemeriksaan peramban Unit 2** di atas.
+   Sampai itu selesai, tujuh exit criteria Fase 3 di `ROADMAP.md`
+   tetap terbuka — bukan karena kodenya kurang, melainkan karena
+   tidak ada agen yang boleh membuktikannya.
 
-   Dua hal dari Unit 1 yang wajib ditangani begitu unit ini
-   mulai, keduanya sudah terdiagnosis:
-   - **`requireOwner()` di layout hanya melindungi halaman.**
-     Route handler tidak pernah dibungkus layout; badan server
-     action berjalan sebelum layout dirender ulang; navigasi
-     lunak antar segmen bersaudara tidak menjalankan ulang
-     layout bersarang. Ketiganya wajib memanggil
-     `requireOwner()` sendiri. Sudah tertulis sebagai komentar
-     di `app/(dashboard)/layout.tsx`.
-   - **`callbackUrl` selalu menunjuk `/dashboard`**, bukan URL
-     yang diminta. Benar selama `/dashboard` satu-satunya rute
-     di grup; begitu `/dashboard/requests` ada, pengunjung yang
-     belum masuk akan mendarat di tempat yang salah. Ini
-     penyimpangan dari K2 yang diterima sementara.
+2. **Gabungkan `unit-2-cms-group`** setelah pemeriksaan itu lulus,
+   lalu buang worktree-nya. Ledger eksekusinya sebaiknya
+   diselamatkan ke `docs/superpowers/riwayat/` lebih dulu, seperti
+   yang dilakukan untuk Unit 1 — isinya seluruh putusan pemilik dan
+   temuan reviewer di atas.
+
+3. **Fase 4 — Unit 3, item dan unggahan.** Item bertipe `LINK`,
+   `PDF`, `IMAGE`; `lib/storage/` sebagai satu-satunya pengimpor SDK
+   Blob; batas 10 MB dan pemeriksaan tipe dari isi berkas;
+   penyusunan ulang dengan geser beserta alternatif tombol.
+
+   Tiga hal yang wajib ditangani begitu unit itu mulai:
+   - **`callbackUrl` masih menunjuk `/dashboard`.** Rute saudara
+     pertama di bawah `(dashboard)` membuat penyimpangan K2 ini
+     mulai menggigit. Perbaiki di task yang menambahkannya.
+   - **Route handler wajib memanggil `requireOwner()` sendiri.**
+     Unit 2 tidak menambah satu pun route handler, jadi kaki ketiga
+     penyimpangan Unit 1 belum pernah diuji di praktik.
+   - **`resolveGroupStatus()` jangan dipakai ulang di
+     `lib/access/evaluate-access.ts`.** Masukannya nyaris sama
+     sehingga godaannya besar, tetapi ia fungsi tampilan yang
+     cabang terakhirnya permisif. Evaluator akses menuntut `switch`
+     eksplisit dengan `default` yang menolak.
 
 ## Open Questions
 
