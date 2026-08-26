@@ -416,12 +416,33 @@ yang berarti.
 
 ## In Progress
 
-**Kosong.** Unit 3 selesai dan **keempat pemeriksaan peramban sudah
-dijalankan pemilik dan lulus, 26 Agustus 2026** — urutan lewat papan
-ketik saja, source `/dashboard` nol kecocokan untuk `fileKey`,
-`blob.vercel-storage.com`, dan `groups/`, unggahan tepat 4 MB diterima
-sementara 4 MB lebih satu byte ditolak, serta berkas benar-benar hilang
-dari Blob saat item dan group dihapus.
+**Dua butir masih terbuka.** Unit 3 selesai secara isi, dan **keempat
+pemeriksaan peramban sudah dijalankan pemilik dan lulus, 26 Agustus
+2026** — urutan lewat papan ketik saja, source `/dashboard` nol
+kecocokan untuk `fileKey`, `blob.vercel-storage.com`, dan `groups/`,
+unggahan tepat 4 MB diterima sementara 4 MB lebih satu byte ditolak,
+serta berkas benar-benar hilang dari Blob saat item dan group dihapus.
+
+**Daftar periksa "Before Moving to the Next Unit" — butir 4 dan 5 BELUM
+tertutup, 26 Agustus 2026.** Antarmuka Unit 3 belum pernah dilihat mata
+siapa pun di mode gelap maupun di lebar ponsel. Bukan karena terlewat:
+seluruh antarmuka Unit 3 hidup di `/dashboard`, yang dijaga
+`requireOwner()`, dan sesi peramban agen bukan sesi pemilik — jadi agen
+hanya sampai di layar masuk bawaan Auth.js, yang bukan halaman kita.
+
+Yang SUDAH dibuktikan secara statis untuk kedua butir itu: nol nilai
+heksadesimal di seluruh komponen `item-*` dan `group-accordion-body`;
+sepuluh token warna yang dipakai seluruhnya punya definisi di mode
+terang DAN gelap di `app/globals.css`; `item-card.tsx:39-40` memakai
+pola mobile-first (`flex-col` dasar, `sm:flex-row` ke atas).
+
+Itu membuktikan tidak ada warna yang lolos dari sistem token, bukan
+bahwa hasilnya enak dilihat. Cacat seperti kontras kurang, lencana yang
+menabrak judul, atau kartu yang melipat buruk hanya terlihat dengan
+membukanya. Pemilik perlu membuka `/dashboard` di kedua mode dan di
+lebar 375px sebelum unit ini benar-benar ditutup — persis seperti cacat
+akordeon terpotong di Unit 2, yang lolos dari rencana, implementasi, dan
+seluruh putaran review, lalu ketahuan pada pemeriksaan peramban.
 
 **Keputusan lingkup baru, 26 Agustus 2026: pratinjau tertanam.**
 Dipindahkan dari Out of Scope ke dalam lingkup atas permintaan pemilik,
