@@ -13,6 +13,8 @@ import {
 } from "@/lib/db/groups";
 import { isRecordNotFoundError, isUniqueConstraintError } from "@/lib/db/prisma-errors";
 import { resolveSlug } from "@/lib/groups/resolve-slug";
+import { deleteFilesByPrefix } from "@/lib/storage/blob";
+import { groupBlobPrefix } from "@/lib/storage/blob-path";
 import type { GroupActionState } from "@/lib/types/group-action";
 import {
   groupFormSchema,
@@ -150,6 +152,25 @@ export async function deleteGroupAction(formData: FormData): Promise<void> {
     if (isRecordNotFoundError(error)) return;
     throw error;
   }
+
+  // SETELAH transaksi commit, bukan di dalamnya. Menahan transaksi basis
+  // data terbuka selama panggilan jaringan ke object storage adalah pola
+  // yang sudah dilarang code-standards.md untuk email, dan alasannya
+  // sama.
+  //
+  // Menyapu lewat awalan, bukan melingkar di atas fileKey yang terbaca
+  // dari baris: cascade Prisma sudah menghapus baris Item di dalam
+  // basis data tanpa kode ini pernah melihatnya, dan sapuan awalan
+  // sekaligus membersihkan berkas yatim dari kegagalan sebelumnya.
+  try {
+    await deleteFilesByPrefix(groupBlobPrefix(idResult.data));
+  } catch (error) {
+    console.error("Gagal menyapu berkas group di object storage", {
+      groupId: idResult.data,
+      error,
+    });
+  }
+
   revalidatePath(DASHBOARD_PATH);
 }
 
