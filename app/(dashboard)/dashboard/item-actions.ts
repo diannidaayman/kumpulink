@@ -100,11 +100,17 @@ export async function updateItemAction(
 ): Promise<ItemActionState> {
   await requireOwner();
 
+  // formData.get() mengembalikan null untuk medan yang tidak dikirim
+  // (item UPLOAD tidak mengirim targetUrl sama sekali). Zod menguji null
+  // terhadap skema dan menolaknya, sedangkan undefined dianggap absen —
+  // jadi null dipetakan ke undefined di sini, bukan diteruskan apa adanya.
+  const rawTargetUrl = formData.get("targetUrl");
   const parsed = itemMetadataFormSchema.safeParse({
     id: formData.get("id"),
     title: formData.get("title"),
     description: formData.get("description") ?? "",
     accessMode: formData.get("accessMode"),
+    targetUrl: rawTargetUrl === null ? undefined : rawTargetUrl,
   });
   if (!parsed.success) {
     const issue = parsed.error.issues[0];

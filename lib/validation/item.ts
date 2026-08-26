@@ -143,11 +143,19 @@ export const uploadItemFieldsSchema = z.object({
   accessMode: itemAccessModeSchema,
 });
 
+/**
+ * `targetUrl` opsional: hanya item `EXTERNAL` boleh mengubahnya, dan
+ * `formData.get()` mengembalikan `null` untuk medan yang tidak ada —
+ * pemanggil wajib memetakan `null` ke `undefined` sebelum sampai di
+ * sini, karena Zod 4 memperlakukan `undefined` sebagai "absen" tetapi
+ * `null` tetap diuji terhadap skema dan gagal.
+ */
 export const itemMetadataFormSchema = z.object({
   id: itemIdSchema,
   title: itemTitleSchema,
   description: itemDescriptionSchema,
   accessMode: itemAccessModeSchema,
+  targetUrl: targetUrlSchema.optional(),
 });
 
 export const reorderItemsSchema = z.object({

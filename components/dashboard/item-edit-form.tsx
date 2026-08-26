@@ -11,7 +11,8 @@ import { EMPTY_ITEM_ACTION_STATE, type ItemActionState } from "@/lib/types/item-
 import type { ItemListEntry } from "@/lib/types/item";
 
 /**
- * Menyunting metadata saja: judul, deskripsi, dan tingkat akses.
+ * Menyunting judul, deskripsi, tingkat akses, dan — khusus item EXTERNAL —
+ * tautan tujuannya.
  *
  * Mengganti BERKAS berada di luar lingkup Unit 3 dan itu disengaja.
  * Jalur ganti-berkas memikul bobot yang sama dengan jalur buat —
@@ -61,6 +62,25 @@ export function ItemEditForm({ item, onDone }: { item: ItemListEntry; onDone: ()
           <p className="mt-1 text-sm text-state-error">{error.error.message}</p>
         )}
       </div>
+
+      {item.source === "EXTERNAL" && (
+        <div>
+          <label className="block text-sm text-muted-foreground" htmlFor={`${uid}-url`}>
+            Tautan
+          </label>
+          <Input
+            id={`${uid}-url`}
+            name="targetUrl"
+            className="font-mono"
+            placeholder="https://"
+            defaultValue={item.targetUrl ?? ""}
+            aria-invalid={error?.field === "targetUrl"}
+          />
+          {error?.field === "targetUrl" && (
+            <p className="mt-1 text-sm text-state-error">{error.error.message}</p>
+          )}
+        </div>
+      )}
 
       <ItemAccessModeField id={`${uid}-mode`} defaultValue={item.accessMode} />
 

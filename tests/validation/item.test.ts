@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   itemAccessModeSchema,
   itemDescriptionSchema,
+  itemMetadataFormSchema,
   itemTitleSchema,
   targetUrlSchema,
 } from "@/lib/validation/item";
@@ -148,5 +149,35 @@ describe("membatasi judul dan deskripsi item", () => {
 
   it("menolak deskripsi yang melewati 300 karakter", () => {
     expect(itemDescriptionSchema.safeParse("a".repeat(301)).success).toBe(false);
+  });
+});
+
+describe("itemMetadataFormSchema — targetUrl opsional untuk edit item", () => {
+  const base = {
+    id: "item_1",
+    title: "Judul",
+    description: "",
+    accessMode: "OPEN",
+  };
+
+  it("menerima targetUrl yang valid", () => {
+    const result = itemMetadataFormSchema.safeParse({
+      ...base,
+      targetUrl: "https://contoh.com/rundown",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("menolak targetUrl berskema javascript:", () => {
+    const result = itemMetadataFormSchema.safeParse({
+      ...base,
+      targetUrl: "javascript:alert(1)",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("valid tanpa targetUrl sama sekali — kasus item UPLOAD", () => {
+    const result = itemMetadataFormSchema.safeParse(base);
+    expect(result.success).toBe(true);
   });
 });

@@ -83,6 +83,11 @@ export async function updateItemMetadata(input: {
   title: string;
   description: string | null;
   accessMode: AccessMode;
+  // Absen berarti "tidak berubah", bukan "kosongkan" — dan item UPLOAD
+  // tidak pernah mengirimnya sama sekali. Menulis `targetUrl` tanpa syarat
+  // di sini akan menimpanya dengan `undefined`/`null` untuk item UPLOAD,
+  // yang tidak boleh punya kolom ini disentuh sama sekali.
+  targetUrl?: string;
 }): Promise<void> {
   await prisma.item.update({
     where: { id: input.id },
@@ -90,6 +95,7 @@ export async function updateItemMetadata(input: {
       title: input.title,
       description: input.description,
       accessMode: input.accessMode,
+      ...(input.targetUrl !== undefined ? { targetUrl: input.targetUrl } : {}),
     },
   });
 }
