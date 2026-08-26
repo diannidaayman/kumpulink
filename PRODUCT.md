@@ -145,7 +145,11 @@ folder cloud bersama, kiriman di grup chat):
   daftar item dan penerusan lewat gerbang keduanya dirender di server dan
   berupa tautan biasa.
 - PDF dan gambar dibuka di tab baru dengan penampil bawaan peramban
-  (`Content-Disposition: inline`), bukan tertanam di halaman group.
+  (`Content-Disposition: inline`). Sejak 26 Agustus 2026 item bermode
+  `OPEN` yang bersumber `UPLOAD` juga dipratinjau tertanam di halaman
+  group; item `IDENTITY` dan `APPROVAL` tidak pernah, karena berkas yang
+  tampil tanpa diklik akan mencatat akses yang tidak pernah diputuskan
+  siapa pun.
 
 ### Istilah tetap
 
@@ -160,14 +164,16 @@ Pendaftaran publik dan banyak pemilik; group bersarang; daftar putih email
 atau kode akses; pengajuan ulang setelah ditolak; persetujuan otomatis
 berbasis aturan; ekspor riwayat ke CSV/Excel; kolaborasi, komentar, atau
 reaksi; domain kustom, tema kustom, atau penyesuaian merek; notifikasi push
-atau pesan instan; pratinjau PDF tertanam; statistik agregat di luar tabel
-riwayat mentah.
+atau pesan instan; pratinjau tertanam untuk item `IDENTITY` maupun
+`APPROVAL`; statistik agregat di luar tabel riwayat mentah.
 
 ### Sengaja ditunda
 
-Ekspor riwayat ke CSV, ringkasan jumlah klik per item, pratinjau PDF
-tertanam, dan persetujuan otomatis berdasarkan domain email. Model datanya
-sudah dirancang agar keempatnya dapat ditambahkan tanpa perubahan skema.
+Ekspor riwayat ke CSV, ringkasan jumlah klik per item, pratinjau tertanam
+untuk item `OPEN` bersumber `UPLOAD`, dan persetujuan otomatis berdasarkan
+domain email. Model datanya sudah dirancang agar keempatnya dapat
+ditambahkan tanpa perubahan skema. Pratinjau menunggu Unit 4 menyediakan
+rute penyajian berkas, lalu dijadwalkan Unit 5 atau sesudahnya.
 Tabel penghitung rate limit juga belum didefinisikan dan sengaja ditunda ke
 Unit 4 (K7).
 

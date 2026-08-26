@@ -416,8 +416,22 @@ yang berarti.
 
 ## In Progress
 
-**Kosong.** Unit 3 selesai; yang tersisa hanyalah pemeriksaan
-peramban oleh pemilik, didaftar di bawah.
+**Kosong.** Unit 3 selesai dan **keempat pemeriksaan peramban sudah
+dijalankan pemilik dan lulus, 26 Agustus 2026** — urutan lewat papan
+ketik saja, source `/dashboard` nol kecocokan untuk `fileKey`,
+`blob.vercel-storage.com`, dan `groups/`, unggahan tepat 4 MB diterima
+sementara 4 MB lebih satu byte ditolak, serta berkas benar-benar hilang
+dari Blob saat item dan group dihapus.
+
+**Keputusan lingkup baru, 26 Agustus 2026: pratinjau tertanam.**
+Dipindahkan dari Out of Scope ke dalam lingkup atas permintaan pemilik,
+**dibatasi pada item bermode `OPEN` yang bersumber `UPLOAD`**. Item
+`IDENTITY` dan `APPROVAL` tetap wajib diklik, karena berkas yang tampil
+tanpa diklik membuat `AccessLog` mencatat akses yang tidak pernah
+diputuskan siapa pun — dan itu menggerus sasaran nomor 4 sekaligus
+alasan riwayat akses ada. Belum dibangun: menunggu Unit 4 menyediakan
+rute penyajian berkas, lalu dijadwalkan Unit 5 atau sesudahnya. Tercatat
+di `project-overview.md`, `ui-context.md`, `ROADMAP.md`, dan `PRODUCT.md`.
 
 ### Unit 3 SELESAI — 26 Agustus 2026
 

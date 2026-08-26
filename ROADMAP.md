@@ -762,7 +762,7 @@ model datanya sudah tidak menghalangi:
 | ----- | ----------------- | --------- |
 | Ekspor riwayat ke CSV | `AccessLog` | Tampilan saja |
 | Ringkasan klik per item | `AccessLog` | Agregasi saja |
-| Pratinjau PDF tertanam | — | Cara menampilkan saja |
+| Pratinjau tertanam, `OPEN` + `UPLOAD` saja | — | Cara menampilkan saja; menunggu rute penyajian berkas Unit 4 |
 | Persetujuan otomatis per domain email | `AccessRequest.requesterEmail` | Aturan saja |
 | Pemangkasan `AccessLog` | — | Bergantung pada D4 |
 

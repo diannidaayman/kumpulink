@@ -502,8 +502,32 @@ sehingga halaman group tetap terbuka dan pengunjung tidak
 perlu menekan tombol kembali untuk membuka item berikutnya.
 PDF dan gambar unggahan dikirim dengan
 `Content-Disposition: inline`, jadi tampil di penampil
-bawaan peramban di tab baru itu — bukan tertanam di dalam
-halaman group.
+bawaan peramban di tab baru itu.
+
+**Pratinjau tertanam, hanya untuk `OPEN` bersumber
+`UPLOAD`.** Ditetapkan 26 Agustus 2026; rumusan sebelumnya
+melarang pratinjau tertanam tanpa kecuali. Kartu item yang
+bermode `OPEN` **dan** bersumber `UPLOAD` menampilkan isi
+berkasnya langsung di halaman group. Kartunya tetap dapat
+diklik untuk membuka tab baru — pratinjau menambah, tidak
+menggantikan.
+
+Item `IDENTITY` dan `APPROVAL` **tidak pernah** dipratinjau,
+sekalipun bersumber `UPLOAD`. Alasannya bukan tata letak
+melainkan pertanggungjawaban: berkas yang tampil sendiri
+berarti tertarik tanpa diklik, dan `AccessLog` akan mencatat
+setiap pengunjung membuka setiap dokumen terlindungi hanya
+karena ia menggulir halaman. Klik itulah keputusan sadar
+yang dicatat riwayat, dan pratinjau menghapusnya. Alasan
+lengkapnya di `project-overview.md` bagian In Scope.
+
+Pratinjau **tidak boleh menjadi jalur akses kedua**: ia
+tetap melewati gerbang item yang sama seperti klik biasa,
+sesuai invarian 1. Tidak ada URL Blob yang muncul di HTML
+halaman group, apa pun mode aksesnya.
+
+Belum dibangun. Menunggu Unit 4 menyediakan rute penyajian
+berkas; dijadwalkan Unit 5 atau sesudahnya.
 
 ## Tata Bahasa Lencana
 

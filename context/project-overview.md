@@ -191,6 +191,28 @@ yang sudah membuka dokumen penting, itu yang belum ada.
   yang sudah disetujui
 - QR code per group
 - Antarmuka mendukung mode terang dan gelap
+- Pratinjau tertanam di halaman group, **hanya** untuk item
+  bermode `OPEN` yang bersumber `UPLOAD`
+
+**Kenapa pratinjau dibatasi pada `OPEN` saja.** Ditetapkan
+26 Agustus 2026, memindahkannya dari Out of Scope atas
+permintaan pemilik. Aplikasi ini mencatat siapa membuka
+dokumen apa dan jam berapa. Bila berkas tampil sendiri di
+halaman group, membuka halaman itu saja sudah menarik
+berkasnya, dan `AccessLog` akan mencatat setiap pengunjung
+membuka setiap dokumen — padahal ia mungkin hanya lewat.
+Riwayatnya berhenti menjawab pertanyaan yang membuatnya ada,
+dan sasaran nomor 4 di bawah — tidak ada akses tanpa
+keputusan sadar — ikut gugur.
+
+Item `OPEN` tidak memikul pertanggungjawaban itu: aksesnya
+memang tidak dicatat sebagai keputusan siapa pun. Di sana
+pratinjau tidak berbiaya, jadi di sanalah ia diizinkan.
+Item `IDENTITY` dan `APPROVAL` tetap wajib diklik, dan
+klik itulah yang menjadi keputusan sadar yang dicatat.
+
+Dibangun paling cepat **setelah Unit 4**, karena rute yang
+mengalirkan berkas dari object storage baru lahir di sana.
 
 ### Out of Scope
 
@@ -207,8 +229,9 @@ yang sudah membuka dokumen penting, itu yang belum ada.
 - Domain kustom, tema kustom, atau penyesuaian merek
 - Notifikasi push atau pesan instan; pemberitahuan hanya
   lewat email dan lencana di dashboard
-- Pratinjau PDF tertanam di dalam halaman group — berkas
-  dibuka di tab baru menggunakan penampil bawaan peramban
+- Pratinjau tertanam untuk item bermode `IDENTITY` maupun
+  `APPROVAL` — keduanya selalu wajib diklik. Alasannya di
+  bagian In Scope di atas
 - Statistik agregat di luar tabel riwayat mentah
 
 ### Deliberately Deferred
@@ -220,7 +243,9 @@ model datanya dirancang agar tidak menghalangi:
   `AccessLog`
 - Ringkasan jumlah klik per item — dapat dihitung dari
   `AccessLog`
-- Pratinjau PDF tertanam — hanya persoalan cara
+- Pratinjau tertanam untuk item `OPEN` bersumber `UPLOAD` —
+  masuk lingkup 26 Agustus 2026, tetapi menunggu Unit 4
+  menyediakan rute penyajian berkasnya. Hanya persoalan cara
   menampilkan, tidak menyentuh model data
 - Persetujuan otomatis berdasarkan domain email —
   `AccessRequest` sudah menyimpan email pemohon, jadi
