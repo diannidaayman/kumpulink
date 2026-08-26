@@ -296,7 +296,11 @@ Di bagian File Organization, sisipkan tepat setelah butir `lib/groups/`:
 grep -rn "10 MB\|10MB\|11 MB" context/ ROADMAP.md PRODUCT.md CLAUDE.md
 ```
 
-Expected: **tidak ada keluaran sama sekali**, dan `grep` keluar dengan kode 1. Bila masih ada kecocokan, perbaiki sebelum commit.
+Expected: **tepat dua kecocokan, keduanya di `context/architecture.md`**, dan keduanya di dalam paragraf "Kenapa 4 MB dan bukan 10 MB" yang ditulis Step 1 — yaitu catatan sejarah tentang angka yang ditinggalkan, bukan pernyataan bahwa batasnya 10 MB.
+
+Nol kecocokan di `ROADMAP.md`, `PRODUCT.md`, `CLAUDE.md`, dan di seluruh `context/` selain paragraf itu. Bila ada baris lain yang masih **menyatakan** batasnya 10 MB, perbaiki sebelum commit.
+
+Rumusan sebelumnya menuntut nol keluaran, dan itu mustahil: prosa Step 1 memang menyebut angka lama dua kali justru untuk menjelaskan kenapa ia ditinggalkan. Yang diperiksa di sini adalah tidak adanya pernyataan normatif yang basi, bukan tidak adanya angka itu sebagai kata.
 
 - [ ] **Step 10: Commit**
 
