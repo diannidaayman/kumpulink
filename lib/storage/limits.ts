@@ -9,6 +9,20 @@ import { ACCEPTED_MIME_TYPES } from "@/lib/storage/detect-file-type";
  */
 export const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
 
+/**
+ * Kelonggaran untuk amplop multipart: boundary, header tiap bagian, dan
+ * medan teks judul, deskripsi, serta accessMode.
+ *
+ * Content-Length mengukur SELURUH badan permintaan, sedangkan
+ * MAX_UPLOAD_BYTES membatasi BERKASNYA saja. Membandingkan keduanya
+ * langsung membuat berkas tepat 4 MB ditolak, dan membuat batas yang
+ * sebenarnya bergeser mengikuti panjang deskripsi yang diketik pemilik.
+ *
+ * Hanya dipakai pemeriksaan MURAH; penegakan yang mengikat tetap atas
+ * byteLength berkas itu sendiri.
+ */
+export const MULTIPART_ENVELOPE_ALLOWANCE = 8 * 1024;
+
 /** Nama berkas unggahan dipotong sebelum disimpan; ia label, bukan kunci. */
 export const MAX_FILE_NAME_LENGTH = 255;
 

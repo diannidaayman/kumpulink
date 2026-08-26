@@ -7,14 +7,25 @@ import { insertItem } from "@/lib/db/items";
 import { putFile, deleteFile } from "@/lib/storage/blob";
 import { buildBlobPath } from "@/lib/storage/blob-path";
 import { detectFileType, itemTypeFor } from "@/lib/storage/detect-file-type";
-import { MAX_FILE_NAME_LENGTH, MAX_UPLOAD_BYTES } from "@/lib/storage/limits";
-import { uploadItemFieldsSchema } from "@/lib/validation/item";
+import {
+  MAX_FILE_NAME_LENGTH,
+  MAX_UPLOAD_BYTES,
+  MULTIPART_ENVELOPE_ALLOWANCE,
+} from "@/lib/storage/limits";
+import { itemIdSchema, uploadItemFieldsSchema } from "@/lib/validation/item";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 function failure(status: number, code: string, message: string): NextResponse {
   return NextResponse.json({ error: { code, message } }, { status });
+}
+
+/** Karakter kendali ASCII (termasuk CR, LF, tab) dan tanda kutip ganda. */
+const UNSAFE_FILE_NAME_CHARS = /[\x00-\x1f\x7f"]/g;
+
+function sanitizeFileName(name: string): string {
+  return name.replace(UNSAFE_FILE_NAME_CHARS, "");
 }
 
 /**
@@ -37,14 +48,22 @@ export async function POST(
 
   // Penolakan MURAH lebih dulu. Header ini dikirim klien dan TIDAK
   // dipercaya sebagai penegakan — ia hanya menghemat pembacaan badan
-  // permintaan yang sudah pasti ditolak. Penegakan yang mengikat ada di
-  // pemeriksaan byteLength di bawah.
+  // permintaan yang sudah pasti ditolak. Content-Length mengukur SELURUH
+  // amplop multipart (boundary, header tiap bagian, medan title/
+  // description/accessMode), bukan hanya berkasnya, jadi dibandingkan
+  // dengan batas ditambah kelonggaran amplop — bukan batas telanjang.
+  // Penegakan yang mengikat, atas kuantitas yang sebenarnya dibatasi, ada
+  // di pemeriksaan byteLength di bawah.
   const declared = Number(request.headers.get("content-length"));
-  if (Number.isFinite(declared) && declared > MAX_UPLOAD_BYTES) {
+  if (Number.isFinite(declared) && declared > MAX_UPLOAD_BYTES + MULTIPART_ENVELOPE_ALLOWANCE) {
     return failure(413, "FILE_TOO_LARGE", "Ukuran berkas maksimal 4 MB.");
   }
 
-  const { groupId } = await context.params;
+  const groupIdResult = itemIdSchema.safeParse((await context.params).groupId);
+  if (!groupIdResult.success) {
+    return failure(404, "NOT_FOUND", "Group tidak ditemukan.");
+  }
+  const groupId = groupIdResult.data;
   if (!(await groupExists(groupId))) {
     return failure(404, "NOT_FOUND", "Group tidak ditemukan.");
   }
@@ -93,7 +112,12 @@ export async function POST(
       source: "UPLOAD",
       accessMode: fields.data.accessMode,
       fileKey,
-      fileName: file.name.slice(0, MAX_FILE_NAME_LENGTH),
+      // Dibersihkan sebelum dipotong: Unit 4 akan menaruh nilai ini di
+      // header Content-Disposition saat mengalirkan berkas, dan tanda
+      // kutip ganda atau CR/LF di dalamnya adalah bentuk klasik injeksi
+      // header. Karakter kendali (termasuk CR dan LF) serta tanda kutip
+      // ganda dibuang di sini, satu-satunya tempat nama ini pernah ditulis.
+      fileName: sanitizeFileName(file.name).slice(0, MAX_FILE_NAME_LENGTH),
       mimeType,
       sizeBytes: bytes.byteLength,
     });
