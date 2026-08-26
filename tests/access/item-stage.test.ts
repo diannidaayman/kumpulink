@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { evaluateItemAccess } from "@/lib/access/evaluate-access";
+import type { AccessMode } from "@prisma/client";
 import type {
   AccessGroup,
   AccessItem,
@@ -25,6 +26,7 @@ const itemTerbuka: AccessItem = {
 
 const pemilik: AccessSession = { userId: "u-owner", role: "OWNER" };
 const pengunjung: AccessSession = { userId: "u-viewer", role: "VIEWER" };
+const belumMasuk: AccessSession = null;
 
 const TANPA_IZIN = null;
 
@@ -66,16 +68,6 @@ describe("gerbang item — keberadaan dan keaktifan", () => {
         TANPA_IZIN,
         NOW,
       ),
-    ).toEqual({ kind: "DENIED", reason: "NOT_FOUND" });
-  });
-
-  // Sikap sementara: sampai aturan accessMode lahir di task berikutnya,
-  // TIDAK ADA pengunjung yang dapat membuka item apa pun, betapa pun
-  // aktif dan sah item serta groupnya. Task berikutnya akan mengubah
-  // harapan pengujian ini saat cabang accessMode ditambahkan.
-  it("menolak pengunjung membuka item yang aktif dan sah selama aturan accessMode belum ada", () => {
-    expect(
-      evaluateItemAccess(groupAktif, itemTerbuka, pengunjung, TANPA_IZIN, NOW),
     ).toEqual({ kind: "DENIED", reason: "NOT_FOUND" });
   });
 
@@ -166,5 +158,95 @@ describe("gerbang item — pemilik", () => {
         NOW,
       ),
     ).toEqual({ kind: "GRANTED", ownerPreview: true });
+  });
+});
+
+describe("gerbang item — tingkat akses", () => {
+  it("meneruskan pengunjung anonim ke item terbuka", () => {
+    expect(
+      evaluateItemAccess(groupAktif, itemTerbuka, belumMasuk, TANPA_IZIN, NOW),
+    ).toEqual({ kind: "GRANTED", ownerPreview: false });
+  });
+
+  it("meminta pengunjung masuk lebih dulu pada item yang aksesnya dicatat", () => {
+    expect(
+      evaluateItemAccess(
+        groupAktif,
+        { ...itemTerbuka, accessMode: "IDENTITY" },
+        belumMasuk,
+        TANPA_IZIN,
+        NOW,
+      ),
+    ).toEqual({ kind: "NEEDS_LOGIN" });
+  });
+
+  it("meneruskan pengunjung yang sudah masuk ke item yang aksesnya dicatat", () => {
+    expect(
+      evaluateItemAccess(
+        groupAktif,
+        { ...itemTerbuka, accessMode: "IDENTITY" },
+        pengunjung,
+        TANPA_IZIN,
+        NOW,
+      ),
+    ).toEqual({ kind: "GRANTED", ownerPreview: false });
+  });
+
+  it("meminta pengunjung masuk lebih dulu pada item yang butuh persetujuan", () => {
+    expect(
+      evaluateItemAccess(
+        groupAktif,
+        { ...itemTerbuka, accessMode: "APPROVAL" },
+        belumMasuk,
+        TANPA_IZIN,
+        NOW,
+      ),
+    ).toEqual({ kind: "NEEDS_LOGIN" });
+  });
+
+  // Kriteria sukses nomor 8: item APPROVAL tanpa catatan izin berstatus
+  // APPROVED selalu ditolak, TERMASUK ketika fitur persetujuannya belum
+  // selesai dibangun. Unit 7 mengubah baris ini menjadi NEEDS_REQUEST;
+  // sampai saat itu yang benar adalah penolakan. Lihat U4-1 di
+  // progress-tracker.md.
+  it("menolak pengunjung yang sudah masuk pada item yang butuh persetujuan selama alur izin belum ada", () => {
+    expect(
+      evaluateItemAccess(
+        groupAktif,
+        { ...itemTerbuka, accessMode: "APPROVAL" },
+        pengunjung,
+        TANPA_IZIN,
+        NOW,
+      ),
+    ).toEqual({ kind: "DENIED", reason: "NOT_FOUND" });
+  });
+
+  // Pemeranan tipenya disengaja. Yang sedang diuji adalah data yang lebih
+  // tua atau lebih baru daripada kode — baris database yang ditulis versi
+  // berikutnya lalu dibaca versi sekarang. TypeScript tidak melindungi
+  // dari itu; cabang `default` yang melindunginya, dan pengujian inilah
+  // buktinya. Menambah mode baru tidak boleh diam-diam membuka akses.
+  it("menolak nilai tingkat akses yang tidak dikenalinya", () => {
+    expect(
+      evaluateItemAccess(
+        groupAktif,
+        { ...itemTerbuka, accessMode: "SOMETHING_ELSE" as AccessMode },
+        pengunjung,
+        TANPA_IZIN,
+        NOW,
+      ),
+    ).toEqual({ kind: "DENIED", reason: "NOT_FOUND" });
+  });
+
+  it("menolak nilai tingkat akses yang tidak dikenali bahkan sebelum meminta pengunjung masuk", () => {
+    expect(
+      evaluateItemAccess(
+        groupAktif,
+        { ...itemTerbuka, accessMode: "SOMETHING_ELSE" as AccessMode },
+        belumMasuk,
+        TANPA_IZIN,
+        NOW,
+      ),
+    ).toEqual({ kind: "DENIED", reason: "NOT_FOUND" });
   });
 });

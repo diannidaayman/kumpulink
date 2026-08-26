@@ -105,5 +105,28 @@ export function evaluateItemAccess(
   // penonaktifan yang pemilik lakukan sendiri.
   if (session?.role === "OWNER") return granted(groupDecision.ownerPreview);
 
-  return denied("NOT_FOUND");
+  switch (item.accessMode) {
+    case "OPEN":
+      return granted(groupDecision.ownerPreview);
+
+    case "IDENTITY":
+      if (session === null) return { kind: "NEEDS_LOGIN" };
+      return granted(groupDecision.ownerPreview);
+
+    case "APPROVAL":
+      if (session === null) return { kind: "NEEDS_LOGIN" };
+      // SEMENTARA — Unit 7 mengganti seluruh cabang ini dengan keenam
+      // keadaan AccessRequest: tanpa catatan → NEEDS_REQUEST, PENDING →
+      // PENDING_APPROVAL, REJECTED, REVOKED, APPROVED kedaluwarsa, dan
+      // APPROVED. Sampai saat itu sikapnya menolak, bukan meloloskan —
+      // kriteria sukses nomor 8, dan keputusan U4-1 di
+      // progress-tracker.md. Ini keputusan, bukan cabang yang kelupaan.
+      return denied("NOT_FOUND");
+
+    default:
+      // Nilai yang tidak dikenali menolak, dan TIDAK lolos ke cabang
+      // terakhir. Penambahan mode baru tidak boleh diam-diam membuka
+      // akses; ia harus gagal dengan berisik di sini lebih dulu.
+      return denied("NOT_FOUND");
+  }
 }
