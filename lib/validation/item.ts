@@ -36,8 +36,22 @@ export const itemDescriptionSchema = z
  * "contoh.com:8080/x" memuat titik dua, jadi ia tidak dilengkapi dan
  * gagal terurai — ditolak dengan pesan jelas, bukan ditebak.
  */
+/**
+ * Skema di AWAL string, bukan titik dua di mana saja.
+ *
+ * Rumusan sebelumnya memakai value.includes(":") dan menolak tautan sah
+ * yang memuat titik dua di jalur atau query — stempel waktu YouTube
+ * seperti youtu.be/watch?v=x&t=1:30 salah satunya. Itu persis cacat yang
+ * hendak dihindari pelengkapan https:// ini.
+ *
+ * Titik dua sesudah rangkaian karakter skema yang sah tetap dianggap
+ * skema, sehingga contoh.com:8080/x TETAP ditolak alih-alih ditebak —
+ * pertukaran yang sudah diputuskan pemilik.
+ */
+const HAS_SCHEME = /^[a-z][a-z0-9+.-]*:/i;
+
 function parseTargetUrl(value: string): string | null {
-  const candidate = value.includes(":") ? value : `https://${value}`;
+  const candidate = HAS_SCHEME.test(value) ? value : `https://${value}`;
 
   let url: URL;
   try {
@@ -67,11 +81,24 @@ export const targetUrlSchema = z
       ctx.addIssue({ code: "custom", message: "Tautan maksimal 2048 karakter." });
       return;
     }
-    if (parseTargetUrl(value) === null) {
+
+    const normalized = parseTargetUrl(value);
+    if (normalized === null) {
       ctx.addIssue({
         code: "custom",
         message: "Tautan harus diawali http:// atau https://.",
       });
+      return;
+    }
+
+    // Diperiksa ULANG setelah normalisasi. Pemeriksaan di atas berjalan
+    // atas masukan mentah, sedangkan pelengkapan https:// menambah
+    // delapan karakter — sehingga host telanjang sepanjang 2044 sampai
+    // 2048 karakter akan lolos gerbang pertama lalu melewati batas.
+    // Yang mengikat adalah panjang bentuk kanonis, karena itulah yang
+    // disimpan dan yang nanti masuk header Location.
+    if (normalized.length > MAX_TARGET_URL_LENGTH) {
+      ctx.addIssue({ code: "custom", message: "Tautan maksimal 2048 karakter." });
     }
   })
   // Diurai dua kali secara sengaja: refinement Zod tidak dapat

@@ -89,6 +89,29 @@ describe("menolak tautan yang membawa kredensial atau terlalu panjang", () => {
   it("menolak host bertitik dua yang tidak dapat diuraikan, alih-alih menebaknya", () => {
     expect(rejects("contoh.com:8080/x")).toBe(true);
   });
+
+  it("menolak host telanjang yang MELEWATI batas hanya setelah dilengkapi https://", () => {
+    // 2045 karakter mentah lolos gerbang pertama, lalu menjadi 2053
+    // setelah dilengkapi. Yang mengikat adalah panjang bentuk kanonis,
+    // karena itulah yang disimpan dan yang masuk header Location.
+    const bareHost = `contoh.com/${"a".repeat(2034)}`;
+    expect(bareHost).toHaveLength(2045);
+    expect(rejects(bareHost)).toBe(true);
+  });
+});
+
+describe("menerima titik dua yang bukan penanda skema", () => {
+  it("menerima host telanjang yang memuat titik dua di query", () => {
+    // Stempel waktu YouTube. Rumusan lama memakai includes(":") dan
+    // menolak tautan ini, padahal ia sah dan lazim ditempel.
+    expect(accepts("youtu.be/watch?v=abc&t=1:30")).toBe(
+      "https://youtu.be/watch?v=abc&t=1:30",
+    );
+  });
+
+  it("menerima host telanjang yang memuat titik dua di jalur", () => {
+    expect(accepts("contoh.com/rapat/10:00")).toBe("https://contoh.com/rapat/10:00");
+  });
 });
 
 describe("membatasi accessMode pada nilai yang fiturnya sudah ada", () => {
