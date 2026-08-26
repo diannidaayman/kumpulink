@@ -6,8 +6,7 @@ import { useState } from "react";
 import { GroupDeleteDialog } from "@/components/dashboard/group-delete-dialog";
 import { GroupFormRow } from "@/components/dashboard/group-form-row";
 import { ItemAddPanel } from "@/components/dashboard/item-add-panel";
-import { ItemCard } from "@/components/dashboard/item-card";
-import { ItemEmptyState } from "@/components/dashboard/item-empty-state";
+import { ItemList } from "@/components/dashboard/item-list";
 import { Button } from "@/components/ui/button";
 import type { GroupListItem } from "@/lib/types/group";
 import type { ItemListEntry } from "@/lib/types/item";
@@ -37,15 +36,7 @@ export function GroupAccordionBody({
     <GroupFormRow mode="edit" group={group} onDone={onEditDone} />
   ) : (
     <>
-      {items.length === 0 ? (
-        <ItemEmptyState />
-      ) : (
-        <div className="flex flex-col gap-2">
-          {items.map((item) => (
-            <ItemCard key={item.id} item={item} />
-          ))}
-        </div>
-      )}
+      <ItemList groupId={group.id} items={items} />
 
       {addingToId === group.id ? (
         <div className="mt-3">
