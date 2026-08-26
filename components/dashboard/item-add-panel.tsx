@@ -18,13 +18,15 @@ export function ItemAddPanel({ groupId, onDone }: { groupId: string; onDone: () 
 
   return (
     <div className="rounded-xl border border-border bg-card p-4">
-      <div role="tablist" aria-label="Sumber item" className="mb-4 flex gap-1 rounded-lg bg-muted p-1">
+      {/* Dua tombol biasa berlabel, bukan pola tab ARIA: tab menuntut
+          tabpanel, aria-controls, dan roving tabindex dengan panah kiri-
+          kanan, dan setengah dari itu terasa lebih menyesatkan bagi
+          pembaca layar daripada tidak ada sama sekali. */}
+      <div className="mb-4 flex gap-1 rounded-lg bg-muted p-1">
         {TABS.map((tab) => (
           <button
             key={tab.value}
             type="button"
-            role="tab"
-            aria-selected={source === tab.value}
             onClick={() => setSource(tab.value)}
             className={cn(
               "flex-1 rounded-md px-3 py-1.5 text-sm",

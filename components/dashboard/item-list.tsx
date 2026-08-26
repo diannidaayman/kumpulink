@@ -79,11 +79,19 @@ export function ItemList({ groupId, items }: { groupId: string; items: ItemListE
   );
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [announcement, setAnnouncement] = useState("");
 
   // Jarak aktivasi 8 piksel: tanpa itu, setiap klik pada pegangan
   // terhitung sebagai seret sepanjang nol piksel, dan tombol di
   // sekitarnya berhenti dapat ditekan di perangkat sentuh.
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
+
+  function announceMove(id: string, next: ItemListEntry[]) {
+    const item = next.find((entry) => entry.id === id);
+    if (item === undefined) return;
+    const position = next.findIndex((entry) => entry.id === id) + 1;
+    setAnnouncement(`${item.title} dipindah ke posisi ${position} dari ${next.length}.`);
+  }
 
   function commit(next: ItemListEntry[]) {
     startTransition(async () => {
@@ -96,7 +104,9 @@ export function ItemList({ groupId, items }: { groupId: string; items: ItemListE
   }
 
   function handleMove(id: string, direction: "up" | "down") {
-    commit(moveInList(order, id, direction));
+    const next = moveInList(order, id, direction);
+    announceMove(id, next);
+    commit(next);
   }
 
   function handleDragEnd(event: DragEndEvent) {
@@ -110,45 +120,52 @@ export function ItemList({ groupId, items }: { groupId: string; items: ItemListE
     const next = [...order];
     const [moved] = next.splice(from, 1);
     next.splice(to, 0, moved);
+    announceMove(String(active.id), next);
     commit(next);
   }
 
   if (order.length === 0) return <ItemEmptyState />;
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      modifiers={[restrictToVerticalAxis, restrictToParentElement]}
-      onDragEnd={handleDragEnd}
-    >
-      <SortableContext items={order.map((item) => item.id)} strategy={verticalListSortingStrategy}>
-        <div className="flex flex-col gap-2">
-          {order.map((item, index) =>
-            editingId === item.id ? (
-              <ItemEditForm key={item.id} item={item} onDone={() => setEditingId(null)} />
-            ) : (
-              <div key={item.id}>
-                <SortableItemRow
-                  item={item}
-                  index={index}
-                  total={order.length}
-                  onMove={(direction) => handleMove(item.id, direction)}
-                  onEdit={() => setEditingId(item.id)}
-                  onDelete={() => setDeletingId(item.id)}
-                />
-                {deletingId === item.id && (
-                  <ItemDeleteDialog
+    <>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        modifiers={[restrictToVerticalAxis, restrictToParentElement]}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext items={order.map((item) => item.id)} strategy={verticalListSortingStrategy}>
+          <div className="flex flex-col gap-2">
+            {order.map((item, index) =>
+              editingId === item.id ? (
+                <ItemEditForm key={item.id} item={item} onDone={() => setEditingId(null)} />
+              ) : (
+                <div key={item.id}>
+                  <SortableItemRow
                     item={item}
-                    open
-                    onOpenChange={(next) => setDeletingId(next ? item.id : null)}
+                    index={index}
+                    total={order.length}
+                    onMove={(direction) => handleMove(item.id, direction)}
+                    onEdit={() => setEditingId(item.id)}
+                    onDelete={() => setDeletingId(item.id)}
                   />
-                )}
-              </div>
-            ),
-          )}
-        </div>
-      </SortableContext>
-    </DndContext>
+                  {deletingId === item.id && (
+                    <ItemDeleteDialog
+                      item={item}
+                      open
+                      onOpenChange={(next) => setDeletingId(next ? item.id : null)}
+                    />
+                  )}
+                </div>
+              ),
+            )}
+          </div>
+        </SortableContext>
+      </DndContext>
+
+      <p aria-live="polite" className="sr-only">
+        {announcement}
+      </p>
+    </>
   );
 }
