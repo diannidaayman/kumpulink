@@ -1,6 +1,6 @@
 "use client";
 
-import { useOptimistic, useTransition } from "react";
+import { useOptimistic, useState, useTransition } from "react";
 import {
   DndContext,
   PointerSensor,
@@ -16,8 +16,11 @@ import { GripVertical } from "lucide-react";
 
 import { reorderItemsAction } from "@/app/(dashboard)/dashboard/item-actions";
 import { ItemCard } from "@/components/dashboard/item-card";
+import { ItemDeleteDialog } from "@/components/dashboard/item-delete-dialog";
+import { ItemEditForm } from "@/components/dashboard/item-edit-form";
 import { ItemEmptyState } from "@/components/dashboard/item-empty-state";
 import { ItemReorderButtons } from "@/components/dashboard/item-reorder-buttons";
+import { ItemRowActions } from "@/components/dashboard/item-row-actions";
 import { moveInList } from "@/lib/order/move";
 import type { ItemListEntry } from "@/lib/types/item";
 
@@ -31,11 +34,15 @@ function SortableItemRow({
   index,
   total,
   onMove,
+  onEdit,
+  onDelete,
 }: {
   item: ItemListEntry;
   index: number;
   total: number;
   onMove: (direction: "up" | "down") => void;
+  onEdit: () => void;
+  onDelete: () => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: item.id,
@@ -48,6 +55,7 @@ function SortableItemRow({
       className={isDragging ? "relative z-10 opacity-80" : undefined}
     >
       <ItemCard item={item}>
+        <ItemRowActions item={item} onEdit={onEdit} onDelete={onDelete} />
         <ItemReorderButtons title={item.title} index={index} total={total} onMove={onMove} />
         <button
           type="button"
@@ -69,6 +77,8 @@ export function ItemList({ groupId, items }: { groupId: string; items: ItemListE
     items,
     (_current: ItemListEntry[], next: ItemListEntry[]) => next,
   );
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Jarak aktivasi 8 piksel: tanpa itu, setiap klik pada pegangan
   // terhitung sebagai seret sepanjang nol piksel, dan tombol di
@@ -114,15 +124,29 @@ export function ItemList({ groupId, items }: { groupId: string; items: ItemListE
     >
       <SortableContext items={order.map((item) => item.id)} strategy={verticalListSortingStrategy}>
         <div className="flex flex-col gap-2">
-          {order.map((item, index) => (
-            <SortableItemRow
-              key={item.id}
-              item={item}
-              index={index}
-              total={order.length}
-              onMove={(direction) => handleMove(item.id, direction)}
-            />
-          ))}
+          {order.map((item, index) =>
+            editingId === item.id ? (
+              <ItemEditForm key={item.id} item={item} onDone={() => setEditingId(null)} />
+            ) : (
+              <div key={item.id}>
+                <SortableItemRow
+                  item={item}
+                  index={index}
+                  total={order.length}
+                  onMove={(direction) => handleMove(item.id, direction)}
+                  onEdit={() => setEditingId(item.id)}
+                  onDelete={() => setDeletingId(item.id)}
+                />
+                {deletingId === item.id && (
+                  <ItemDeleteDialog
+                    item={item}
+                    open
+                    onOpenChange={(next) => setDeletingId(next ? item.id : null)}
+                  />
+                )}
+              </div>
+            ),
+          )}
         </div>
       </SortableContext>
     </DndContext>
