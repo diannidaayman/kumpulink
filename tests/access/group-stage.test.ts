@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { evaluateGroupAccess } from "@/lib/access/evaluate-access";
 import type { AccessGroup, AccessSession } from "@/lib/types/access";
+import type { Visibility } from "@prisma/client";
 
 const NOW = new Date("2026-08-27T10:00:00Z");
 const KEMARIN = new Date("2026-08-26T10:00:00Z");
@@ -104,6 +105,18 @@ describe("gerbang group", () => {
       evaluateGroupAccess({ ...groupAktif, expiresAt: null }, pengunjung, BESOK),
     ).toEqual({ kind: "GRANTED", ownerPreview: false });
   });
+
+  // Kedua operan `||` pada penanda ownerPreview sudah diuji sendiri-sendiri
+  // di atas, tetapi belum pernah bersamaan. Ini melengkapi matriksnya.
+  it("membolehkan pemilik dengan spanduk pratinjau ketika link dicabut DAN kedaluwarsa sekaligus", () => {
+    expect(
+      evaluateGroupAccess(
+        { ...groupAktif, shareEnabled: false, expiresAt: KEMARIN },
+        pemilik,
+        NOW,
+      ),
+    ).toEqual({ kind: "GRANTED", ownerPreview: true });
+  });
 });
 
 // Urutan aturan adalah bagian dari aturannya. Ketiga pengujian berikut
@@ -148,7 +161,7 @@ describe("ambang kedaluwarsa", () => {
     ).toEqual({ kind: "DENIED", reason: "EXPIRED" });
   });
 
-  it("belum menganggap kedaluwarsa satu detik sebelum tanggalnya", () => {
+  it("belum menganggap kedaluwarsa ketika now satu detik sebelum expiresAt", () => {
     expect(
       evaluateGroupAccess(
         { ...groupAktif, expiresAt: new Date("2026-08-27T10:00:01Z") },
@@ -156,5 +169,31 @@ describe("ambang kedaluwarsa", () => {
         NOW,
       ),
     ).toEqual({ kind: "GRANTED", ownerPreview: false });
+  });
+});
+
+// Nilai `visibility` yang tidak dikenal mensimulasikan data yang lebih
+// baru daripada kode: baris database yang ditulis oleh versi aplikasi
+// berikutnya (dengan anggota enum baru), lalu dibaca oleh versi yang
+// sedang berjalan sekarang, yang belum tahu apa-apa soal anggota itu.
+// Baris merah proyek: keadaan yang tidak pasti selalu berarti menolak.
+describe("gerbang group — nilai visibility yang tidak dikenal", () => {
+  const groupVisibilityAsing: AccessGroup = {
+    ...groupAktif,
+    visibility: "SOMETHING_ELSE" as Visibility,
+  };
+
+  it("menolak pengunjung yang sudah masuk ketika visibility tidak dikenal", () => {
+    expect(evaluateGroupAccess(groupVisibilityAsing, pengunjung, NOW)).toEqual({
+      kind: "DENIED",
+      reason: "NOT_FOUND",
+    });
+  });
+
+  it("menolak pengunjung yang belum masuk ketika visibility tidak dikenal", () => {
+    expect(evaluateGroupAccess(groupVisibilityAsing, belumMasuk, NOW)).toEqual({
+      kind: "DENIED",
+      reason: "NOT_FOUND",
+    });
   });
 });

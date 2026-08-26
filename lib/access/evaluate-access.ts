@@ -45,10 +45,23 @@ export function evaluateGroupAccess(
 
   if (!group.shareEnabled) return denied("REVOKED");
   if (isExpired(group, now)) return denied("EXPIRED");
-  if (group.visibility === "PRIVATE") return denied("PRIVATE");
-  if (group.visibility === "REQUIRE_LOGIN" && session === null) {
-    return { kind: "NEEDS_LOGIN" };
-  }
 
-  return granted(false);
+  switch (group.visibility) {
+    case "PRIVATE":
+      return denied("PRIVATE");
+    case "REQUIRE_LOGIN":
+      return session === null ? { kind: "NEEDS_LOGIN" } : granted(false);
+    case "PUBLIC":
+      return granted(false);
+    default: {
+      // Nilai `visibility` yang tidak dikenal menolak, bukan meloloskan:
+      // ini satu-satunya sikap yang sejalan dengan bawaan-menolak di
+      // seluruh berkas ini. Penjaga keterjangkauan berikut membuat
+      // penambahan anggota enum baru gagal saat kompilasi, bukan
+      // membocorkan group bertingkat baru itu ke publik secara senyap.
+      const _exhaustive: never = group.visibility;
+      void _exhaustive;
+      return denied("NOT_FOUND");
+    }
+  }
 }

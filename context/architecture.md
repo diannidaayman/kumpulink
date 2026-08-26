@@ -425,7 +425,16 @@ Dievaluasi berurutan, berhenti pada kecocokan pertama.
 5. `visibility = PRIVATE` → `DENIED / PRIVATE`
 6. `visibility = REQUIRE_LOGIN` dan pemohon belum masuk →
    `NEEDS_LOGIN`
-7. Selain itu → `GRANTED`
+7. `visibility = PUBLIC` → `GRANTED`
+8. Nilai `visibility` yang tidak dikenal → `DENIED / NOT_FOUND`
+
+**Kenapa butir 8 ada.** Ditetapkan 27 Agustus 2026. Rumusan
+sebelumnya, "Selain itu → GRANTED", membuat cabang terakhir
+tahap satu permisif — satu-satunya di berkas ini yang seluruh
+sisanya menolak. Anggota enum baru akan lolos ke publik tanpa
+galat tipe maupun pengujian merah. Penjaga keterjangkauan
+`never` di implementasinya membuat penambahan itu gagal saat
+kompilasi.
 
 ### Tahap dua: item
 
