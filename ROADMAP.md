@@ -378,14 +378,14 @@ ini dan akan tertangkap di review.
 
 **Exit criteria.**
 
-- [ ] Ketiga tipe item dapat ditambahkan dari kedua sumber
-- [ ] PDF 4 MB diterima, 5 MB ditolak **di server**
-- [ ] Berkas yang isinya bukan salah satu dari empat tipe diterima akan ditolak, apa pun ekstensi namanya
-- [ ] `targetUrl` hanya menerima skema `http` dan `https`
-- [ ] Menghapus item juga menghapus berkasnya di Blob
-- [ ] Urutan dapat diubah dengan geser dan dengan papan ketik
-- [ ] `APPROVAL` belum dapat dipilih di CMS
-- [ ] Hanya `lib/storage/` yang mengimpor `@vercel/blob` (diverifikasi dengan pencarian di seluruh repo)
+- [ ] Ketiga tipe item dapat ditambahkan dari kedua sumber (menunggu pemeriksaan peramban pemilik — menuntut sesi OAuth dan store Blob sungguhan)
+- [ ] PDF 4 MB diterima, 5 MB ditolak **di server** (menunggu pemeriksaan peramban pemilik — batas kini dihitung atas `byteLength` berkas, bukan `Content-Length` amplop multipart, tapi unggahan sungguhan belum dibuktikan lewat browser)
+- [x] Berkas yang isinya bukan salah satu dari empat tipe diterima akan ditolak, apa pun ekstensi namanya — `detectFileType()` daftar putih atas magic bytes, diuji tuntas di `tests/storage/detect-file-type.test.ts`
+- [x] `targetUrl` hanya menerima skema `http` dan `https` — `targetUrlSchema`, diuji di `tests/validation/item.test.ts`
+- [ ] Menghapus item juga menghapus berkasnya di Blob (menunggu pemeriksaan peramban pemilik — kode memanggil `deleteFile(fileKey)` sesudah baris terhapus, tapi belum dibuktikan atas store Blob sungguhan)
+- [x] Urutan dapat diubah dengan geser dan dengan papan ketik — `ItemList` (dnd-kit) dan `ItemReorderButtons`, keduanya memanggil `reorderItemsAction` yang sama; pengumuman `aria-live` ditambahkan di review final
+- [x] `APPROVAL` belum dapat dipilih di CMS — `itemAccessModeSchema` hanya `OPEN`/`IDENTITY`, diuji di `tests/validation/item.test.ts`
+- [x] Hanya `lib/storage/` yang mengimpor `@vercel/blob` (diverifikasi dengan pencarian di seluruh repo) — ditegakkan `tests/storage/blob-import-boundary.test.ts`
 
 ---
 

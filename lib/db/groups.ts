@@ -101,10 +101,6 @@ export async function moveGroupInTransaction(
   });
 }
 
-export async function countGroupItems(id: string): Promise<number> {
-  return prisma.item.count({ where: { groupId: id } });
-}
-
 /**
  * Dipakai route handler unggahan untuk menolak groupId karangan SEBELUM
  * berkas apa pun naik ke object storage.

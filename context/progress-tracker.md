@@ -36,6 +36,13 @@ yang berarti.
   lolos dari rencana, implementasi, dan seluruh putaran review — isi
   akordeon yang tumbuh ikut terpotong — diperbaiki di `7f9df08` lalu
   diperiksa ulang.
+- **Unit 3 SELESAI, 26 Agustus 2026.** Item dan unggahan: ketiga tipe
+  item dari kedua sumber, batas 4 MB, pemeriksaan tipe dari isi berkas,
+  penyusunan ulang dengan geser dan tombol. 13 commit dari `22a503c`,
+  ditambah tujuh temuan review final (empat Important, tiga Minor).
+  Keempat gerbang lulus: `typecheck` bersih, `lint` nol peringatan,
+  **230 test di 19 berkas**, `build` sukses. Rincian lengkap di bagian
+  "Unit 3 SELESAI" di bawah.
 - Tidak ada lagi pertanyaan terbuka.
 
 ## Current Goal
@@ -409,8 +416,123 @@ yang berarti.
 
 ## In Progress
 
-**Kosong.** Unit 2 selesai; yang tersisa hanyalah pemeriksaan
+**Kosong.** Unit 3 selesai; yang tersisa hanyalah pemeriksaan
 peramban oleh pemilik, didaftar di bawah.
+
+### Unit 3 SELESAI — 26 Agustus 2026
+
+Branch `worktree-unit-3-item-dan-unggahan`, 13 commit dari `22a503c`
+sampai `4657b47`, ditambah temuan review final di bawah. Belum
+digabung. Rencana: `docs/superpowers/plans/2026-08-2*-unit-3-item-dan-unggahan.md`.
+
+**Yang dibangun.** Pemilik dapat menambahkan item bertipe `LINK`,
+`PDF`, `IMAGE` dari sumber `EXTERNAL` maupun `UPLOAD` ke sebuah group,
+menyunting metadatanya, menonaktifkan, menghapus, dan menyusun ulang
+urutannya dengan geser atau tombol naik/turun. `accessMode` dibatasi
+`OPEN` dan `IDENTITY` — `APPROVAL` belum muncul di CMS, sesuai lingkup
+Fase 4.
+
+**Keputusan yang tidak dapat dipulihkan dari kode, dicatat di sini
+supaya tidak perlu ditemukan ulang:**
+
+- **Batas unggahan 4 MB, bukan 10 MB seperti draf awal.** Batas badan
+  permintaan Vercel Functions adalah 4,5 MB di tingkat infrastruktur
+  dan tidak dapat dinaikkan lewat konfigurasi apa pun — permintaan
+  yang melebihinya mati dengan 413 `FUNCTION_PAYLOAD_TOO_LARGE`
+  sebelum satu baris kode aplikasi berjalan. 4 MB menyisakan ruang
+  untuk amplop multipart di bawah pagu infrastruktur itu.
+  (`lib/storage/limits.ts`)
+- **Pemeriksaan tipe berkas dari magic bytes ditulis sendiri, bukan
+  memakai pustaka.** Hanya empat tanda tangan biner yang perlu
+  dikenali (`%PDF-`, `\x89PNG`, `\xFF\xD8\xFF`, `RIFF....WEBP`), dan
+  menambah dependensi untuk empat perbandingan byte adalah beban yang
+  tidak sepadan. Daftarnya PUTIH: apa pun yang tidak cocok salah satu
+  tanda tangan menghasilkan `null`, dan `null` berarti tolak — bukan
+  jatuh ke cabang permisif. (`lib/storage/detect-file-type.ts`)
+- **Pathname Blob berbentuk `groups/{groupId}/{24 byte acak base64url}.{ext}`.**
+  Awalan `groupId` bukan hiasan: ia yang membuat penghapusan sebuah
+  group dapat menyapu seluruh berkasnya dalam satu operasi list-lalu-
+  del berawalan (`deleteFilesByPrefix`), termasuk berkas yatim yang
+  tertinggal dari kegagalan sebelumnya. Segmen acaknya memakai
+  `crypto.randomBytes`, bukan `Math.random()`, supaya tidak dapat
+  ditebak. (`lib/storage/blob-path.ts`)
+- **Urutan hapus item: baris basis data dulu, berkas Blob kedua, dan
+  kegagalan langkah kedua ditelan.** Setiap jalur menuju konten
+  berangkat dari baris `Item`, jadi begitu barisnya hilang berkasnya
+  sudah tidak terjangkau lewat aplikasi meski penghapusan Blob gagal
+  total. Kebalikannya — berkas dulu — menukar sampah penyimpanan yang
+  tidak terlihat dengan item rusak yang terlihat pemilik. Pola yang
+  sama dipakai saat insert gagal: berkas yang sudah terlanjur naik
+  dihapus, kegagalannya ditelan, galat aslinya yang diteruskan.
+  (`lib/db/items.ts`, `app/(dashboard)/dashboard/item-actions.ts`,
+  `app/api/groups/[groupId]/items/route.ts`)
+- **`getFileStream()` tidak ditulis di unit ini — sengaja ditunda ke
+  Unit 4.** `lib/storage/blob.ts` hanya berisi `putFile`, `deleteFile`,
+  `deleteFilesByPrefix`. Mengalirkan berkas ke pengunjung menuntut
+  gerbang akses yang belum ada (`evaluateAccess()`), dan menulis
+  fungsi pengaliran tanpa gerbang yang memanggilnya berarti kode mati
+  yang tidak diuji jalur nyatanya.
+- **Mengganti berkas yang sudah diunggah tetap di luar lingkup.**
+  Formulir sunting item (`item-edit-form.tsx`) hanya mengubah judul,
+  deskripsi, `accessMode`, dan — khusus item `EXTERNAL` — `targetUrl`.
+  Jalur ganti-berkas memikul bobot yang sama dengan jalur buat
+  (multipart kedua, magic bytes lagi, urutan tukar-lalu-hapus-yang-
+  lama beserta kegagalannya sendiri) demi kasus yang jarang; untuk
+  mengganti berkas, pemilik menghapus item lalu menambahkannya lagi.
+- **`lib/groups/order.ts` dari Unit 2 dipindah menjadi `lib/order/move.ts`**
+  sebelum task pertama Unit 3 mulai (`22a503c`), supaya `moveInList`
+  dan `renumber` dapat dipakai bersama oleh urutan group maupun urutan
+  item tanpa satu sisi mengimpor direktori milik sisi lain.
+
+**Temuan review final yang diterapkan, empat Important dan tiga
+Minor:**
+
+- **Pemeriksaan `Content-Length` murah membebankan overhead amplop
+  multipart ke pagu per-berkas.** `Content-Length` mengukur SELURUH
+  badan permintaan — boundary, header tiap bagian, medan `title`,
+  `description`, `accessMode` — bukan hanya berkasnya, sehingga berkas
+  tepat 4 MB salah ditolak 413 sebelum pemeriksaan `byteLength` yang
+  mengikat sempat berjalan. Ditambah `MULTIPART_ENVELOPE_ALLOWANCE`
+  (8 KiB) khusus pada pemeriksaan murah ini; pemeriksaan `byteLength`
+  yang mengikat tidak disentuh.
+- **Menyunting item `EXTERNAL` tidak bisa mengubah `targetUrl`-nya.**
+  Bagian dari lingkup Unit 3 yang tertulis di rencana tapi belum
+  dibangun. `itemMetadataFormSchema` sekarang menerima `targetUrl`
+  opsional (absen untuk item `UPLOAD`, divalidasi `targetUrlSchema`
+  bila hadir), diteruskan lewat `updateItemAction` dan
+  `updateItemMetadata`, dan formulirnya menampilkan kolom Tautan hanya
+  untuk `item.source === "EXTERNAL"`.
+- **Penyusunan ulang item tidak mengumumkan apa pun ke pembaca
+  layar.** `components/dashboard/group-list.tsx` sudah punya wilayah
+  `aria-live="polite"` untuk pemindahan group; `item-list.tsx` tidak
+  punya padanannya. Ditambahkan, mengumumkan lewat jalur tombol
+  maupun jalur seret.
+- **`countGroupItems()` dihapus.** Nol pemanggil di seluruh
+  repositori (diverifikasi dengan pencarian), dan dialog hapus group
+  sudah memakai `group.itemCount` dari payload daftar.
+- Nama berkas unggahan dibersihkan dari karakter kendali dan tanda
+  kutip ganda sebelum disimpan — Unit 4 akan menaruhnya di header
+  `Content-Disposition`, dan kedua karakter itu adalah bentuk klasik
+  injeksi header.
+- `groupId` dari parameter rute kini diurai `itemIdSchema` sebelum
+  dipakai, bukan hanya diselamatkan oleh urutan `groupExists()` yang
+  kebetulan dipanggil lebih dulu.
+- Pola tab ARIA yang setengah jadi di `item-add-panel.tsx`
+  (`role="tablist"`/`role="tab"`/`aria-selected` tanpa `tabpanel`,
+  `aria-controls`, atau roving tabindex) dilepas seluruhnya menjadi
+  dua tombol biasa berlabel — jujur dan tetap sepenuhnya dapat
+  dioperasikan, alih-alih pola yang mengumumkan kendali yang tidak
+  sungguhan.
+
+**Keempat gerbang lulus:** `typecheck` bersih, `lint` nol peringatan,
+**230 test** di 19 berkas (naik dari 227 — tiga test baru untuk
+`targetUrl` opsional di `itemMetadataFormSchema`), `build` sukses.
+
+**Yang MASIH menunggu tangan pemilik.** Sama seperti Unit 1 dan 2,
+tidak ada pemeriksaan peramban yang dijalankan agen — alur unggah
+sungguhan dan penghapusan Blob sungguhan menuntut store nyata dan
+sesi OAuth nyata. `ROADMAP.md` Fase 4 mencatat exit criteria mana
+yang menunggu ini secara eksplisit.
 
 ### Unit 2 SELESAI — 24 Agustus 2026
 
@@ -674,28 +796,24 @@ dan pelajaran prosesnya — diselamatkan ke
 
 ## Next Up
 
-1. **Fase 4 — Unit 3, item dan unggahan.** Item bertipe `LINK`, `PDF`,
-   `IMAGE` dari sumber `EXTERNAL` maupun `UPLOAD`; `lib/storage/` sebagai
-   satu-satunya pengimpor SDK Blob; batas 4 MB dan pemeriksaan tipe
-   **dari isi berkas**; penyusunan ulang dengan geser beserta alternatif
-   tombol naik/turun; `accessMode` dibatasi pada `OPEN` dan `IDENTITY`.
+1. **Fase 5 — Unit 4, gerbang akses dan halaman publik.** Fase paling
+   berisiko dalam proyek: `evaluateAccess()` beserta matriks
+   pengujiannya ditulis sebelum satu halaman publik pun dibuat.
+   `getFileStream()` yang sengaja ditunda Unit 3 dibangun di sini,
+   dipanggil hanya dari balik gerbang. Rinciannya di `ROADMAP.md`
+   Fase 5.
 
-   Lima hal yang diwariskan Unit 2 dan wajib ditangani di task yang
-   menyentuhnya. Rinciannya di ledger Unit 2:
+   Hal yang diwariskan Unit 3 dan wajib ditangani di task yang
+   menyentuhnya:
 
-   - **`callbackUrl` masih menunjuk `/dashboard`.** Rute saudara pertama
-     di bawah `(dashboard)` membuat penyimpangan K2 ini mulai menggigit.
-   - **Route handler wajib memanggil `requireOwner()` sendiri.** Unit 2
-     tidak menambah satu pun, jadi kaki ketiga penyimpangan Unit 1 belum
-     pernah teruji di praktik.
    - **`resolveGroupStatus()` jangan dipakai ulang di
      `lib/access/evaluate-access.ts`.** Ia fungsi tampilan yang cabang
      terakhirnya permisif; evaluator akses menuntut penolakan sebagai
-     bawaan.
-   - **Akordeon yang isinya berubah saat terbuka.** Daftar item akan
-     tumbuh dan menyusut di dalam `AccordionContent`. Perbaikan `h-auto`
-     di `7f9df08` yang membuatnya mungkin — jangan dicabut.
-   - **`countGroupItems()` belum dipakai siapa pun.** Pakai atau hapus.
+     bawaan. (Diwariskan dari Unit 2, masih berlaku.)
+   - **Route handler unggahan Unit 3 memanggil `requireOwner()`
+     sendiri** — kaki ketiga penyimpangan Unit 1 (layout tidak
+     melindungi route handler) sekarang sudah teruji di praktik, bukan
+     hanya di teori.
 
 2. **Cabang `dev` masih tertinggal jauh di belakang `main`.** Alias
    preview Vercel menunjuk ke sana, dan Fase 10 menjalankan alur uji
