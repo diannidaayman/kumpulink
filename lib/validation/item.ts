@@ -24,31 +24,28 @@ export const itemDescriptionSchema = z
   .transform((value) => (value.length === 0 ? null : value));
 
 /**
- * Menguraikan tautan dengan pengurai URL WHATWG lalu MENDAFTARPUTIHKAN
- * protocol-nya. Bukan regex dan bukan startsWith: pengurai itulah yang
- * menormalkan JaVaScRiPt:, tab tersisip, dan baris baru tersisip menjadi
- * satu bentuk sebelum dibandingkan — dan justru varian itulah yang
- * mengalahkan regex.
+ * Menandai masukan yang SUDAH membawa skema, sehingga ia tidak dilengkapi
+ * https:// di depan.
  *
- * https:// dilengkapi HANYA bila masukan tidak memuat titik dua sama
- * sekali. Menempel dari bilah alamat sering menghasilkan host telanjang,
- * dan menolaknya akan terasa seperti cacat. Masukan seperti
- * "contoh.com:8080/x" memuat titik dua, jadi ia tidak dilengkapi dan
- * gagal terurai — ditolak dengan pesan jelas, bukan ditebak.
- */
-/**
- * Skema di AWAL string, bukan titik dua di mana saja.
- *
- * Rumusan sebelumnya memakai value.includes(":") dan menolak tautan sah
- * yang memuat titik dua di jalur atau query — stempel waktu YouTube
- * seperti youtu.be/watch?v=x&t=1:30 salah satunya. Itu persis cacat yang
- * hendak dihindari pelengkapan https:// ini.
+ * Diuji di AWAL string, bukan titik dua di mana saja. Rumusan sebelumnya
+ * memakai value.includes(":") dan ikut menolak tautan sah yang memuat
+ * titik dua di jalur atau query — stempel waktu YouTube seperti
+ * youtu.be/watch?v=x&t=1:30 salah satunya. Itu persis cacat yang hendak
+ * dihindari oleh pelengkapan https:// ini.
  *
  * Titik dua sesudah rangkaian karakter skema yang sah tetap dianggap
  * skema, sehingga contoh.com:8080/x TETAP ditolak alih-alih ditebak —
  * pertukaran yang sudah diputuskan pemilik.
  */
 const HAS_SCHEME = /^[a-z][a-z0-9+.-]*:/i;
+
+/**
+ * Menguraikan tautan dengan pengurai URL WHATWG lalu MENDAFTARPUTIHKAN
+ * protocol-nya. Bukan regex dan bukan startsWith: pengurai itulah yang
+ * menormalkan JaVaScRiPt:, tab tersisip, dan baris baru tersisip menjadi
+ * satu bentuk sebelum dibandingkan — dan justru varian itulah yang
+ * mengalahkan regex.
+ */
 
 function parseTargetUrl(value: string): string | null {
   const candidate = HAS_SCHEME.test(value) ? value : `https://${value}`;
