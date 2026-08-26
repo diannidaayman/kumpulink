@@ -572,7 +572,6 @@ const itemTerbuka: AccessItem = {
 
 const pemilik: AccessSession = { userId: "u-owner", role: "OWNER" };
 const pengunjung: AccessSession = { userId: "u-viewer", role: "VIEWER" };
-const belumMasuk: AccessSession = null;
 
 const TANPA_IZIN = null;
 
@@ -778,6 +777,12 @@ import type {
   AccessItem,
   AccessSession,
 } from "@/lib/types/access";
+```
+
+Tambahkan juga satu konstanta sesi di bawah deklarasi `pengunjung` yang sudah ada, karena seluruh cabang `NEEDS_LOGIN` di bawah memerlukannya. Ia sengaja tidak dideklarasikan di Task 3: di sana belum ada satu pun pengujian yang memakainya, dan konstanta yang menganggur membuat `npm run lint` mengeluarkan peringatan.
+
+```ts
+const belumMasuk: AccessSession = null;
 ```
 
 Lalu tambahkan di akhir berkas:
