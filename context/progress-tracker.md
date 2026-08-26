@@ -43,6 +43,12 @@ yang berarti.
   Keempat gerbang lulus: `typecheck` bersih, `lint` nol peringatan,
   **230 test di 19 berkas**, `build` sukses. Rincian lengkap di bagian
   "Unit 3 SELESAI" di bawah.
+- **Digabung dan didorong, 27 Agustus 2026.** `main` di `fe15666`,
+  fast-forward 25 commit dari `9fe3b99`, sudah ada di `origin`. Cabang
+  `dev` disusulkan ke titik yang sama dengan `merge --ff-only` dan ikut
+  didorong, sehingga alias preview Vercel akhirnya menunjuk kode
+  sungguhan. Keempat ref — `main`, `origin/main`, `dev`, `origin/dev` —
+  dibaca langsung dari GitHub dan seluruhnya `fe15666`.
 - Tidak ada lagi pertanyaan terbuka.
 
 ## Current Goal
@@ -382,9 +388,10 @@ yang berarti.
     tepat 4 test baru dari `config.test.ts`), `build` sukses. Rincian
     lengkap beserta keluaran mentah ada di
     `.superpowers/sdd/final-review-fixes.md`.
-  - Cabang masih `worktree-unit-1-fondasi`, belum digabung. HEAD
-    sekarang `b9653814d06316639e8b6c1ad44387f2a0adb350`, menggantikan
-    `51fc5c0` sebagai commit terbaru sebelum penggabungan.
+  - Cabang masih `worktree-unit-1-fondasi`, belum digabung *pada saat
+    itu*. HEAD sekarang `b9653814d06316639e8b6c1ad44387f2a0adb350`,
+    menggantikan `51fc5c0` sebagai commit terbaru sebelum penggabungan.
+    Sudah tergabung sejak `53e6abc`.
 
 - Sesi 21 Agustus 2026 — penutupan Unit 1:
   - **Review menyeluruh satu cabang penuh** dengan model paling
@@ -412,7 +419,8 @@ yang berarti.
     yang menangkapnya adalah pemilik yang mencoba memakainya.
     Aturannya kini tertulis di `ui-context.md`.
   - **Digabung ke `main` pada `53e6abc`**, fast-forward, 32
-    commit. Belum di-push ke `origin`.
+    commit. Belum di-push ke `origin` *pada saat itu* — didorong
+    kemudian, lihat "Integrasi Unit 2" di bawah.
 
 ## In Progress
 
@@ -454,8 +462,11 @@ di `project-overview.md`, `ui-context.md`, `ROADMAP.md`, dan `PRODUCT.md`.
 ### Unit 3 SELESAI — 26 Agustus 2026
 
 Branch `worktree-unit-3-item-dan-unggahan`, 13 commit dari `22a503c`
-sampai `4657b47`, ditambah temuan review final di bawah. Belum
-digabung. Rencana: `docs/superpowers/plans/2026-08-2*-unit-3-item-dan-unggahan.md`.
+sampai `4657b47`, ditambah temuan review final di bawah — seluruhnya 25
+commit. **Digabung ke `main` pada `fe15666`, fast-forward, lalu didorong
+ke `origin` 27 Agustus 2026.** Worktree dan cabang fiturnya sudah
+dihapus. Rencana:
+`docs/superpowers/plans/2026-08-26-unit-3-item-dan-unggahan.md`.
 
 **Yang dibangun.** Pemilik dapat menambahkan item bertipe `LINK`,
 `PDF`, `IMAGE` dari sumber `EXTERNAL` maupun `UPLOAD` ke sebuah group,
@@ -789,6 +800,50 @@ bukti konkret, bukan diasumsikan dari status gerbang saja.
    dicetak lengkap di respons yang menyertai verifikasi ini, empat rute
    dikompilasi tanpa galat.
 
+### Integrasi Unit 3 — SELESAI, 27 Agustus 2026
+
+Cabang `worktree-unit-3-item-dan-unggahan` digabung **fast-forward** ke
+`main` pada `fe15666`, 25 commit dari `9fe3b99`. Worktree di
+`.claude/worktrees/` dihapus lewat `git worktree remove` diikuti
+`git worktree prune`, lalu cabangnya dihapus dengan `git branch -d`
+(bukan `-D`) — sehingga Git sendiri yang membuktikan ia sudah tergabung
+penuh sebelum dilepas.
+
+```
+9fe3b99..fe15666  main -> main
+e88341b..fe15666  dev  -> dev
+```
+
+`dev` disusulkan dengan **`git merge --ff-only`, bukan `git branch -f`**.
+Bedanya mengikat: `--ff-only` menolak bila `dev` ternyata menyimpan
+sesuatu yang tidak ada di `main`, sedangkan `branch -f` akan menimpanya
+diam-diam. `git rev-list --count main..dev` sudah bernilai `0` sebelum
+dijalankan, tetapi memakai perintah yang gagal-aman lebih baik daripada
+mengandalkan pemeriksaan itu benar. Ia lolos; 90 commit tersusul tanpa
+kehilangan apa pun.
+
+Keempat ref dibaca **langsung dari GitHub** dengan `git ls-remote`, bukan
+dari cache lokal: `main`, `origin/main`, `dev`, dan `origin/dev`
+seluruhnya `fe15666`.
+
+**Temuan langkah verifikasi: `npm test` lulus 230/230 sementara
+`npx tsc --noEmit` gagal dengan exit 2.** Setelah merge, checkout utama
+belum pernah menjalankan `npm install` sejak `package.json` bertambah
+lima dependensi, sehingga muncul enam galat `Cannot find module` untuk
+`@vercel/blob` dan keempat paket `@dnd-kit`. Vitest tidak menyentuh
+modul-modul itu — modul murni tidak mengimpornya, `blob.ts` hanya dipakai
+kode server yang tidak diuji, dan uji batas impor hanya membaca berkas
+sebagai teks. Artinya **"test lulus" bukan bukti bahwa cabang dapat
+di-typecheck**, dan berhenti di situ akan menyerahkan `main` yang rusak.
+Ditutup dengan `npm install`, lalu keempat gerbang dijalankan ulang dan
+seluruhnya exit 0.
+
+Pelajaran untuk unit berikutnya: **setelah merge yang membawa dependensi
+baru, jalankan `npm install` di checkout utama sebelum menyatakan gerbang
+lulus.** Peringatan lockfile ganda yang muncul saat build di dalam
+worktree juga hilang setelah build dijalankan dari checkout utama — ia
+memang artefak worktree, bukan cacat.
+
 ### Integrasi Unit 2 — SELESAI, 24 Agustus 2026
 
 Cabang `unit-2-cms-group` sudah tergabung fast-forward ke `main` pada
@@ -842,16 +897,39 @@ dan pelajaran prosesnya — diselamatkan ke
      `lib/access/evaluate-access.ts`.** Ia fungsi tampilan yang cabang
      terakhirnya permisif; evaluator akses menuntut penolakan sebagai
      bawaan. (Diwariskan dari Unit 2, masih berlaku.)
-   - **Route handler unggahan Unit 3 memanggil `requireOwner()`
-     sendiri** — kaki ketiga penyimpangan Unit 1 (layout tidak
-     melindungi route handler) sekarang sudah teruji di praktik, bukan
-     hanya di teori.
+   - **Route handler unggahan Unit 3 memakai `getOwnerSession()`, BUKAN
+     `requireOwner()`** — dan gerbang item Unit 4 harus memilih dengan
+     sadar antara keduanya, bukan menyalin salah satu begitu saja.
+     `requireOwner()` mengalihkan, `getOwnerSession()` mengembalikan
+     `null`. Pengalihan salah untuk endpoint yang dipanggil `fetch`,
+     karena `fetch` mengikuti pengalihan diam-diam sehingga sesi yang
+     mati akan terbaca sebagai keberhasilan. Gerbang item dibuka lewat
+     navigasi peramban biasa, jadi di sana pengalihan justru yang benar
+     — tetapi keputusannya harus diambil, bukan diwarisi.
+     (Rumusan sebelumnya di berkas ini menyebut `requireOwner()`; itu
+     keliru dan diperbaiki 27 Agustus 2026 setelah dibaca dari kodenya.)
+   - **Sanitasi `fileName` sebelum ia menjadi header.** `route.ts`
+     membersihkan karakter kendali dan tanda kutip saat menulis, tetapi
+     Unit 4 yang akan menaruh nilai itu di `Content-Disposition`.
+     Pastikan penyandiannya benar di sisi sana juga.
 
-2. **Cabang `dev` masih tertinggal jauh di belakang `main`.** Alias
-   preview Vercel menunjuk ke sana, dan Fase 10 menjalankan alur uji
-   utamanya di lingkungan preview. Tidak ada yang gagal sampai saat itu,
-   tetapi di titik itu preview akan menampilkan aplikasi yang salah tanpa
-   peringatan apa pun.
+2. **Uji satu unggahan di preview Vercel sebelum Unit 4 dimulai.**
+   `dev` sudah sejajar dengan `main` sejak 27 Agustus 2026, jadi alias
+   `kumpulink-preview.vercel.app` akhirnya menunjuk kode sungguhan.
+   Deployment itu yang pertama menyentuh Vercel Blob di luar mesin
+   lokal, dan dua hal hanya dapat diketahui di sana:
+
+   - **Autentikasi Blob lewat OIDC, bukan `BLOB_READ_WRITE_TOKEN`.** Di
+     lokal kode memakai token statis; di atas Vercel ia memakai
+     `VERCEL_OIDC_TOKEN` dan `BLOB_STORE_ID` yang terpasang sendiri.
+     Jalur itu belum pernah dijalankan sekali pun.
+   - **Batas 4,5 MB Vercel yang sesungguhnya.** Di lokal batas itu tidak
+     ada, sehingga penolakan 413 yang diuji pemilik datang dari kode
+     kita. Di produksi ia bisa datang dari Vercel lebih dulu, dengan
+     bentuk respons yang berbeda.
+
+   Lebih murah ketahuan sekarang daripada di tengah unit yang sudah
+   ditandai paling berisiko.
 
 ## Open Questions
 
@@ -911,12 +989,17 @@ dilupakan:
 - **Workflow GitHub Actions terjadwal harus aktif.** GitHub
   menonaktifkannya otomatis setelah 60 hari repositori tidak
   aktif. Periksa sebelum tiap acara.
-- **Cabang `dev` harus disusulkan sebelum Fase 10.** Alias
-  preview Vercel `kumpulink-preview.vercel.app` menunjuk ke
-  `dev`, sementara per 21 Agustus 2026 `dev` tertinggal 37
-  commit di belakang `main` — isinya masih keadaan Fase 0.
-  Tidak ada yang gagal karenanya sampai Fase 10, tempat alur
-  uji utama dijalankan di lingkungan preview; di titik itu
+- ~~**Cabang `dev` harus disusulkan sebelum Fase 10.**~~
+  **TERPENUHI 27 Agustus 2026.** `dev` disusulkan ke `main`
+  di `fe15666` dengan `merge --ff-only` lalu didorong, setelah
+  sempat tertinggal 90 commit dan berisi keadaan Fase 0.
+  Alias preview `kumpulink-preview.vercel.app` kini menunjuk
+  kode sungguhan.
+
+  **Tetap berlaku sebagai kebiasaan:** susulkan `dev` setiap
+  kali sebuah unit digabung ke `main`. Kalau tidak, prasyarat
+  ini akan terbuka lagi diam-diam, dan Fase 10 menjalankan
+  alur uji utamanya di lingkungan preview — di titik itu
   preview akan menampilkan aplikasi yang salah tanpa
   peringatan apa pun.
 
