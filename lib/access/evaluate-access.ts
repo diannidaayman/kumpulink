@@ -2,6 +2,8 @@ import type {
   AccessDecision,
   AccessDenyReason,
   AccessGroup,
+  AccessItem,
+  AccessRequestRecord,
   AccessSession,
 } from "@/lib/types/access";
 
@@ -64,4 +66,44 @@ export function evaluateGroupAccess(
       return denied("NOT_FOUND");
     }
   }
+}
+
+/**
+ * Tahap dua — gerbang item.
+ *
+ * Baris pertamanya menjalankan tahap satu dan mengembalikan hasilnya apa
+ * adanya bila bukan `GRANTED`. Itulah invarian 6 — item tidak pernah
+ * lebih permisif daripada group induknya — sebagai struktur kode, bukan
+ * sebagai disiplin pemanggil. Gerbang item memanggil fungsi ini SAJA,
+ * satu panggilan, bukan dua.
+ *
+ * `request` belum dibaca: cabang `APPROVAL` menolak lebih dulu selama
+ * Unit 7 belum ada. Ia sudah ada di tanda tangan sejak sekarang supaya
+ * Unit 7 mengubah isi fungsi, bukan setiap pemanggilnya.
+ */
+export function evaluateItemAccess(
+  group: AccessGroup | null,
+  item: AccessItem | null,
+  session: AccessSession,
+  request: AccessRequestRecord,
+  now: Date,
+): AccessDecision {
+  const groupDecision = evaluateGroupAccess(group, session, now);
+  if (groupDecision.kind !== "GRANTED") return groupDecision;
+
+  // `group === null` sudah ditolak tahap satu sebagai NOT_FOUND; ia
+  // disebut lagi di sini semata agar penyempitan tipenya terbaca compiler.
+  if (group === null || item === null || item.groupId !== group.id) {
+    return denied("NOT_FOUND");
+  }
+
+  if (!item.isActive) return denied("ITEM_INACTIVE");
+
+  // Pemilik melewati aturan accessMode, yang memang ditujukan kepada
+  // pengunjung. Letaknya sesudah kedua pemeriksaan di atas: kepemilikan
+  // tidak memunculkan item yang tidak ada, dan tidak membatalkan
+  // penonaktifan yang pemilik lakukan sendiri.
+  if (session?.role === "OWNER") return granted(groupDecision.ownerPreview);
+
+  return denied("NOT_FOUND");
 }
