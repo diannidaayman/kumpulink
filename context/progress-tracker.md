@@ -416,33 +416,30 @@ yang berarti.
 
 ## In Progress
 
-**Dua butir masih terbuka.** Unit 3 selesai secara isi, dan **keempat
-pemeriksaan peramban sudah dijalankan pemilik dan lulus, 26 Agustus
-2026** — urutan lewat papan ketik saja, source `/dashboard` nol
-kecocokan untuk `fileKey`, `blob.vercel-storage.com`, dan `groups/`,
-unggahan tepat 4 MB diterima sementara 4 MB lebih satu byte ditolak,
-serta berkas benar-benar hilang dari Blob saat item dan group dihapus.
+**Kosong.** Unit 3 selesai dan **ketujuh butir "Before Moving to the Next
+Unit" tertutup, 26 Agustus 2026.**
 
-**Daftar periksa "Before Moving to the Next Unit" — butir 4 dan 5 BELUM
-tertutup, 26 Agustus 2026.** Antarmuka Unit 3 belum pernah dilihat mata
-siapa pun di mode gelap maupun di lebar ponsel. Bukan karena terlewat:
-seluruh antarmuka Unit 3 hidup di `/dashboard`, yang dijaga
-`requireOwner()`, dan sesi peramban agen bukan sesi pemilik — jadi agen
-hanya sampai di layar masuk bawaan Auth.js, yang bukan halaman kita.
+Keempat pemeriksaan peramban dijalankan pemilik dan lulus: urutan lewat
+papan ketik saja, source `/dashboard` nol kecocokan untuk `fileKey`,
+`blob.vercel-storage.com`, dan `groups/`, unggahan tepat 4 MB diterima
+sementara 4 MB lebih satu byte ditolak, serta berkas benar-benar hilang
+dari Blob saat item dan group dihapus.
 
-Yang SUDAH dibuktikan secara statis untuk kedua butir itu: nol nilai
-heksadesimal di seluruh komponen `item-*` dan `group-accordion-body`;
-sepuluh token warna yang dipakai seluruhnya punya definisi di mode
-terang DAN gelap di `app/globals.css`; `item-card.tsx:39-40` memakai
-pola mobile-first (`flex-col` dasar, `sm:flex-row` ke atas).
+**Butir 4 dan 5 juga ditutup pemilik** — antarmuka diperiksa di mode
+terang dan gelap serta di lebar ponsel, berikut tiga jalur yang belum
+tersentuh keempat pemeriksaan di atas: menambah item lewat tab Tempel
+URL, menyusun ulang dengan seret, dan menonaktifkan item. Seluruhnya
+lulus.
 
-Itu membuktikan tidak ada warna yang lolos dari sistem token, bukan
-bahwa hasilnya enak dilihat. Cacat seperti kontras kurang, lencana yang
-menabrak judul, atau kartu yang melipat buruk hanya terlihat dengan
-membukanya. Pemilik perlu membuka `/dashboard` di kedua mode dan di
-lebar 375px sebelum unit ini benar-benar ditutup — persis seperti cacat
-akordeon terpotong di Unit 2, yang lolos dari rencana, implementasi, dan
-seluruh putaran review, lalu ketahuan pada pemeriksaan peramban.
+Agen tidak dapat melakukan pemeriksaan ini sendiri dan tidak
+mengakuinya: seluruh antarmuka Unit 3 hidup di `/dashboard` di balik
+`requireOwner()`, dan sesi peramban agen bukan sesi pemilik — agen hanya
+sampai di layar masuk bawaan Auth.js. Yang dapat dibuktikan agen hanyalah
+bahwa tidak ada warna yang lolos dari sistem token: nol nilai
+heksadesimal di seluruh komponen `item-*` dan `group-accordion-body`,
+sepuluh token yang dipakai punya definisi di kedua mode, dan
+`item-card.tsx:39-40` mobile-first. Bahwa hasilnya benar dilihat hanya
+dapat dibuktikan dengan membukanya, dan itu yang dikerjakan pemilik.
 
 **Keputusan lingkup baru, 26 Agustus 2026: pratinjau tertanam.**
 Dipindahkan dari Out of Scope ke dalam lingkup atas permintaan pemilik,
