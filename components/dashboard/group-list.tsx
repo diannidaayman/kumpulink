@@ -19,7 +19,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { moveGroup } from "@/lib/groups/order";
+import { moveInList } from "@/lib/order/move";
 import type { GroupListItem } from "@/lib/types/group";
 import { cn } from "@/lib/utils";
 
@@ -42,7 +42,7 @@ export function GroupList({ groups, now }: { groups: GroupListItem[]; now: Date 
   const [order, applyMove] = useOptimistic(
     groups,
     (current: GroupListItem[], move: { id: string; direction: "up" | "down" }) =>
-      moveGroup(current, move.id, move.direction),
+      moveInList(current, move.id, move.direction),
   );
 
   const { openId, handleOpenChange } = useOpenGroup(groups);
@@ -50,7 +50,7 @@ export function GroupList({ groups, now }: { groups: GroupListItem[]; now: Date 
   const { query, setQuery, segment, setSegment, filtering, visible } = useGroupFilter(order, now);
 
   function handleMove(group: GroupListItem, direction: "up" | "down") {
-    const moved = moveGroup(order, group.id, direction);
+    const moved = moveInList(order, group.id, direction);
     const position = moved.findIndex((entry) => entry.id === group.id) + 1;
     setAnnouncement(`${group.title} dipindah ke posisi ${position} dari ${moved.length}.`);
     startTransition(async () => {

@@ -1,24 +1,28 @@
 export type Orderable = { id: string };
 
 /**
- * Menukar sebuah group dengan tetangganya. Di tepi larik, dan untuk id
+ * Menukar sebuah entri dengan tetangganya. Di tepi larik, dan untuk id
  * yang tidak ada, mengembalikan urutan yang sama — bukan melempar galat.
  * Tombol di tepi memang disembunyikan di antarmuka, jadi keadaan ini
  * hanya tercapai lewat balapan; membatalkan diam-diam lebih baik
  * daripada menjatuhkan halaman.
+ *
+ * Generik atas apa pun yang berid: group memakainya di dashboard, item
+ * memakainya di dalam akordeon. Itulah kenapa ia tidak tinggal di
+ * lib/groups/ — ia bukan milik salah satu dari keduanya.
  */
-export function moveGroup<T extends Orderable>(
-  groups: readonly T[],
+export function moveInList<T extends Orderable>(
+  list: readonly T[],
   id: string,
   direction: "up" | "down",
 ): T[] {
-  const from = groups.findIndex((group) => group.id === id);
-  if (from === -1) return [...groups];
+  const from = list.findIndex((entry) => entry.id === id);
+  if (from === -1) return [...list];
 
   const to = direction === "up" ? from - 1 : from + 1;
-  if (to < 0 || to >= groups.length) return [...groups];
+  if (to < 0 || to >= list.length) return [...list];
 
-  const next = [...groups];
+  const next = [...list];
   [next[from], next[to]] = [next[to], next[from]];
   return next;
 }
@@ -28,8 +32,8 @@ export function moveGroup<T extends Orderable>(
  * dan setiap penghapusan, sehingga keadaan basis data selalu kanonis dan
  * tidak ada jalur pemulihan celah yang harus ditulis dan diuji.
  */
-export function renumberGroups<T extends Orderable>(
-  groups: readonly T[],
+export function renumber<T extends Orderable>(
+  list: readonly T[],
 ): { id: string; sortOrder: number }[] {
-  return groups.map((group, index) => ({ id: group.id, sortOrder: index }));
+  return list.map((entry, index) => ({ id: entry.id, sortOrder: index }));
 }

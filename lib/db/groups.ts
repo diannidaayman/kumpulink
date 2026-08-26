@@ -1,7 +1,7 @@
 import "server-only";
 
 import { prisma } from "@/lib/db/client";
-import { moveGroup, renumberGroups } from "@/lib/groups/order";
+import { moveInList, renumber } from "@/lib/order/move";
 import type { GroupListItem } from "@/lib/types/group";
 
 /**
@@ -91,7 +91,7 @@ export async function moveGroupInTransaction(
       orderBy: { sortOrder: "asc" },
       select: { id: true },
     });
-    const reordered = renumberGroups(moveGroup(groups, id, direction));
+    const reordered = renumber(moveInList(groups, id, direction));
     // Berurutan, bukan Promise.all: transaksi interaktif Prisma memakai
     // satu koneksi, dan menembakkan pembaruan serentak ke dalamnya adalah
     // sumber kebuntuan yang muncul hanya sesekali.
