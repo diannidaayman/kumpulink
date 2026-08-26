@@ -25,7 +25,6 @@ const itemTerbuka: AccessItem = {
 
 const pemilik: AccessSession = { userId: "u-owner", role: "OWNER" };
 const pengunjung: AccessSession = { userId: "u-viewer", role: "VIEWER" };
-const belumMasuk: AccessSession = null;
 
 const TANPA_IZIN = null;
 
