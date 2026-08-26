@@ -4,11 +4,15 @@ import { Trash2 } from "lucide-react";
 
 import { GroupDeleteDialog } from "@/components/dashboard/group-delete-dialog";
 import { GroupFormRow } from "@/components/dashboard/group-form-row";
+import { ItemCard } from "@/components/dashboard/item-card";
+import { ItemEmptyState } from "@/components/dashboard/item-empty-state";
 import { Button } from "@/components/ui/button";
 import type { GroupListItem } from "@/lib/types/group";
+import type { ItemListEntry } from "@/lib/types/item";
 
 export function GroupAccordionBody({
   group,
+  items,
   editingId,
   deletingId,
   onEditStart,
@@ -17,6 +21,7 @@ export function GroupAccordionBody({
   onDeleteOpenChange,
 }: {
   group: GroupListItem;
+  items: ItemListEntry[];
   editingId: string | null;
   deletingId: string | null;
   onEditStart: (id: string) => void;
@@ -28,9 +33,15 @@ export function GroupAccordionBody({
     <GroupFormRow mode="edit" group={group} onDone={onEditDone} />
   ) : (
     <>
-      <p className="text-sm text-muted-foreground">
-        Group ini belum berisi apa-apa. Tambah tautan, PDF, atau gambar.
-      </p>
+      {items.length === 0 ? (
+        <ItemEmptyState />
+      ) : (
+        <div className="flex flex-col gap-2">
+          {items.map((item) => (
+            <ItemCard key={item.id} item={item} />
+          ))}
+        </div>
+      )}
       <div className="mt-3 flex gap-2">
         <Button
           type="button"

@@ -21,6 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { moveInList } from "@/lib/order/move";
 import type { GroupListItem } from "@/lib/types/group";
+import type { ItemListEntry } from "@/lib/types/item";
 import { cn } from "@/lib/utils";
 
 const TRIGGER_ICON_LEFT = cn(
@@ -32,7 +33,15 @@ const TRIGGER_ICON_LEFT = cn(
   "[&_[data-slot=accordion-trigger-icon]]:mr-3",
 );
 
-export function GroupList({ groups, now }: { groups: GroupListItem[]; now: Date }) {
+export function GroupList({
+  groups,
+  itemsByGroup,
+  now,
+}: {
+  groups: GroupListItem[];
+  itemsByGroup: Record<string, ItemListEntry[]>;
+  now: Date;
+}) {
   const [creating, setCreating] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -139,6 +148,7 @@ export function GroupList({ groups, now }: { groups: GroupListItem[]; now: Date 
             <AccordionContent className="h-auto pb-4">
               <GroupAccordionBody
                 group={group}
+                items={itemsByGroup[group.id] ?? []}
                 editingId={editingId}
                 deletingId={deletingId}
                 onEditStart={setEditingId}
