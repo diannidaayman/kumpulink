@@ -104,3 +104,11 @@ export async function moveGroupInTransaction(
 export async function countGroupItems(id: string): Promise<number> {
   return prisma.item.count({ where: { groupId: id } });
 }
+
+/**
+ * Dipakai route handler unggahan untuk menolak groupId karangan SEBELUM
+ * berkas apa pun naik ke object storage.
+ */
+export async function groupExists(id: string): Promise<boolean> {
+  return (await prisma.group.count({ where: { id } })) > 0;
+}
