@@ -1,0 +1,129 @@
+import { describe, expect, it } from "vitest";
+
+import {
+  itemAccessModeSchema,
+  itemDescriptionSchema,
+  itemTitleSchema,
+  targetUrlSchema,
+} from "@/lib/validation/item";
+
+function accepts(value: string): string {
+  const result = targetUrlSchema.safeParse(value);
+  if (!result.success) throw new Error(`ditolak padahal seharusnya diterima: ${value}`);
+  return result.data;
+}
+
+function rejects(value: string): boolean {
+  return targetUrlSchema.safeParse(value).success === false;
+}
+
+describe("menolak skema URL yang dapat menjalankan kode", () => {
+  it("menolak javascript:", () => {
+    expect(rejects("javascript:alert(1)")).toBe(true);
+  });
+
+  it("menolak javascript: yang huruf besar-kecilnya diacak", () => {
+    // Pengurai URL WHATWG menormalkan protocol sebelum dibandingkan.
+    // Regex kalah persis di sini, dan itu alasan pengurai yang dipakai.
+    expect(rejects("JaVaScRiPt:alert(1)")).toBe(true);
+  });
+
+  it("menolak javascript: yang disisipi baris baru", () => {
+    expect(rejects("java\nscript:alert(1)")).toBe(true);
+  });
+
+  it("menolak javascript: yang disisipi tab", () => {
+    expect(rejects("java\tscript:alert(1)")).toBe(true);
+  });
+
+  it("menolak data:", () => {
+    expect(rejects("data:text/html,<script>alert(1)</script>")).toBe(true);
+  });
+
+  it("menolak mailto: dan skema lain di luar http dan https", () => {
+    expect(rejects("mailto:orang@contoh.com")).toBe(true);
+    expect(rejects("file:///etc/passwd")).toBe(true);
+    expect(rejects("ftp://contoh.com/berkas")).toBe(true);
+  });
+});
+
+describe("menerima dan menormalkan tautan http dan https", () => {
+  it("menerima https apa adanya", () => {
+    expect(accepts("https://contoh.com/rundown")).toBe("https://contoh.com/rundown");
+  });
+
+  it("menerima http", () => {
+    expect(accepts("http://contoh.com/")).toBe("http://contoh.com/");
+  });
+
+  it("melengkapi https:// untuk host telanjang yang ditempel apa adanya", () => {
+    expect(accepts("drive.google.com/abc")).toBe("https://drive.google.com/abc");
+  });
+
+  it("memangkas spasi di kedua ujung sebelum menguraikannya", () => {
+    expect(accepts("  https://contoh.com/  ")).toBe("https://contoh.com/");
+  });
+
+  it("menyimpan satu bentuk kanonis, yaitu bentuk yang nanti masuk header Location", () => {
+    expect(accepts("HTTPS://Contoh.COM/Rundown")).toBe("https://contoh.com/Rundown");
+  });
+});
+
+describe("menolak tautan yang membawa kredensial atau terlalu panjang", () => {
+  it("menolak kredensial tertanam", () => {
+    expect(rejects("https://orang:rahasia@contoh.com/")).toBe(true);
+  });
+
+  it("menolak kredensial tertanam meski hanya nama pengguna", () => {
+    expect(rejects("https://orang@contoh.com/")).toBe(true);
+  });
+
+  it("menolak tautan yang melewati 2048 karakter", () => {
+    expect(rejects(`https://contoh.com/${"a".repeat(2100)}`)).toBe(true);
+  });
+
+  it("menolak tautan kosong", () => {
+    expect(rejects("   ")).toBe(true);
+  });
+
+  it("menolak host bertitik dua yang tidak dapat diuraikan, alih-alih menebaknya", () => {
+    expect(rejects("contoh.com:8080/x")).toBe(true);
+  });
+});
+
+describe("membatasi accessMode pada nilai yang fiturnya sudah ada", () => {
+  it("menerima OPEN dan IDENTITY", () => {
+    expect(itemAccessModeSchema.safeParse("OPEN").success).toBe(true);
+    expect(itemAccessModeSchema.safeParse("IDENTITY").success).toBe(true);
+  });
+
+  it("menolak APPROVAL, karena fiturnya baru dibangun di Unit 7", () => {
+    // Ditolak di BATAS SISTEM, bukan sekadar disembunyikan dari kontrol
+    // pilihan. Fitur yang belum jadi tidak boleh berarti pintu terbuka.
+    expect(itemAccessModeSchema.safeParse("APPROVAL").success).toBe(false);
+  });
+
+  it("menolak nilai yang tidak dikenali sama sekali", () => {
+    expect(itemAccessModeSchema.safeParse("SEMBARANG").success).toBe(false);
+  });
+});
+
+describe("membatasi judul dan deskripsi item", () => {
+  it("menolak judul kosong", () => {
+    expect(itemTitleSchema.safeParse("   ").success).toBe(false);
+  });
+
+  it("menerima judul 120 karakter dan menolak 121", () => {
+    expect(itemTitleSchema.safeParse("a".repeat(120)).success).toBe(true);
+    expect(itemTitleSchema.safeParse("a".repeat(121)).success).toBe(false);
+  });
+
+  it("mengubah deskripsi kosong menjadi null, bukan string kosong", () => {
+    const result = itemDescriptionSchema.safeParse("   ");
+    expect(result.success && result.data).toBeNull();
+  });
+
+  it("menolak deskripsi yang melewati 300 karakter", () => {
+    expect(itemDescriptionSchema.safeParse("a".repeat(301)).success).toBe(false);
+  });
+});
