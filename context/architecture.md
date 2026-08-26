@@ -434,11 +434,13 @@ Hanya dijalankan bila tahap satu menghasilkan `GRANTED`.
 1. Item tidak ditemukan atau bukan milik group ini →
    `DENIED / NOT_FOUND`
 2. `isActive = false` → `DENIED / ITEM_INACTIVE`
-3. `accessMode = OPEN` → `GRANTED`
-4. Pemohon belum masuk → `NEEDS_LOGIN`
+3. Pemohon berperan `OWNER` → `GRANTED`, mewarisi penanda
+   `ownerPreview` dari tahap satu
+4. `accessMode = OPEN` → `GRANTED`
+5. Pemohon belum masuk → `NEEDS_LOGIN`
    (berlaku untuk `IDENTITY` maupun `APPROVAL`)
-5. `accessMode = IDENTITY` → `GRANTED`
-6. `accessMode = APPROVAL`, dievaluasi berurutan:
+6. `accessMode = IDENTITY` → `GRANTED`
+7. `accessMode = APPROVAL`, dievaluasi berurutan:
    1. Tidak ada catatan izin → `NEEDS_REQUEST`
    2. `status = PENDING` → `PENDING_APPROVAL`
    3. `status = REJECTED` → `DENIED / REQUEST_REJECTED`
@@ -446,6 +448,25 @@ Hanya dijalankan bila tahap satu menghasilkan `GRANTED`.
    5. `status = APPROVED` dan `expiresAt` sudah lewat →
       `DENIED / APPROVAL_EXPIRED`
    6. `status = APPROVED` → `GRANTED`
+
+**Kenapa cabang pemilik berdiri di nomor 3 dan bukan lebih
+awal.** Ditetapkan 27 Agustus 2026. Tanpa cabang ini, pemilik
+yang membuka item `APPROVAL` miliknya sendiri akan ditolak —
+ia sudah masuk, tetapi tidak memiliki catatan izin atas
+namanya. Pemilik meminta izin kepada dirinya sendiri.
+
+Letaknya sesudah kedua pemeriksaan struktural, bukan sebelum.
+Kepemilikan tidak memunculkan item yang tidak ada, dan tidak
+membatalkan penonaktifan yang pemilik lakukan sendiri — untuk
+membuka item nonaktif ia cukup mengaktifkannya lagi di CMS.
+Cabang ini hanya melewati aturan `accessMode`, yang memang
+ditujukan kepada pengunjung.
+
+**Sikap sementara Unit 4 untuk nomor 7.** Sampai Unit 7
+membangun alur permintaan, seluruh cabang `APPROVAL` menolak
+dengan `DENIED / NOT_FOUND`. Alasannya di
+`progress-tracker.md`. Yang tertulis di atas adalah keadaan
+akhir setelah Unit 7, bukan keadaan sekarang.
 
 Hasil `NEEDS_REQUEST` dan `PENDING_APPROVAL` bukan
 penolakan. Keduanya keadaan sah dalam alur, dan

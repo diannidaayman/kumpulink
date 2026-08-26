@@ -1009,6 +1009,43 @@ dilupakan:
 
 ## Architecture Decisions
 
+### Keputusan Unit 4 — 27 Agustus 2026
+
+**U4-1 — `APPROVAL` tanpa catatan izin ditolak sebagai
+`NOT_FOUND`.** Matriks Unit 4 menyebut hasilnya "ditolak"
+tanpa menyebut alasannya, dan enum `DenyReason` tidak punya
+nilai untuk keadaan ini: `REQUEST_REJECTED` dan
+`REQUEST_REVOKED` keduanya keliru karena tidak ada permintaan
+yang pernah dibuat. Dipilih `NOT_FOUND`, nilai yang di bagian
+Security Practices `code-standards.md` sudah menjadi wajah
+dari "tidak dapat dilayani, dan tidak ada yang perlu diketahui
+lebih jauh". Menambah nilai enum baru ditolak karena menuntut
+migrasi Prisma di langkah yang lingkupnya justru menolak
+menyentuh database, untuk nilai yang mati lagi di Unit 7.
+`ITEM_INACTIVE` ditolak karena `isActive` item itu bernilai
+true, sehingga riwayat akan berbohong kepada pemilik.
+
+Ini memenuhi kriteria sukses nomor 8: sikap bawaannya menolak,
+bukan meloloskan.
+
+**Unit 7 wajib mengganti cabang ini menjadi `NEEDS_REQUEST`
+beserta kelima cabang status lainnya.** Selama belum, cabang
+`APPROVAL` di `lib/access/evaluate-access.ts` menolak, dan
+komentar di sana menyebut hal ini.
+
+**U4-2 — Pemilik lolos di tahap dua, sesudah kedua pemeriksaan
+struktural.** Aturan izin baru; sudah dituliskan ke
+`architecture.md` bagian Access Evaluation dalam perubahan yang
+sama. Alasan letaknya ada di sana.
+
+**U4-3 — Evaluator dipecah dua fungsi.**
+`evaluateItemAccess()` memanggil `evaluateGroupAccess()` di
+baris pertamanya dan mengembalikan hasilnya bila bukan
+`GRANTED`. Dengan begitu invarian 6 menjadi struktur kode,
+bukan disiplin pemanggil — tidak ada cara memanggil tahap dua
+tanpa tahap satu lolos lebih dulu. Gerbang item memanggil
+`evaluateItemAccess()` saja, satu panggilan, bukan dua.
+
 ### Keputusan Fase 0 — 19 Agustus 2026
 
 Kedelapan keputusan yang sebelumnya menggantung, ditutup
