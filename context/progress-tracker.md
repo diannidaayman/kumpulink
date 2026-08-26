@@ -676,7 +676,7 @@ dan pelajaran prosesnya — diselamatkan ke
 
 1. **Fase 4 — Unit 3, item dan unggahan.** Item bertipe `LINK`, `PDF`,
    `IMAGE` dari sumber `EXTERNAL` maupun `UPLOAD`; `lib/storage/` sebagai
-   satu-satunya pengimpor SDK Blob; batas 10 MB dan pemeriksaan tipe
+   satu-satunya pengimpor SDK Blob; batas 4 MB dan pemeriksaan tipe
    **dari isi berkas**; penyusunan ulang dengan geser beserta alternatif
    tombol naik/turun; `accessMode` dibatasi pada `OPEN` dan `IDENTITY`.
 

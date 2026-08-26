@@ -187,6 +187,10 @@
   urutan. Tidak menyentuh database, sehingga seluruh
   aturannya dapat diuji tanpa Prisma — alasan yang sama
   yang memisahkan `lib/access/`
+- `lib/order/` — penyusunan ulang urutan sebagai fungsi murni,
+  generik atas apa pun yang berid. Dipakai group maupun item;
+  berdiri di luar `lib/groups/` justru karena ia bukan milik
+  salah satunya
 - `lib/time/` — pemformatan waktu ke `Asia/Jayapura` beserta
   label zonanya. Berdiri sendiri karena label itu wajib di
   setiap waktu yang terlihat pengguna, di kedua permukaan

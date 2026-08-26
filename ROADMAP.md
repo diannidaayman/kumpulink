@@ -356,7 +356,7 @@ mengunggah PDF, dan menyusun urutannya.
 
 **Lingkup.** Item bertipe `LINK`, `PDF`, `IMAGE` dari sumber `EXTERNAL`
 maupun `UPLOAD`; `lib/storage/` sebagai satu-satunya pengimpor SDK Blob;
-batas 10 MB dan pemeriksaan tipe **dari isi berkas**; penyusunan ulang
+batas 4 MB dan pemeriksaan tipe **dari isi berkas**; penyusunan ulang
 dengan geser beserta alternatif tombol naik/turun; pilihan `accessMode`
 dibatasi pada `OPEN` dan `IDENTITY` — `APPROVAL` belum muncul di CMS.
 
@@ -379,8 +379,8 @@ ini dan akan tertangkap di review.
 **Exit criteria.**
 
 - [ ] Ketiga tipe item dapat ditambahkan dari kedua sumber
-- [ ] PDF 10 MB diterima, 11 MB ditolak **di server**
-- [ ] Berkas `.pdf` yang isinya bukan PDF ditolak
+- [ ] PDF 4 MB diterima, 5 MB ditolak **di server**
+- [ ] Berkas yang isinya bukan salah satu dari empat tipe diterima akan ditolak, apa pun ekstensi namanya
 - [ ] `targetUrl` hanya menerima skema `http` dan `https`
 - [ ] Menghapus item juga menghapus berkasnya di Blob
 - [ ] Urutan dapat diubah dengan geser dan dengan papan ketik

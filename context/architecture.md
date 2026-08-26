@@ -160,6 +160,20 @@ menentukan asal isi.
 | `createdAt`       | `DateTime`                  |                                                       |
 | `updatedAt`       | `DateTime`                  |                                                       |
 
+**Hubungan `type` dengan `source`.** Untuk `source = UPLOAD`,
+`type` **diturunkan** dari mime yang terdeteksi dari isi
+berkas: `application/pdf` menghasilkan `PDF`, tiga mime
+gambar menghasilkan `IMAGE`. Pemilik tidak memilihnya, karena
+tidak boleh ada dua nilai yang dapat saling menyimpang.
+`UPLOAD` tidak pernah bertipe `LINK`.
+
+Untuk `source = EXTERNAL`, pemilik memilih `type` secara
+bebas dan pilihan itu hanya menentukan ikon — di situlah
+kalimat "dua sumbu yang saling bebas" benar-benar bermakna.
+`LINK` selalu `EXTERNAL`, tetapi `EXTERNAL` tidak selalu
+`LINK`: menempel URL menuju PDF di Drive adalah `EXTERNAL`
+bertipe `PDF`.
+
 Indeks gabungan pada `(groupId, sortOrder)`.
 
 **Arti ketiga nilai `accessMode`:**
@@ -329,10 +343,43 @@ Pemeriksaan izin dilakukan di dalam route handler, tepat di
 sebelah panggilan `get()` — bukan di middleware. Respons berkas
 privat tidak pernah masuk cache CDN.
 
-Batas ukuran unggahan: 10 MB per berkas, ditegakkan di
+Batas ukuran unggahan: 4 MB per berkas, ditegakkan di
 server. Tipe yang diterima: `application/pdf`, `image/png`,
 `image/jpeg`, `image/webp` — diperiksa dari isi berkas,
 bukan dari ekstensi nama.
+
+**Kenapa 4 MB dan bukan 10 MB.** Batas badan permintaan
+Vercel Functions adalah 4,5 MB di tingkat infrastruktur dan
+tidak dapat dinaikkan lewat konfigurasi apa pun; melebihinya
+menghasilkan `413 FUNCTION_PAYLOAD_TOO_LARGE` sebelum satu
+baris kode aplikasi berjalan. Rumusan sebelumnya menyebut
+10 MB, dan angka itu tidak akan pernah tercapai di produksi.
+
+Alternatifnya adalah unggahan langsung dari peramban ke Blob
+memakai token bercakupan sempit, dan itu ditolak 26 Agustus
+2026: token Blob akan sampai ke klien, berkas mendarat lebih
+dulu sebelum isinya diperiksa, dan ada jendela berkas yatim
+bila tab ditutup di tengah jalan. Aplikasi ini memilih yang
+lebih dapat dipertanggungjawabkan, bukan yang lebih lapang.
+
+**Bentuk pathname Blob:** `groups/{groupId}/{acak}.{ext}`.
+Segmen acak berasal dari 24 byte `crypto.randomBytes` dalam
+base64url — sumber acak kriptografis, aturan yang sama
+dengan slug acak. Ketidakdapatditebakan sepenuhnya dipikul
+segmen itu. Ekstensi diturunkan dari mime **terdeteksi**,
+bukan dari nama berkas unggahan. Nama asli berkas tidak
+pernah masuk pathname; ia hidup di `Item.fileName` dan hanya
+dipakai untuk `Content-Disposition`.
+
+Awalan `groups/{groupId}/` membuat penghapusan group menjadi
+operasi yang dapat dibuktikan, bukan lingkaran best-effort di
+atas baris basis data: setelah barisnya terhapus, seluruh
+berkas di bawah awalan itu disapu — termasuk yatim yang
+tertinggal dari kegagalan sebelumnya.
+
+Permukaan `lib/storage/` karena itu berisi empat fungsi:
+`putFile`, `getFileStream`, `deleteFile`, dan
+`deleteFilesByPrefix`.
 
 ## Auth and Access Model
 
@@ -480,6 +527,44 @@ Penulisan log ditunggu sampai selesai sebelum pengalihan
 dilakukan. Menjadikannya pekerjaan latar berisiko hilang
 saat fungsi serverless berhenti setelah respons terkirim.
 
+### Pembuatan item — route handler
+
+Berlaku hanya untuk `source = UPLOAD`. Item `EXTERNAL` tidak
+memuat berkas dan memakai server action biasa.
+
+`POST /api/groups/[groupId]/items`, multipart:
+
+1. Baca sesi; bukan `OWNER` menghasilkan 403 JSON. Bukan
+   pengalihan: pemanggilnya `fetch`, dan pengalihan yang
+   diikuti diam-diam akan terbaca sebagai keberhasilan.
+2. Tolak bila header `Content-Length` melebihi 4 MB. Murah,
+   sebelum badan permintaan dibaca. Header ini **tidak
+   dipercaya** — ia hanya menghemat pekerjaan.
+3. Pastikan group ada.
+4. Validasi judul, deskripsi, dan `accessMode` dengan Zod.
+5. Baca buffer, lalu tegakkan 4 MB atas ukuran **sebenarnya**.
+   Inilah penegakan yang mengikat.
+6. Deteksi mime dari byte awal berkas. Tidak dikenali
+   menghasilkan 415.
+7. Turunkan `type` dari mime.
+8. `putFile()` ke `groups/{groupId}/{acak}.{ext}`.
+9. Sisipkan baris `Item`. **Gagal menyisip berarti
+   `deleteFile()`** pada berkas yang barusan naik, lalu galat
+   dilemparkan kembali.
+10. Respons sukses tidak pernah memuat `fileKey`.
+
+Urutan 5, 6, lalu 8 adalah intinya: tidak satu byte pun
+mendarat di Blob sebelum ukuran dan isinya lolos.
+
+**Penghapusan berjalan ke arah sebaliknya** — baris dulu,
+berkas sesudah. Barislah yang memikul keterjangkauan: setiap
+jalur menuju konten berangkat dari baris `Item`, jadi begitu
+baris itu hilang berkasnya sudah tidak terjangkau meski
+seluruh langkah berikutnya gagal. Kegagalan menghapus di Blob
+dicatat ke log server lalu ditelan, sama seperti kegagalan
+email. Menghapus group menyapu seluruh awalannya setelah
+transaksi commit.
+
 ### Pengajuan izin — server action
 
 Dua bentuk: satu item, atau seluruh item `APPROVAL` di
@@ -576,10 +661,16 @@ lapisan pemberitahuan di atasnya.
    sebelum pengalihan atau pengaliran berkas dimulai.
    Tidak ada pencatatan yang bergantung pada JavaScript
    klien.
-3. URL Blob mentah, `fileKey`, dan `targetUrl` item yang
-   bersetelan `accessMode = IDENTITY` atau `APPROVAL` tidak
-   pernah muncul di HTML, payload data, maupun respons API
-   yang dikirim ke pengunjung.
+3. URL Blob mentah dan `fileKey` tidak pernah muncul di HTML,
+   payload data, maupun respons API yang dikirim ke peramban
+   mana pun — **termasuk CMS pemilik**. Ditegakkan secara
+   mekanis, bukan lewat kehati-hatian: kueri yang melayani
+   antarmuka memakai `select` yang tidak memuat kolom itu,
+   dan satu-satunya kueri yang membacanya adalah pra-baca
+   sesaat sebelum penghapusan. `targetUrl` item bersetelan
+   `accessMode = IDENTITY` atau `APPROVAL` tidak pernah
+   dikirim ke pengunjung; di CMS pemilik ia wajib ada, karena
+   di situlah ia disunting.
 4. Respons halaman publik tidak memuat rujukan apa pun ke
    group lain, termasuk di metadata dan data terserialisasi.
 5. Setiap mutasi data memeriksa `role === OWNER` dari sesi

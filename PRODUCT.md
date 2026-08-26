@@ -138,7 +138,7 @@ folder cloud bersama, kiriman di grup chat):
 - **Keadaan yang tidak pasti selalu berarti menolak** — mode akses yang
   belum diimplementasikan, catatan izin yang tidak ditemukan, dan nilai
   enum yang tidak dikenali menghasilkan penolakan.
-- Batas unggahan 10 MB per berkas; tipe diterima `application/pdf`,
+- Batas unggahan 4 MB per berkas; tipe diterima `application/pdf`,
   `image/png`, `image/jpeg`, `image/webp`, diperiksa dari isi berkas bukan
   ekstensi.
 - Halaman publik harus tetap berfungsi untuk hal pokoknya tanpa JavaScript:
