@@ -1,10 +1,10 @@
 "use client";
 
 import { useCallback, useOptimistic, useState, useTransition } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
 
 import { moveGroupAction } from "@/app/(dashboard)/dashboard/actions";
-import { GroupDeleteDialog } from "@/components/dashboard/group-delete-dialog";
+import { GroupAccordionBody } from "@/components/dashboard/group-accordion-body";
 import { GroupEmptyState } from "@/components/dashboard/group-empty-state";
 import { GroupFilterBar } from "@/components/dashboard/group-filter-bar";
 import { GroupFormRow } from "@/components/dashboard/group-form-row";
@@ -137,42 +137,15 @@ export function GroupList({ groups, now }: { groups: GroupListItem[]; now: Date 
                 perbaikannya dipasang dari luar — pola yang sama dengan
                 TRIGGER_ICON_LEFT di atas. */}
             <AccordionContent className="h-auto pb-4">
-              {editingId === group.id ? (
-                <GroupFormRow mode="edit" group={group} onDone={stopEditing} />
-              ) : (
-                <>
-                  <p className="text-sm text-muted-foreground">
-                    Group ini belum berisi apa-apa. Tambah tautan, PDF, atau gambar.
-                  </p>
-                  <div className="mt-3 flex gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setEditingId(group.id)}
-                    >
-                      Ubah judul dan slug
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="text-state-error"
-                      onClick={() => setDeletingId(group.id)}
-                    >
-                      <Trash2 className="h-4 w-4" aria-hidden />
-                      Hapus group
-                    </Button>
-                  </div>
-                  {deletingId === group.id && (
-                    <GroupDeleteDialog
-                      group={group}
-                      open
-                      onOpenChange={(next) => setDeletingId(next ? group.id : null)}
-                    />
-                  )}
-                </>
-              )}
+              <GroupAccordionBody
+                group={group}
+                editingId={editingId}
+                deletingId={deletingId}
+                onEditStart={setEditingId}
+                onEditDone={stopEditing}
+                onDeleteStart={setDeletingId}
+                onDeleteOpenChange={(next) => setDeletingId(next ? group.id : null)}
+              />
             </AccordionContent>
           </AccordionItem>
         ))}
