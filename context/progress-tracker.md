@@ -49,7 +49,6 @@ yang berarti.
   didorong, sehingga alias preview Vercel akhirnya menunjuk kode
   sungguhan. Keempat ref — `main`, `origin/main`, `dev`, `origin/dev` —
   dibaca langsung dari GitHub dan seluruhnya `fe15666`.
-- Tidak ada lagi pertanyaan terbuka.
 - **Unit 4 bagian pertama SELESAI, 27 Agustus 2026.**
   `lib/access/evaluate-access.ts` beserta matriks pengujiannya, ditulis
   sebelum satu halaman pun dibuat sesuai gerbang urutan kerja Fase 5.
@@ -58,15 +57,43 @@ yang berarti.
   dicatat di Architecture Decisions, dan cabang pemilik di tahap dua
   sudah dituliskan ke `architecture.md`. Belum ada halaman, belum ada
   route, belum ada `lib/audit/`.
+- **Digabung ke `main`, 27 Agustus 2026.** `merge --ff-only` dari
+  `unit-4-gerbang-akses`, 16 commit dari `6045d50`, `main` kini di
+  `e10cbda`. Ketiga gerbang dijalankan ulang di atas `main` setelah
+  penggabungan dan lulus: **280 pengujian di 22 berkas**, `typecheck`
+  bersih, `lint` nol peringatan. Sepuluh berkas berubah; nol di `app/`,
+  `components/`, maupun `prisma/`.
+- **Belum didorong ke `origin`.** `main` lokal unggul **17 commit** atas
+  `origin/main` — enam belas dari unit ini ditambah `6045d50` yang sudah
+  tertinggal sebelumnya. Cabang `dev` juga belum disusulkan, sehingga
+  prasyarat rilis "susulkan `dev` setiap kali sebuah unit digabung"
+  sedang terbuka lagi. Keduanya menunggu keputusan pemilik.
+- **Enam task dieksekusi lewat subagent** dengan review dua putusan per
+  task, ditutup review menyeluruh satu cabang penuh memakai keempat belas
+  invarian `architecture.md` sebagai lensa. Review itu menjalankan **16
+  mutasi** pada `evaluate-access.ts` dan keenam belasnya membuat pengujian
+  merah — tidak ada baris evaluator yang tidak terjaga.
+
+  Tiga cacat ditemukan review dan tidak akan tertangkap tanpa review:
+  cabang terakhir tahap satu yang permisif terhadap nilai `Visibility`
+  tak dikenal; tiga pengujian yang hijau tanpa menjaga apa pun, termasuk
+  satu yang tetap lulus ketika penolakan menyeluruh diganti
+  `granted(true)`; dan cabang `default` tahap dua tanpa penjaga
+  keterjangkauan `never` padahal komentarnya menjanjikan begitu.
+  Ketiganya ditutup sebelum penggabungan.
+- Tidak ada lagi pertanyaan terbuka.
 
 ## Current Goal
 
-- **Fase 2 — arah desain lewat skill impeccable**, sebelum
-  antarmuka sungguhan mulai ditulis di Unit 2. Urutannya di
-  `ROADMAP.md` Fase 2, prompt P2.1–P2.4 di
-  `PROMPT-PLAYBOOK.md`.
-- Tidak ada keputusan yang menggantung. D9 menetapkan mesin
-  primitif shadcn tetap Radix.
+- **Fase 5 lanjutan — halaman publik, gerbang item, dan
+  `lib/audit/`.** Evaluator izinnya sudah ada, matriksnya lulus,
+  dan sudah tergabung ke `main`. Yang tersisa di Unit 4 adalah
+  pemanggilnya. Rinciannya di bagian Next Up.
+- Tidak ada keputusan yang menggantung.
+
+  Rumusan sebelumnya di bagian ini masih menyebut Fase 2 sebagai
+  tujuan berjalan; itu basi sejak Unit 2 dan diperbaiki
+  27 Agustus 2026.
 
 ## Completed
 
