@@ -196,4 +196,18 @@ describe("gerbang group — nilai visibility yang tidak dikenal", () => {
       reason: "NOT_FOUND",
     });
   });
+
+  // Cabang OWNER berdiri SEBELUM switch visibility, jadi pemilik lolos
+  // bahkan untuk nilai asing ini. Ini bukan kebocoran: nilai asing nol
+  // pengaruh bagi pemilik, yang toh lolos untuk setiap nilai visibility
+  // yang dikenal juga. Pengujian ini ada supaya perilaku itu terbaca
+  // sebagai keputusan yang disengaja, bukan sebagai lubang yang perlu
+  // ditambal oleh pembaca berikutnya yang membaca baris merah "nilai
+  // enum tak dikenal selalu menolak".
+  it("membolehkan pemilik meski visibility group tidak dikenal, karena cabang pemilik mendahului aturan visibility", () => {
+    expect(evaluateGroupAccess(groupVisibilityAsing, pemilik, NOW)).toEqual({
+      kind: "GRANTED",
+      ownerPreview: false,
+    });
+  });
 });

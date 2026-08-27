@@ -222,6 +222,18 @@
   matriks satu fungsi tetap satu berkas meski panjang,
   karena memecahnya membuat baris kasus uji yang hilang
   lebih sulit terlihat. Ditetapkan 27 Agustus 2026.
+- Berkas penjaga invarian — seperti
+  `tests/access/stage-order.test.ts` — adalah kekecualian
+  yang sah dan berdiri sendiri di luar berkas matriks,
+  meski menguji fungsi yang sama. Yang dijaganya bukan satu
+  baris matriks, melainkan hubungan antar-fungsi, dan ia
+  sengaja dipisah supaya tidak tenggelam di antara baris
+  matriks. Konsekuensi yang diterima secara sadar: berkas
+  penjaga invarian mengenumerasi ulang keadaan yang juga
+  tertulis di matriks dan di `architecture.md`, sehingga ia
+  wajib disinkronkan tangan setiap kali keadaan baru
+  ditambahkan. Ini sudah pernah terlewat sekali di Unit 4.
+  Ditetapkan 27 Agustus 2026.
 
 ## Security Practices
 

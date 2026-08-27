@@ -459,6 +459,12 @@ Hanya dijalankan bila tahap satu menghasilkan `GRANTED`.
    5. `status = APPROVED` dan `expiresAt` sudah lewat →
       `DENIED / APPROVAL_EXPIRED`
    6. `status = APPROVED` → `GRANTED`
+8. Nilai `accessMode` yang tidak dikenal → `DENIED / NOT_FOUND`
+
+**Kenapa butir 8 ada.** Ditetapkan 27 Agustus 2026. Penjaga
+keterjangkauan `never` di implementasinya membuat penambahan
+anggota enum `AccessMode` baru gagal saat kompilasi, sehingga
+mode baru tidak dapat diam-diam membuka akses.
 
 **Kenapa cabang pemilik berdiri di nomor 3 dan bukan lebih
 awal.** Ditetapkan 27 Agustus 2026. Tanpa cabang ini, pemilik

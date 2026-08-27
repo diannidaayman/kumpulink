@@ -259,4 +259,23 @@ describe("gerbang item — tingkat akses", () => {
       ),
     ).toEqual({ kind: "DENIED", reason: "NOT_FOUND" });
   });
+
+  // Cabang OWNER berdiri SEBELUM switch accessMode, jadi pemilik lolos
+  // bahkan untuk nilai asing ini. Ini bukan kebocoran: nilai asing nol
+  // pengaruh bagi pemilik, yang toh lolos untuk setiap nilai accessMode
+  // yang dikenal juga. Pengujian ini ada supaya perilaku itu terbaca
+  // sebagai keputusan yang disengaja, bukan sebagai lubang yang perlu
+  // ditambal oleh pembaca berikutnya yang membaca baris merah "nilai
+  // enum tak dikenal selalu menolak".
+  it("membolehkan pemilik meski accessMode item tidak dikenal, karena cabang pemilik mendahului aturan accessMode", () => {
+    expect(
+      evaluateItemAccess(
+        groupAktif,
+        { ...itemTerbuka, accessMode: "SOMETHING_ELSE" as AccessMode },
+        pemilik,
+        TANPA_IZIN,
+        NOW,
+      ),
+    ).toEqual({ kind: "GRANTED", ownerPreview: false });
+  });
 });
