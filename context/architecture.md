@@ -36,9 +36,17 @@ baris di database sendiri.
 - `app/akses-ditolak/` — halaman untuk sesi yang bukan pemilik. Berada di
   luar grup `(dashboard)` supaya tidak melewati gerbangnya sendiri, yang
   akan membuat pengalihannya berputar tanpa henti.
-- `app/(public)/g/[slug]/` — halaman group publik dan route
-  gerbang item. Satu-satunya jalan masuk pengunjung ke
-  konten.
+- `app/(public)/g/[slug]/` — halaman group publik dan route gerbang item.
+  Satu-satunya jalan masuk pengunjung ke konten.
+
+  Gerbang item adalah **route handler**, bukan halaman: hanya route
+  handler yang dapat mengalirkan byte berkas, dan menempatkan seluruh
+  keluarannya di satu berkas membuat pencatatan dan penerusan punya
+  tepat satu tempat. Keluaran yang berbentuk HTML dijawab 303 ke route
+  anak — `/masuk`, `/tidak-tersedia`, `/galat-pencatatan` — yang
+  mengevaluasi ulang untuk melindungi dirinya sendiri dan **tidak**
+  menulis log, karena tak satu pun menyajikan konten. Ditetapkan
+  27 Agustus 2026, keputusan U4-6.
 - `app/api/` — route handler untuk unggahan berkas dan
   mutasi data. Setiap handler memeriksa peran pemilik dan
   memvalidasi input sebelum menjalankan logika.
@@ -552,6 +560,8 @@ mengajukannya.
 0. Periksa rate limit per alamat IP. Bila terlampaui,
    kembalikan HTTP 429, catat `DENIED / RATE_LIMITED`, dan
    hentikan tanpa menyentuh database lebih jauh.
+   Penghitungnya dibaca di sini tetapi dinaikkan di butir 7 dan 9 saja —
+   hanya percobaan yang gagal. `RATE_LIMITED` sendiri tidak menaikkannya.
 1. Baca sesi di server.
 2. Ambil group, item, dan catatan `AccessRequest` pemohon
    untuk item ini bila pemohon sedang masuk.
