@@ -1,6 +1,6 @@
 import "server-only";
 
-import { del, list, put } from "@vercel/blob";
+import { del, get, list, put } from "@vercel/blob";
 
 /**
  * SATU-SATUNYA berkas di repositori ini yang mengimpor SDK Vercel Blob.
@@ -28,6 +28,43 @@ export async function putFile(
     addRandomSuffix: false,
   });
   return result.pathname;
+}
+
+export type StoredFile = {
+  stream: ReadableStream<Uint8Array>;
+  contentType: string | null;
+};
+
+/**
+ * Ia MENGALIRKAN isi berkas, bukan menyusun URL. Tidak ada URL Blob yang
+ * boleh sampai ke peramban dalam bentuk apa pun — invarian 3.
+ *
+ * Mengembalikan null bila berkasnya tidak ada. Pemanggilnya yang
+ * menandai item.isBroken dan mencatat DENIED / FILE_MISSING; modul ini
+ * tidak tahu apa-apa tentang item maupun riwayat.
+ *
+ * Bentuk kembalian `get()` di SDK terpasang BUKAN yang tertulis di
+ * architecture.md: tidak ada `statusCode: 404` — "tidak ditemukan"
+ * berarti `get()` mengembalikan `null` secara langsung. `contentType`
+ * juga bersarang di `blob.contentType`, bukan di tingkat atas. Tipe
+ * kembaliannya union kondisional pada `statusCode`: 200 (stream ada,
+ * blob.contentType berupa string) atau 304 (stream null, dipicu hanya
+ * bila `ifNoneMatch` dikirim — yang tidak pernah kita kirim di sini).
+ * Percabangan pada `statusCode !== 200` menjaga tipe tetap valid tanpa
+ * mengandalkan kode statusCode yang tidak ada.
+ */
+export async function getFileStream(pathname: string): Promise<StoredFile | null> {
+  try {
+    const result = await get(pathname, { access: "private" });
+    if (result === null || result.statusCode !== 200) return null;
+    return { stream: result.stream, contentType: result.blob.contentType };
+  } catch {
+    // Berkas tidak ditemukan tidak boleh terbaca sebagai kegagalan
+    // server. Bentuk galatnya berbeda antar versi SDK, jadi yang
+    // dipegang di sini adalah hasilnya: tidak ada berkas untuk
+    // dialirkan.
+    return null;
+  }
 }
 
 /**
