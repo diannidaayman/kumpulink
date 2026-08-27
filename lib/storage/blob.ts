@@ -54,18 +54,18 @@ export type StoredFile = {
  * mengandalkan kode statusCode yang tidak ada.
  */
 export async function getFileStream(pathname: string): Promise<StoredFile | null> {
-  try {
-    const result = await get(pathname, { access: "private" });
-    if (result === null || result.statusCode !== 200) return null;
-    return { stream: result.stream, contentType: result.blob.contentType };
-  } catch {
-    // Berkas tidak ditemukan tidak boleh terbaca sebagai kegagalan
-    // server. Bentuk galatnya berbeda antar versi SDK, jadi yang
-    // dipegang di sini adalah hasilnya: tidak ada berkas untuk
-    // dialirkan.
-    return null;
-  }
+  const result = await get(pathname, { access: "private" });
+  if (result === null || result.statusCode !== 200) return null;
+  return { stream: result.stream, contentType: result.blob.contentType };
 }
+
+/**
+ * Tidak ada catch di sini: `get()` menandai ketiadaan dengan mengembalikan
+ * `null`, sehingga galat yang tersisa adalah kegagalan sungguhan, dan
+ * menyamakan keduanya akan membuat gangguan sementara menandai item pemilik
+ * sebagai rusak secara permanen serta menulis riwayat yang keliru. Pemanggilnya
+ * yang menangani kesalahan asli.
+ */
 
 /**
  * `contentType` dikirim EKSPLISIT dari mime terdeteksi. Bila dibiarkan,
