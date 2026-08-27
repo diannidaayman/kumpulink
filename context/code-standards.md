@@ -217,6 +217,11 @@
   sudah masuk".
 - Jangan menulis pengujian yang hanya mengulang
   implementasi.
+- Ambang ±200 baris di bagian General berlaku untuk
+  modul, bukan untuk berkas matriks pengujian. Sebuah
+  matriks satu fungsi tetap satu berkas meski panjang,
+  karena memecahnya membuat baris kasus uji yang hilang
+  lebih sulit terlihat. Ditetapkan 27 Agustus 2026.
 
 ## Security Practices
 

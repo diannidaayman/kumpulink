@@ -123,10 +123,16 @@ export function evaluateItemAccess(
       // progress-tracker.md. Ini keputusan, bukan cabang yang kelupaan.
       return denied("NOT_FOUND");
 
-    default:
+    default: {
       // Nilai yang tidak dikenali menolak, dan TIDAK lolos ke cabang
       // terakhir. Penambahan mode baru tidak boleh diam-diam membuka
-      // akses; ia harus gagal dengan berisik di sini lebih dulu.
+      // akses; penjaga keterjangkauan berikut membuat penambahan
+      // anggota enum baru gagal saat kompilasi lebih dulu, dan baris di
+      // bawahnya tetap menggigit saat runtime bila data lebih tua atau
+      // lebih baru daripada kode.
+      const _exhaustive: never = item.accessMode;
+      void _exhaustive;
       return denied("NOT_FOUND");
+    }
   }
 }

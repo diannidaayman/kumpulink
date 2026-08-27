@@ -168,6 +168,16 @@ describe("gerbang item — tingkat akses", () => {
     ).toEqual({ kind: "GRANTED", ownerPreview: false });
   });
 
+  // Bersebelahan dengan pengujian pengunjung anonim di atas: cabang OPEN
+  // mengabaikan sesi sepenuhnya, jadi pengunjung anonim maupun yang sudah
+  // masuk harus mendapat hasil yang sama. Kedua pengujian inilah yang
+  // menegaskan itu.
+  it("meneruskan pengunjung yang sudah masuk ke item terbuka", () => {
+    expect(
+      evaluateItemAccess(groupAktif, itemTerbuka, pengunjung, TANPA_IZIN, NOW),
+    ).toEqual({ kind: "GRANTED", ownerPreview: false });
+  });
+
   it("meminta pengunjung masuk lebih dulu pada item yang aksesnya dicatat", () => {
     expect(
       evaluateItemAccess(
