@@ -9,6 +9,7 @@ import type {
   AccessItem,
   AccessSession,
 } from "@/lib/types/access";
+import type { Visibility } from "@prisma/client";
 
 const NOW = new Date("2026-08-27T10:00:00Z");
 const KEMARIN = new Date("2026-08-26T10:00:00Z");
@@ -66,6 +67,18 @@ const keadaanYangDitolakTahapSatu: Keadaan[] = [
     group: { ...groupAktif, visibility: "PRIVATE" },
     session: pengunjung,
     hasil: { kind: "DENIED", reason: "PRIVATE" },
+  },
+  // Nilai `visibility` yang tidak dikenal mensimulasikan data yang lebih
+  // baru daripada kode: baris database yang ditulis oleh versi aplikasi
+  // berikutnya (dengan anggota enum baru), lalu dibaca oleh versi yang
+  // sedang berjalan sekarang, yang belum tahu apa-apa soal anggota itu.
+  // Penjaga keterjangkauan `never` di implementasinya menangkap kasus ini
+  // saat kompilasi; pemeranan tipe ini yang menangkapnya saat runtime.
+  {
+    nama: "visibility group tidak dikenal",
+    group: { ...groupAktif, visibility: "SOMETHING_ELSE" as Visibility },
+    session: pengunjung,
+    hasil: { kind: "DENIED", reason: "NOT_FOUND" },
   },
 ];
 
