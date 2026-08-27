@@ -331,6 +331,20 @@ tindakan yang mengubah izin.
   Laptop ruang rapat dipakai bergantian; tanpa tombol ini,
   riwayat akses akan mencatat lima orang berikutnya sebagai
   orang yang pertama masuk.
+- **Layar masuk** — bentuknya sama di kedua tempat yang
+  memerlukannya. Judul, satu kalimat penjelas, lalu satu tombol
+  terisi "Masuk dengan Google" berikon `LogIn`. Tanpa lencana, tanpa
+  kartu, tanpa ilustrasi.
+
+  Di halaman group ia menyebut **judul group**, menjawab "saya tidak
+  salah alamat" sebelum pengunjung menyerahkan identitasnya. Di gerbang
+  item ia menyebut **nama item** sebagai judul dan judul group di
+  kalimat penjelasnya, ditambah kalimat "Akses Anda akan dicatat" yang
+  sama dengan yang ada di kartu `IDENTITY`.
+
+  Tombolnya `<form>` dengan server action, bukan tombol berpenangan
+  klik: halaman publik wajib dapat dipakai tanpa JavaScript.
+  Ditetapkan 27 Agustus 2026, keputusan U4-4.
 - **Modal** — overlay terpusat dengan latar buram.
 - **Halaman Riwayat** — **halaman tersendiri per group**,
   bukan tab di dalam akordeon dan bukan sheet. Penyaring

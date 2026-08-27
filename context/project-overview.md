@@ -87,9 +87,9 @@ yang sudah membuka dokumen penting, itu yang belum ada.
    group lain.
 4. Pengunjung mengklik item `OPEN` dan langsung diteruskan
    ke tujuan.
-5. Pengunjung mengklik item `IDENTITY`. Jika belum masuk,
-   ia diminta masuk lebih dulu lalu dikembalikan ke titik
-   semula dan diteruskan. Item semacam ini diberi
+5. Pengunjung mengklik item `IDENTITY`. Jika belum masuk, ia melihat
+   layar masuk yang menyebut nama item dan judul group, lalu masuk dan
+   dikembalikan ke titik semula dan diteruskan. Item semacam ini diberi
    keterangan bahwa aksesnya dicatat.
 6. Untuk item `APPROVAL`, kartunya sudah menandakan bahwa
    izin diperlukan sebelum diklik. Pengunjung mengajukan

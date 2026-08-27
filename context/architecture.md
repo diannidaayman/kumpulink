@@ -532,8 +532,12 @@ mengajukannya.
    sedang masuk, ambil sekaligus seluruh `AccessRequest`
    miliknya pada group ini dalam satu query.
 3. Panggil `evaluateAccess()` tahap satu.
-4. `NEEDS_LOGIN` → alihkan ke Google dengan `callbackUrl`
-   menunjuk kembali ke URL ini.
+4. `NEEDS_LOGIN` → render layar masuk yang **menyebut judul group**,
+   dengan tombol yang memanggil `signIn("google", { redirectTo })`.
+   Pengalihan ke Google terjadi saat pengunjung menekan tombolnya, bukan
+   sebelum ia melihat halaman apa pun. Nilai `redirectTo` disusun di
+   server dari parameter route dan tidak pernah dibaca dari query
+   string. Ditetapkan 27 Agustus 2026, keputusan U4-4 dan U4-9.
 5. `DENIED` → render halaman tidak ditemukan.
 6. `GRANTED` → catat `PAGE_VIEW` bila identitas diketahui,
    lalu render daftar item. Setiap item dirender sebagai
@@ -552,9 +556,10 @@ mengajukannya.
 2. Ambil group, item, dan catatan `AccessRequest` pemohon
    untuk item ini bila pemohon sedang masuk.
 3. Panggil `evaluateAccess()` tahap satu lalu tahap dua.
-4. `NEEDS_LOGIN` → alihkan ke Google dengan `callbackUrl`
-   menunjuk kembali ke URL gerbang ini, sehingga setelah
-   masuk pengunjung langsung diteruskan tanpa mengklik lagi.
+4. `NEEDS_LOGIN` → 303 ke `/g/[slug]/i/[itemId]/masuk`, yang merender
+   layar masuk yang menyebut judul group **dan nama item**. Sepulang
+   dari Google pengunjung mendarat kembali di URL gerbang ini, sehingga
+   ia langsung diteruskan tanpa mengklik lagi. Tidak ada yang dicatat.
 5. `NEEDS_REQUEST` → render halaman pengajuan izin berisi
    nama item, nama group, dan formulir keperluan opsional.
    Tidak ada yang dicatat di `AccessLog`.
