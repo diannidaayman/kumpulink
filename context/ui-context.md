@@ -729,6 +729,19 @@ sekadar menyatakan bahwa tidak ada apa-apa.
   Tiga halaman keadaan lainnya — pengajuan, menunggu, dan
   ditolak — tahu group-nya dan boleh menyebutnya. Hanya
   halaman ini yang tidak.
+- Akses gagal dicatat — "Akses Anda tidak dapat dicatat.
+  Aplikasi ini tidak meneruskan apa pun yang tidak dapat ia
+  catat, jadi halaman ini tidak dibuka. Coba lagi sebentar
+  lagi." HTTP 500, halaman tersendiri, bukan halaman tidak
+  tersedia.
+
+  Dua halaman ini sengaja berbeda. Yang satu berarti tidak
+  ada apa-apa di sini; yang ini berarti ada, dan gerbangnya
+  baru saja meloloskan Anda, tetapi jejaknya gagal ditulis.
+  Memakai kalimat yang pertama untuk keadaan yang kedua
+  membuat pengunjung berhenti mencoba padahal percobaan
+  berikutnya mungkin berhasil. Ditetapkan 27 Agustus 2026,
+  keputusan U4-8.
 - Pemilik membuka group nonaktif — halaman tampil normal,
   didahului spanduk peringatan: "Link berbagi group ini
   sedang tidak aktif. Hanya Anda yang dapat melihat
