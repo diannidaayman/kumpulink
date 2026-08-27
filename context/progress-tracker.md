@@ -63,11 +63,13 @@ yang berarti.
   penggabungan dan lulus: **280 pengujian di 22 berkas**, `typecheck`
   bersih, `lint` nol peringatan. Sepuluh berkas berubah; nol di `app/`,
   `components/`, maupun `prisma/`.
-- **Belum didorong ke `origin`.** `main` lokal unggul **17 commit** atas
-  `origin/main` — enam belas dari unit ini ditambah `6045d50` yang sudah
-  tertinggal sebelumnya. Cabang `dev` juga belum disusulkan, sehingga
-  prasyarat rilis "susulkan `dev` setiap kali sebuah unit digabung"
-  sedang terbuka lagi. Keduanya menunggu keputusan pemilik.
+- **Didorong dan `dev` disusulkan, 27 Agustus 2026.** `main` didorong ke
+  `origin` — 18 commit, termasuk `6045d50` yang ternyata sudah tertinggal
+  sebelum sesi ini dimulai. Cabang `dev` lalu disusulkan dengan
+  `merge --ff-only` dan ikut didorong. Keempat ref — `main`,
+  `origin/main`, `dev`, `origin/dev` — diperiksa setelah `git fetch` dan
+  seluruhnya `205423d`. Prasyarat rilis soal `dev` tertutup lagi, dan
+  alias preview `kumpulink-preview.vercel.app` menunjuk kode Unit 4.
 - **Enam task dieksekusi lewat subagent** dengan review dua putusan per
   task, ditutup review menyeluruh satu cabang penuh memakai keempat belas
   invarian `architecture.md` sebagai lensa. Review itu menjalankan **16
@@ -1029,9 +1031,11 @@ dilupakan:
   menonaktifkannya otomatis setelah 60 hari repositori tidak
   aktif. Periksa sebelum tiap acara.
 - ~~**Cabang `dev` harus disusulkan sebelum Fase 10.**~~
-  **TERPENUHI 27 Agustus 2026.** `dev` disusulkan ke `main`
-  di `fe15666` dengan `merge --ff-only` lalu didorong, setelah
-  sempat tertinggal 90 commit dan berisi keadaan Fase 0.
+  **TERPENUHI 27 Agustus 2026, dan dipenuhi lagi hari yang sama
+  setelah Unit 4 bagian pertama digabung — kali ini di `205423d`.**
+  Sebelumnya `dev` disusulkan ke `main` di `fe15666` dengan
+  `merge --ff-only` lalu didorong, setelah sempat tertinggal
+  90 commit dan berisi keadaan Fase 0.
   Alias preview `kumpulink-preview.vercel.app` kini menunjuk
   kode sungguhan.
 
