@@ -286,6 +286,13 @@ menjawab pertanyaan siapa pun.
 anonim pada item terbuka. Barisnya tetap berguna sebagai
 hitungan klik meski kolom identitasnya kosong.
 
+**Kegagalan menulis log.** Peristiwa yang menyajikan sesuatu —
+`ITEM_ACCESS / GRANTED` dan `PAGE_VIEW` — membatalkan penyajiannya
+ketika penulisan lognya gagal, dan pengunjung menerima halaman galat
+pencatatan berstatus 500. Penolakan tidak: kegagalan menulis
+`ITEM_ACCESS / DENIED` dicatat ke konsol server lalu ditelan.
+Ditetapkan 27 Agustus 2026, keputusan U4-7.
+
 Keadaan "belum mengajukan" dan "sedang menunggu keputusan"
 **tidak** dicatat sebagai `DENIED`. Keduanya bagian dari
 alur normal, bukan penolakan, dan waktunya sudah terekam

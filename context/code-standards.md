@@ -86,10 +86,18 @@
 - Nama dan email disalin ke baris log pada saat kejadian.
   Jangan mengandalkan join ke tabel `User` saat membaca
   riwayat, karena data pengguna bisa berubah kemudian.
-- Kegagalan menulis log pada akses `GRANTED` membatalkan
-  penerusan. Meneruskan pengunjung tanpa jejak lebih buruk
-  daripada gagal membuka berkas — itu justru menghapus
-  alasan aplikasi ini dibuat.
+- Kegagalan menulis log pada peristiwa yang MENYAJIKAN sesuatu berarti
+  tidak ada yang disajikan. Itu berlaku untuk `ITEM_ACCESS / GRANTED`
+  yang membatalkan penerusan, dan sama persis untuk `PAGE_VIEW` yang
+  membatalkan render halaman group. Meneruskan pengunjung tanpa jejak
+  lebih buruk daripada gagal membuka berkas — itu justru menghapus
+  alasan aplikasi ini dibuat. Dua aturan berbeda untuk dua peristiwa
+  akan menjadi dua perilaku yang harus diingat, dan yang lebih longgar
+  akan menjadi preseden bagi yang berikutnya.
+- Kegagalan menulis `ITEM_ACCESS / DENIED` dicatat ke konsol server lalu
+  ditelan, dan halaman tidak tersedia tetap tampil. Pengunjung yang
+  ditolak tidak sedang menerima apa pun, jadi tidak ada yang perlu
+  dibatalkan. Ditetapkan 27 Agustus 2026 sebagai keputusan U4-7.
 
 ## Access Requests
 
