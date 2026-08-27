@@ -50,6 +50,14 @@ yang berarti.
   sungguhan. Keempat ref — `main`, `origin/main`, `dev`, `origin/dev` —
   dibaca langsung dari GitHub dan seluruhnya `fe15666`.
 - Tidak ada lagi pertanyaan terbuka.
+- **Unit 4 bagian pertama SELESAI, 27 Agustus 2026.**
+  `lib/access/evaluate-access.ts` beserta matriks pengujiannya, ditulis
+  sebelum satu halaman pun dibuat sesuai gerbang urutan kerja Fase 5.
+  Dua fungsi murni, 48 pengujian di tiga berkas `tests/access/`, termasuk
+  invarian 6 sebagai berkas tersendiri. Tiga keputusan U4-1 sampai U4-3
+  dicatat di Architecture Decisions, dan cabang pemilik di tahap dua
+  sudah dituliskan ke `architecture.md`. Belum ada halaman, belum ada
+  route, belum ada `lib/audit/`.
 
 ## Current Goal
 
@@ -883,20 +891,24 @@ dan pelajaran prosesnya — diselamatkan ke
 
 ## Next Up
 
-1. **Fase 5 — Unit 4, gerbang akses dan halaman publik.** Fase paling
-   berisiko dalam proyek: `evaluateAccess()` beserta matriks
-   pengujiannya ditulis sebelum satu halaman publik pun dibuat.
-   `getFileStream()` yang sengaja ditunda Unit 3 dibangun di sini,
-   dipanggil hanya dari balik gerbang. Rinciannya di `ROADMAP.md`
-   Fase 5.
+1. **Unit 4 lanjutan — halaman publik, gerbang item, dan `lib/audit/`.**
+   Evaluator izinnya sudah ada dan matriksnya lulus; yang tersisa adalah
+   pemanggilnya. Halaman group `/g/[slug]` memanggil
+   `evaluateGroupAccess()`, gerbang item `/g/[slug]/i/[itemId]` memanggil
+   `evaluateItemAccess()` — satu panggilan, bukan dua. `getFileStream()`
+   yang ditunda Unit 3 dibangun di sini, dipanggil hanya dari balik
+   gerbang. Penulisan `AccessLog` ditunggu sampai selesai sebelum
+   pengalihan atau pengaliran berkas dimulai.
 
-   Hal yang diwariskan Unit 3 dan wajib ditangani di task yang
-   menyentuhnya:
+   Ketiga hal warisan Unit 3 di bawah masih berlaku dan wajib ditangani
+   di task yang menyentuhnya.
 
    - **`resolveGroupStatus()` jangan dipakai ulang di
      `lib/access/evaluate-access.ts`.** Ia fungsi tampilan yang cabang
      terakhirnya permisif; evaluator akses menuntut penolakan sebagai
      bawaan. (Diwariskan dari Unit 2, masih berlaku.)
+     (Ditangani 27 Agustus 2026: evaluator menulis ambang kedaluwarsanya
+     sendiri dan tidak mengimpor `lib/groups/status.ts`.)
    - **Route handler unggahan Unit 3 memakai `getOwnerSession()`, BUKAN
      `requireOwner()`** — dan gerbang item Unit 4 harus memilih dengan
      sadar antara keduanya, bukan menyalin salah satu begitu saja.
