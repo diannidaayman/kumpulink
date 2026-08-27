@@ -49,17 +49,20 @@ export async function GET(
 
   const now = new Date();
   const context = await readRequestContext();
-  const session = await auth();
-  const visitor: Visitor = {
-    userId: session?.user?.id ?? null,
-    visitorName: session?.user?.name ?? null,
-    visitorEmail: session?.user?.email ?? null,
-  };
 
   // LANGKAH 0 — rate limit, sebelum menyentuh database lebih jauh.
   if (context.ipAddress !== null) {
     const failures = await readFailureCount(ITEM_GATE_SCOPE, context.ipAddress, now);
     if (isOverLimit(failures)) {
+      // Sesi sengaja belum dibaca karena membacanya adalah kueri database
+      // dan langkah 0 berhenti sebelum menyentuh database lebih jauh.
+      // Alamat IP adalah penanda yang relevan untuk penebak, yang hampir
+      // selalu anonim.
+      const anonymousVisitor: Visitor = {
+        userId: null,
+        visitorName: null,
+        visitorEmail: null,
+      };
       // Barisnya tetap dicatat: percobaan akses ke link yang sudah mati
       // pun terekam, dan pemilik berhak melihat bahwa seseorang sedang
       // menggedor. groupId dan itemId diisi apa adanya dari URL tanpa
@@ -67,7 +70,7 @@ export async function GET(
       await logDenied({
         groupId: slug,
         itemId,
-        visitor,
+        visitor: anonymousVisitor,
         denyReason: "RATE_LIMITED",
         context,
       });
@@ -80,6 +83,13 @@ export async function GET(
       );
     }
   }
+
+  const session = await auth();
+  const visitor: Visitor = {
+    userId: session?.user?.id ?? null,
+    visitorName: session?.user?.name ?? null,
+    visitorEmail: session?.user?.email ?? null,
+  };
 
   const { group, item, request } = await readGateData(slug, itemId, visitor.userId);
 
