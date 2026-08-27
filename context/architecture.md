@@ -48,6 +48,9 @@ baris di database sendiri.
   keputusan beserta alasannya.
 - `lib/audit/` — penulisan `AccessLog`. Hanya dipanggil
   dari sisi server.
+- `lib/ratelimit/` — penghitung rate limit per alamat IP untuk route
+  gerbang item. Ambang dan jendela sebagai fungsi murni; hanya
+  `counter.ts` yang menyentuh Prisma.
 - `lib/requests/` — pembuatan dan pemutusan `AccessRequest`.
   Satu-satunya tempat status permintaan berubah.
 - `lib/notify/` — pembungkus Resend beserta templat email
@@ -313,11 +316,19 @@ pandangan atas keadaan sekarang.
 - **PostgreSQL** — seluruh metadata: pengguna, group, item,
   riwayat akses, sesi, dan penghitung rate limit.
 
-Tabel penghitung rate limit **belum didefinisikan** dan sengaja ditunda ke
-Unit 4 (K7), tempat logikanya ditulis. Bentuknya tidak pernah dirinci di bagian
-Data Model, dan membuat tabel baru tidak memikul risiko yang mendasari
-aturan "skema lengkap sejak Unit 1" — risiko itu melekat pada penambahan
-kolom atau nilai enum ke tabel yang sudah berisi data.
+Tabel penghitung rate limit adalah `RateLimitCounter`, dibuat di Unit 4:
+`scope`, `ipAddress`, `windowStart`, dan `count`, dengan kunci unik
+gabungan atas ketiganya yang pertama. Jendela tetap sepuluh menit,
+ambang dua puluh, dan baris berjendela lebih tua dari satu jam disapu
+saat penghitung naik.
+
+**Penghitung naik hanya pada percobaan yang GAGAL** — keputusan U4-5.
+Langkah 0 gerbang item tetap membaca penghitung di setiap permintaan,
+tetapi kenaikannya terjadi sesudah evaluasi, di cabang `DENIED` saja.
+Alasannya: dua ratus peserta di WiFi ruang acara berbagi satu alamat IP,
+sehingga menghitung seluruh permintaan akan mencekik satu ruangan penuh
+peserta sah alih-alih penebak `itemId`. Kegagalan `RATE_LIMITED` sendiri
+tidak menaikkan penghitung, supaya jendelanya dapat berakhir.
 
 - **Vercel Blob (private store)** — isi berkas PDF dan gambar
   unggahan. Berkas hanya dapat dibaca melalui route gerbang

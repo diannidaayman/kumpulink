@@ -176,6 +176,9 @@
 - `app/api/` — route handler
 - `lib/access/` — evaluasi izin
 - `lib/audit/` — penulisan riwayat akses
+- `lib/ratelimit/` — penghitung rate limit per alamat IP. Ambang dan
+  jendelanya fungsi murni di `window.ts`, lapisan Postgres-nya di
+  `counter.ts` — pemisahan yang sama dengan `lib/groups/`
 - `lib/requests/` — pembuatan dan keputusan permintaan izin
 - `lib/notify/` — pengiriman email dan templatnya
 - `lib/auth/` — konfigurasi Auth.js dan helper sesi

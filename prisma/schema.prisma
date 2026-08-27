@@ -209,3 +209,20 @@ model AccessLog {
   @@index([groupId, createdAt])
   @@index([itemId, createdAt])
 }
+
+// K7 — penghitung rate limit per alamat IP untuk route gerbang item.
+//
+// Bentuknya sengaja ditunda ke Unit 4 oleh architecture.md, tempat
+// logikanya ditulis. Penghitung naik HANYA pada percobaan yang gagal
+// (keputusan U4-5): satu ruangan berisi dua ratus peserta di balik satu
+// IP ber-NAT tidak boleh saling menghabiskan kuota satu sama lain.
+model RateLimitCounter {
+  id          String   @id @default(cuid())
+  scope       String
+  ipAddress   String
+  windowStart DateTime
+  count       Int      @default(0)
+
+  @@unique([scope, ipAddress, windowStart])
+  @@index([windowStart])
+}
