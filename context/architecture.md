@@ -721,9 +721,12 @@ lapisan pemberitahuan di atasnya.
    payload data, maupun respons API yang dikirim ke peramban
    mana pun — **termasuk CMS pemilik**. Ditegakkan secara
    mekanis, bukan lewat kehati-hatian: kueri yang melayani
-   antarmuka memakai `select` yang tidak memuat kolom itu,
-   dan satu-satunya kueri yang membacanya adalah pra-baca
-   sesaat sebelum penghapusan. `targetUrl` item bersetelan
+   antarmuka memakai `select` yang tidak memuat kolom
+   itu, dan hanya dua kueri yang membacanya: pra-baca sesaat sebelum
+   penghapusan, dan `lib/db/gate.ts` yang melayani route handler gerbang
+   item. Keduanya hidup di server, dan kembaliannya dipakai untuk menyusun
+   pengalihan atau mengalirkan byte — tidak pernah diserahkan ke komponen
+   yang dirender. `targetUrl` item bersetelan
    `accessMode = IDENTITY` atau `APPROVAL` tidak pernah
    dikirim ke pengunjung; di CMS pemilik ia wajib ada, karena
    di situlah ia disunting.
