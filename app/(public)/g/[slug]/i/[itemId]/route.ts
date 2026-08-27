@@ -1,12 +1,11 @@
-import type { DenyReason } from "@prisma/client";
-
 import { evaluateItemAccess } from "@/lib/access/evaluate-access";
-import { logItemAccess } from "@/lib/audit/log-access";
-import { readRequestContext, type RequestContext } from "@/lib/audit/request-context";
-import type { Visitor } from "@/lib/audit/log-access";
+import { logDenied } from "@/lib/audit/gate-denial";
+import { logItemAccess, type Visitor } from "@/lib/audit/log-access";
+import { readRequestContext } from "@/lib/audit/request-context";
 import { auth } from "@/lib/auth";
 import { itemGateCallbackUrl } from "@/lib/auth/callback-url";
 import { readGateData } from "@/lib/db/gate";
+import { serveGrantedItem } from "@/lib/gate/serve-item";
 import { ITEM_GATE_SCOPE, isOverLimit } from "@/lib/ratelimit/window";
 import { readFailureCount, recordFailure } from "@/lib/ratelimit/counter";
 import { gateParamsSchema } from "@/lib/validation/gate";
@@ -14,29 +13,10 @@ import { gateParamsSchema } from "@/lib/validation/gate";
 export const dynamic = "force-dynamic";
 
 const UNAVAILABLE = "/tidak-tersedia";
+const LOGGING_ERROR = "/galat-pencatatan";
 
 function seeOther(location: string): Response {
   return new Response(null, { status: 303, headers: { Location: location } });
-}
-
-/**
- * Kegagalan menulis log pada PENOLAKAN dicatat ke konsol lalu ditelan:
- * pengunjung yang ditolak tidak sedang menerima apa pun, jadi tidak ada
- * yang perlu dibatalkan (U4-7). Kegagalan pada GRANTED ditangani di
- * cabangnya sendiri dan MEMBATALKAN penerusan.
- */
-async function logDenied(input: {
-  groupId: string;
-  itemId: string;
-  visitor: Visitor;
-  denyReason: DenyReason;
-  context: RequestContext;
-}): Promise<void> {
-  try {
-    await logItemAccess({ ...input, outcome: "DENIED" });
-  } catch (error) {
-    console.error("Gagal mencatat penolakan akses item:", error);
-  }
 }
 
 export async function GET(
@@ -133,7 +113,31 @@ export async function GET(
     return seeOther(UNAVAILABLE);
   }
 
-  // GRANTED ditangani di Task 9. Sampai saat itu, sikap bawaannya
-  // MENOLAK — bukan lolos.
-  return seeOther(UNAVAILABLE);
+  // GRANTED. Mulai dari sini item dan group dijamin ada: evaluator
+  // menolak keduanya sebagai NOT_FOUND lebih dulu. Penyempitan tipe
+  // berikut ada supaya compiler ikut membacanya.
+  if (group === null || item === null) return seeOther(UNAVAILABLE);
+
+  // Log ditunggu SAMPAI SELESAI sebelum satu byte pun mengalir dan
+  // sebelum pengalihan disusun. Menjadikannya pekerjaan latar berarti
+  // log hilang saat fungsi serverless berhenti setelah respons terkirim.
+  // Kegagalannya MEMBATALKAN penerusan: meneruskan pengunjung tanpa
+  // jejak lebih buruk daripada gagal membuka berkas — itu justru
+  // menghapus alasan aplikasi ini dibuat.
+  try {
+    await logItemAccess({
+      groupId: group.id,
+      itemId: item.id,
+      visitor,
+      outcome: "GRANTED",
+      context,
+    });
+  } catch (error) {
+    console.error("Gagal mencatat akses item yang diloloskan:", error);
+    return seeOther(LOGGING_ERROR);
+  }
+
+  // 302 untuk EXTERNAL, aliran byte untuk UPLOAD, atau penolakan bila
+  // berkasnya ternyata tidak dapat dilayani — lihat lib/gate/serve-item.ts.
+  return serveGrantedItem(group, item, visitor, context, now, UNAVAILABLE);
 }
