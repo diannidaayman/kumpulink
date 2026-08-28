@@ -1059,6 +1059,82 @@ Satu jalur lagi **belum pernah dijalankan dalam bentuk apa pun**: jalur
 503, yaitu Blob benar-benar gagal, berbeda dari berkas yang hilang. Ia
 hanya terjangkau dengan merusak token Blob, dan itu belum dicoba.
 
+#### Cara melanjutkan — keadaan yang ditinggalkan 28 Agustus 2026
+
+**Tempat kerja.** Cabang `unit-4-halaman-publik` di worktree
+`.claude/worktrees/unit-4-halaman-publik`, belum digabung dan belum
+didorong. `main` belum memuat `app/(public)/` sama sekali.
+
+**Server wajib dijalankan dari worktree, bukan dari checkout utama.**
+Ini memakan waktu satu jam untuk ditemukan dan pantas ditulis: server
+yang dijalankan dari checkout utama menjawab 404 untuk setiap rute di
+bawah `app/(public)/`, karena `main` memang belum memilikinya, dan
+404 itu mudah disalahbaca sebagai cacat cabang.
+
+Pemeriksaan berikutnya wajib memakai **build produksi**, bukan
+`npm run dev` — alasannya di catatan CEK 1 di atas:
+
+```
+cd .claude/worktrees/unit-4-halaman-publik
+npm run build && npm start
+```
+
+**Data uji masih ada di database.** Empat group berawalan `cek-u4-`:
+
+| Slug | Keadaan | Dipakai untuk |
+| ---- | ------- | ------------- |
+| `cek-u4-publik` | `PUBLIC`, dibagikan, 3 item | CEK 1, 2, 5, 6 |
+| `cek-u4-dicabut` | `shareEnabled = false` | CEK 3, CEK 4 |
+| `cek-u4-kedaluwarsa` | kedaluwarsa 2020 | CEK 3 |
+| `cek-u4-wajib-masuk` | `REQUIRE_LOGIN` | layar masuk |
+
+Ketiga item di `cek-u4-publik` sengaja dirancang: satu `OPEN` eksternal
+dan satu `IDENTITY` eksternal ber-`targetUrl` menuju host
+`contoh-tujuan-rahasia.example` supaya mudah dicari di HTML, dan satu
+`UPLOAD` ber-`fileKey` yang tidak pernah ada di Blob supaya jalur
+`FILE_MISSING` dapat diuji tanpa menghapus berkas sungguhan. Nama
+berkasnya memuat spasi, kurung, dan apostrof, sehingga penyandian
+`Content-Disposition` ikut teruji.
+
+Perlu diketahui sebelum membaca ulang riwayat: `Item.isBroken` pada item
+`UPLOAD` itu sudah bernilai `true` hasil CEK 6, dan `RateLimitCounter`
+memuat satu baris ber-`count` 20 untuk `::1`. Keduanya jejak pemeriksaan,
+bukan keadaan produksi.
+
+**Skrip pemeriksaan** ada di `scripts-cek/`, tidak ter-commit dan memang
+tidak untuk di-commit — `inspect.mjs`, `seed.mjs`, `cek-group.mjs`,
+`baca-log.mjs`, dan `bersihkan.mjs`. Semuanya dijalankan dengan
+`node --env-file=.env.local scripts-cek/<nama>.mjs`. Hapus foldernya
+setelah pemeriksaan tuntas:
+
+```
+node --env-file=.env.local scripts-cek/bersihkan.mjs
+```
+
+Penyapunya menghapus keempat group, seluruh baris `AccessLog` miliknya —
+termasuk yang ber-`groupId` berisi slug mentah bila ada peninggalan lama
+— dan seluruh baris `RateLimitCounter`.
+
+**Keputusan yang menunggu.** Temuan "permukaan galat kosong tanpa
+JavaScript" di atas belum ditutup, dan kodenya belum disentuh. Dua arah
+yang sudah dipertimbangkan:
+
+1. Menjadikan `/tidak-tersedia` dan `/galat-pencatatan` route handler
+   yang mengirim badan responsnya sendiri. Sejalan dengan preseden 429
+   dan 503 yang sudah ada di gerbang item, dan pasti bekerja. Harganya:
+   kedua halaman berhenti memakai komponen React dan kalimatnya hidup di
+   dua tempat.
+2. Menelusuri penyebabnya lebih dulu. Dugaan yang belum diuji:
+   `app/(public)/error.tsx` sebagai batas klien memaksa segmennya
+   dirender di klien. Bila benar, memindahkan atau melepasnya mungkin
+   memulihkan render server untuk `not-found.tsx` sekaligus — perbaikan
+   jauh lebih kecil, tetapi belum terbukti dan bisa saja bukan
+   penyebabnya.
+
+Yang tidak berubah apa pun arahnya: halaman group yang lolos sudah
+terbukti bekerja penuh tanpa JavaScript, dan gerbang item tidak
+terpengaruh.
+
 ## Next Up
 
 1. **Unit 5 — panel Bagikan.** `visibility`, `expiresAt`,
