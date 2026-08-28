@@ -88,21 +88,19 @@ yang berarti.
   `lib/ratelimit/` dibangun. Sepuluh task dieksekusi lewat subagent,
   masing-masing dengan review dua putusan. **324 pengujian di 31
   berkas** di `npm test` akhir sesi. Keempat gerbang lulus:
-  `typecheck` bersih, `lint` nol peringatan, `test` 324/324, `build`
-  sukses. Kedelapan pemeriksaan peramban dari `.superpowers/sdd/
-  task-10-brief.md` (Step 1 sampai 8) **BELUM DIJALANKAN** — agen
-  hanya mengerjakan bagian dokumentasi (Step 9 dan 10); pemiliklah
-  yang menjalankannya, sama seperti unit-unit sebelumnya. Rinciannya
-  di bagian "Pemeriksaan peramban Unit 4" di bawah.
+  `typecheck` bersih, `lint` nol peringatan, `test` 327/327, `build`
+  sukses.
 - Tidak ada lagi pertanyaan terbuka.
 
 ## Current Goal
 
-- **Pemeriksaan peramban Unit 4, lalu Unit 5.** Kesembilan pemeriksaan
-  peramban di bagian "Pemeriksaan peramban Unit 4" di bawah — delapan
-  dari `.superpowers/sdd/task-10-brief.md` ditambah CEK 9 yang lahir
-  dari review akhir — belum dijalankan siapa pun dan harus tuntas di
-  tangan pemilik sebelum Unit 4 benar-benar ditutup. Sesudah itu, Unit 5 — panel
+- **Menutup dua pemeriksaan peramban yang tersisa, memutuskan satu
+  temuan, lalu Unit 5.** Tujuh dari sembilan pemeriksaan dijalankan
+  28 Agustus 2026 terhadap build produksi dan lulus; rinciannya di
+  bagian "Pemeriksaan peramban Unit 4" di bawah. Dua yang tersisa —
+  CEK 2 dan CEK 4 — menuntut masuk dengan Google. Satu temuan terbuka
+  menunggu keputusan: seluruh permukaan galat menyajikan DOM kosong
+  tanpa JavaScript. Sesudah itu, Unit 5 — panel
   Bagikan. Rinciannya di bagian Next Up.
 - Tidak ada keputusan yang menggantung.
 
@@ -947,59 +945,119 @@ pemeriksaan peramban yang menuntut server pengembangan hidup, basis data
 sungguhan, dan mata manusia, **diserahkan ke pemilik dan belum
 dijalankan siapa pun**.
 
-### Pemeriksaan peramban Unit 4 — BELUM DIJALANKAN, 28 Agustus 2026
+### Pemeriksaan peramban Unit 4 — TUJUH DARI SEMBILAN DIJALANKAN, 28 Agustus 2026
 
-Kesembilan pemeriksaan berikut **BELUM DIJALANKAN**. Tidak satu pun
-boleh dianggap lulus sampai pemilik benar-benar menjalankannya dan
-mencatat hasilnya di sini.
+**Hasil, dicatat apa adanya.** Tujuh pemeriksaan dijalankan terhadap
+build **produksi** (`npm run build && npm start`) dari worktree
+`unit-4-halaman-publik`, dengan data uji berawalan `cek-u4-`.
 
-1. **CEK 1 — kebocoran di HTML.** Source halaman group: nol kecocokan
-   untuk `targetUrl` item mana pun, host Vercel Blob, dan slug group
-   lain.
-2. **CEK 2 — pencatatan tanpa JavaScript.** JavaScript dimatikan, item
+| Pemeriksaan | Hasil |
+| ----------- | ----- |
+| CEK 1 — kebocoran di HTML | **LULUS** |
+| CEK 2 — pencatatan tanpa JavaScript | belum — menuntut masuk dengan Google |
+| CEK 3 — ketiga penolakan tidak dapat dibedakan | **LULUS** |
+| CEK 4 — pratinjau pemilik | belum — menuntut masuk dengan Google |
+| CEK 5 — rate limit | **LULUS** |
+| CEK 6 — berkas hilang di Blob | **LULUS** |
+| Mode terang dan gelap | **LULUS sebagian** — kontras terukur, penilaian visual belum |
+| Lebar ponsel 375 px | **LULUS sebagian** — tata letak terukur, penilaian visual belum |
+| CEK 9 — status halaman galat pencatatan | **LULUS** (status 500) — tetapi memunculkan temuan di bawah |
+
+**CEK 1.** Nol kecocokan untuk kedelapan probe: `targetUrl` item `OPEN`,
+`targetUrl` item `IDENTITY`, host tujuan, host Blob, `fileKey`, dan tiga
+slug group lain. Diperiksa pada HTML dari kawat, bukan DOM setelah
+hidrasi. Catatan penting untuk pemeriksa berikutnya: pada **mode
+pengembangan** payload RSC memuat objek group utuh — `id`, `title`,
+`slug`, `shareEnabled`, `visibility` — pada halaman 404. Itu artefak
+diagnostik dev dan **tidak ada** di build produksi. Pemeriksaan ini
+karena itu wajib dijalankan terhadap build produksi.
+
+**CEK 3.** Ketiganya 404. Diuji dengan pasangan slug berpanjang identik
+(satu ada, satu tidak pernah ada): ukuran responsnya **sama persis**, dan
+setelah slug dinormalkan HTML-nya identik byte demi byte. Satu-satunya
+variasi adalah pathname yang dipantulkan, yang diketik pengunjung
+sendiri.
+
+**CEK 5.** Percobaan gagal ke-21 menghasilkan 429 berisi kalimat
+`text/plain` berbahasa Indonesia. `RateLimitCounter` berhenti tepat di
+**20** — `RATE_LIMITED` tidak menaikkan dirinya sendiri. Baris
+`DENIED / RATE_LIMITED` tercatat dengan **id group sungguhan**, yang
+membuktikan perbaikan review akhir bekerja ujung ke ujung.
+
+**CEK 6.** Dua baris berurutan `GRANTED` lalu `DENIED / FILE_MISSING`,
+`Item.isBroken` menjadi `true`, penghitung naik. Urutan dua baris itu
+yang benar. Sekaligus terbukti: item `OPEN` anonim menghasilkan
+`ITEM_ACCESS / GRANTED` berkolom identitas kosong, dan item `IDENTITY`
+anonim menghasilkan **nol baris** karena itu `NEEDS_LOGIN`, bukan
+penolakan.
+
+**Kontras terukur.** Gelap: judul 16,29:1, teks redup 7,47:1. Terang:
+judul 17,06:1, teks redup **4,55:1** — lulus WCAG AA, tetapi hanya
+berjarak 0,05 dari ambang, pada warna yang dipakai deskripsi, slug, dan
+baris ringkasan. Lencana terbukti tidak pernah terisi: latar beralfa
+0,1, garis batas 0,67 px beralfa 0,4, dan tepat **satu** lencana di
+seluruh halaman.
+
+**Lebar 375 px.** Nol gulir horizontal, nol elemen meluber. Kartu
+`IDENTITY` setinggi 135 px melawan 79 px milik kartu polos — lipatannya
+terjadi.
+
+**Penilaian visual belum dilakukan.** Panel peramban tidak dapat
+ditampilkan saat pemeriksaan berjalan, sehingga tangkapan layar tidak
+diambil. Yang di atas adalah pengukuran, bukan penilaian mata.
+
+#### TEMUAN — permukaan galat kosong tanpa JavaScript
+
+Diverifikasi pada build produksi. Halaman group yang lolos bekerja penuh
+tanpa JavaScript: judul, slug, ringkasan, deskripsi, ketiga judul item,
+keterangan "Akses Anda akan dicatat", dan lencana semuanya ada di DOM.
+
+Seluruh permukaan galat tidak: `/g/[slug]` yang ditolak (404),
+`/tidak-tersedia` (404), dan `/galat-pencatatan` (500) mengirim DOM
+**kosong**. Kalimatnya hanya ada di dalam `<script>` payload dan baru
+muncul setelah hidrasi.
+
+Kriteria sukses nomor 5 tetap terpenuhi — ketiganya kosong secara
+identik dengan status identik. Yang gugur adalah seluruh kalimat keadaan
+yang `ui-context.md` tetapkan, dan alasan U4-8 memisahkan halaman galat
+pencatatan dari halaman tidak tersedia: pengunjung yang aksesnya gagal
+dicatat tidak diberi tahu apa pun, sehingga ia tidak tahu keadaannya
+sementara dan layak dicoba lagi.
+
+Belum diputuskan cara menutupnya. Dua dugaan penyebab yang belum diuji:
+`app/(public)/error.tsx` sebagai batas klien yang memaksa segmennya
+dirender di klien, atau perilaku bawaan Next saat `notFound()` dilempar
+setelah shell mengalir. Jalan keluar yang sejalan dengan preseden yang
+sudah ada di unit ini adalah menjadikan kedua rute itu route handler
+yang mengirim badan responsnya sendiri, seperti 429 dan 503.
+
+#### Yang belum dijalankan
+
+Kedua pemeriksaan berikut menuntut masuk dengan Google dan **belum
+dijalankan**. Tidak boleh dianggap lulus.
+
+1. **CEK 2 — pencatatan tanpa JavaScript.** JavaScript dimatikan, item
    `IDENTITY` diklik dan dimasuki: penerusan tetap terjadi, tepat satu
    baris `ITEM_ACCESS / GRANTED` tertulis berisi nama, email, dan waktu.
-   **Catatan penting supaya hasil yang benar tidak salah dibaca sebagai
-   cacat:** hitung barisnya *menurut `eventType`*, bukan totalnya —
-   pengunjung yang sedang masuk juga menghasilkan satu baris `PAGE_VIEW`
-   tersendiri untuk halaman group saat CEK ini dimulai. Kriteria sukses
-   nomor 4 berbicara tentang satu baris `ITEM_ACCESS`, bukan satu baris
-   di seluruh tabel.
-3. **CEK 3 — ketiga penolakan tidak dapat dibedakan.** Group
-   `shareEnabled = false`, group kedaluwarsa, dan slug yang tidak
-   pernah ada: kode status dan halaman identik untuk ketiganya.
-4. **CEK 4 — pratinjau pemilik.** Pemilik membuka group yang dicabut:
-   halaman tampil normal, didahului spanduk peringatan berikon `Ban`.
-5. **CEK 5 — rate limit.** Dua puluh dua percobaan gagal beruntun dari
-   satu IP: dua puluh pertama 303, sisanya 429; baris
-   `DENIED / RATE_LIMITED` tertulis, `RateLimitCounter` memuat satu
-   baris ber-`count` 20.
-6. **CEK 6 — berkas hilang di Blob.** Berkas item `UPLOAD` dihapus
-   langsung dari Blob store: `Item.isBroken` menjadi `true`, satu baris
-   `DENIED / FILE_MISSING` tertulis, halaman tidak tersedia tampil.
-   **Ekspektasi yang benar, bukan cacat:** pemeriksaan ini menghasilkan
-   **dua** baris `ITEM_ACCESS` — `GRANTED` lalu `FILE_MISSING` — dan
-   itu urutan yang seharusnya, karena log ditulis tuntas dulu sebelum
-   pengaliran berkas dicoba; baris `GRANTED` bukan galat. Jalur 503
-   (Blob benar-benar gagal, bukan sekadar berkas hilang) berbeda dari
-   CEK ini dan **belum pernah dijalankan dalam bentuk apa pun** — ia
-   hanya terjangkau dengan merusak token Blob, dan itu belum dicoba.
-7. **Pemeriksaan tampilan, mode terang dan gelap.** Halaman group,
-   layar masuk, halaman tidak tersedia, dan halaman galat pencatatan
-   di kedua mode.
-8. **Pemeriksaan tampilan, lebar ponsel (375 px).** Kartu item melipat
-   menjadi dua baris tanpa judul yang membungkus buruk; badan halaman
-   tidak pernah menggulir horizontal.
-9. **CEK 9 — status HTTP halaman galat pencatatan.** Buka
-   `/galat-pencatatan` langsung dan baca kode statusnya di tab Network:
-   ia wajib **500**, bukan 200. Keputusan U4-8 memilih halaman galat
-   tersendiri justru supaya kegagalan pencatatan terbaca sebagai
-   kegagalan oleh pengunjung maupun oleh alat pemantauan; status 200
-   membatalkan seluruh alasan halaman ini dipisahkan dari halaman tidak
-   tersedia. Di App Router, galat yang ditangkap `error.tsx` bersarang
-   berisiko terlayani 200 begitu shell-nya sudah mengalir sebagian —
-   itulah sebabnya statusnya harus dibaca langsung dari Network, bukan
-   diasumsikan dari perilaku `throw` di kode.
+   **Catatan supaya hasil yang benar tidak salah dibaca sebagai cacat:**
+   hitung barisnya *menurut `eventType`*, bukan totalnya — pengunjung
+   yang sedang masuk juga menghasilkan satu baris `PAGE_VIEW` tersendiri
+   untuk halaman group. Kriteria sukses nomor 4 berbicara tentang satu
+   baris `ITEM_ACCESS`, bukan satu baris di seluruh tabel.
+
+   Separuh jalur ini sudah terbukti tanpa sesi: item `IDENTITY` yang
+   dibuka pengunjung anonim menghasilkan nol baris dan mengalihkan ke
+   layar masuk, dan halaman group terbukti dirender penuh tanpa
+   JavaScript. Yang belum terbukti adalah penerusan sesudah masuk dan
+   isi kolom nama serta email pada barisnya.
+
+2. **CEK 4 — pratinjau pemilik.** Pemilik membuka group yang dicabut —
+   `cek-u4-dicabut` tersedia untuk itu: halaman tampil normal, didahului
+   spanduk peringatan berikon `Ban`.
+
+Satu jalur lagi **belum pernah dijalankan dalam bentuk apa pun**: jalur
+503, yaitu Blob benar-benar gagal, berbeda dari berkas yang hilang. Ia
+hanya terjangkau dengan merusak token Blob, dan itu belum dicoba.
 
 ## Next Up
 
