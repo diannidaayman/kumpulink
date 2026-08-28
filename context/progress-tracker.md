@@ -83,14 +83,26 @@ yang berarti.
   `granted(true)`; dan cabang `default` tahap dua tanpa penjaga
   keterjangkauan `never` padahal komentarnya menjanjikan begitu.
   Ketiganya ditutup sebelum penggabungan.
+- **Unit 4 bagian kedua SELESAI, 28 Agustus 2026.** Halaman group
+  publik, gerbang item, `lib/audit/`, `lib/gate/`, dan
+  `lib/ratelimit/` dibangun. Sepuluh task dieksekusi lewat subagent,
+  masing-masing dengan review dua putusan. **324 pengujian di 31
+  berkas** di `npm test` akhir sesi. Keempat gerbang lulus:
+  `typecheck` bersih, `lint` nol peringatan, `test` 324/324, `build`
+  sukses. Kedelapan pemeriksaan peramban dari `.superpowers/sdd/
+  task-10-brief.md` (Step 1 sampai 8) **BELUM DIJALANKAN** — agen
+  hanya mengerjakan bagian dokumentasi (Step 9 dan 10); pemiliklah
+  yang menjalankannya, sama seperti unit-unit sebelumnya. Rinciannya
+  di bagian "Pemeriksaan peramban Unit 4" di bawah.
 - Tidak ada lagi pertanyaan terbuka.
 
 ## Current Goal
 
-- **Fase 5 lanjutan — halaman publik, gerbang item, dan
-  `lib/audit/`.** Evaluator izinnya sudah ada, matriksnya lulus,
-  dan sudah tergabung ke `main`. Yang tersisa di Unit 4 adalah
-  pemanggilnya. Rinciannya di bagian Next Up.
+- **Pemeriksaan peramban Unit 4, lalu Unit 5.** Kedelapan pemeriksaan
+  peramban di `.superpowers/sdd/task-10-brief.md` (Step 1 sampai 8)
+  belum dijalankan siapa pun dan harus tuntas di tangan pemilik
+  sebelum Unit 4 benar-benar ditutup. Sesudah itu, Unit 5 — panel
+  Bagikan. Rinciannya di bagian Next Up.
 - Tidak ada keputusan yang menggantung.
 
   Rumusan sebelumnya di bagian ini masih menyebut Fase 2 sebagai
@@ -918,41 +930,87 @@ rencana yang bertentangan dengan dirinya sendiri, temuan review akhir,
 dan pelajaran prosesnya — diselamatkan ke
 `docs/superpowers/riwayat/2026-08-24-unit-2-ledger.md`.
 
+### Unit 4 bagian kedua SELESAI — 28 Agustus 2026
+
+Halaman group publik, gerbang item, `lib/audit/`, `lib/gate/`, dan
+`lib/ratelimit/` dibangun sesuai
+`docs/superpowers/specs/2026-08-27-unit-4-halaman-publik-design.md`.
+Sepuluh task dieksekusi lewat subagent, masing-masing dengan review dua
+putusan. Keempat gerbang lulus di akhir sesi: `typecheck` bersih, `lint`
+nol peringatan, **324 pengujian di 31 berkas**, `build` sukses dengan
+seluruh rute `app/(public)/` bertanda dinamis.
+
+Task 10 (task ini) hanya mengerjakan bagian dokumentasi — Step 9 dan 10
+dari `.superpowers/sdd/task-10-brief.md`. Step 1 sampai 8, seluruhnya
+pemeriksaan peramban yang menuntut server pengembangan hidup, basis data
+sungguhan, dan mata manusia, **diserahkan ke pemilik dan belum
+dijalankan siapa pun**.
+
+### Pemeriksaan peramban Unit 4 — BELUM DIJALANKAN, 28 Agustus 2026
+
+Kedelapan pemeriksaan berikut, dari `.superpowers/sdd/task-10-brief.md`
+Step 1 sampai 8, **BELUM DIJALANKAN**. Tidak satu pun boleh dianggap
+lulus sampai pemilik benar-benar menjalankannya dan mencatat hasilnya
+di sini.
+
+1. **CEK 1 — kebocoran di HTML.** Source halaman group: nol kecocokan
+   untuk `targetUrl` item mana pun, host Vercel Blob, dan slug group
+   lain.
+2. **CEK 2 — pencatatan tanpa JavaScript.** JavaScript dimatikan, item
+   `IDENTITY` diklik dan dimasuki: penerusan tetap terjadi, tepat satu
+   baris `ITEM_ACCESS / GRANTED` tertulis berisi nama, email, dan waktu.
+3. **CEK 3 — ketiga penolakan tidak dapat dibedakan.** Group
+   `shareEnabled = false`, group kedaluwarsa, dan slug yang tidak
+   pernah ada: kode status dan halaman identik untuk ketiganya.
+4. **CEK 4 — pratinjau pemilik.** Pemilik membuka group yang dicabut:
+   halaman tampil normal, didahului spanduk peringatan berikon `Ban`.
+5. **CEK 5 — rate limit.** Dua puluh dua percobaan gagal beruntun dari
+   satu IP: dua puluh pertama 303, sisanya 429; baris
+   `DENIED / RATE_LIMITED` tertulis, `RateLimitCounter` memuat satu
+   baris ber-`count` 20.
+6. **CEK 6 — berkas hilang di Blob.** Berkas item `UPLOAD` dihapus
+   langsung dari Blob store: `Item.isBroken` menjadi `true`, satu baris
+   `DENIED / FILE_MISSING` tertulis, halaman tidak tersedia tampil.
+7. **Pemeriksaan tampilan, mode terang dan gelap.** Halaman group,
+   layar masuk, halaman tidak tersedia, dan halaman galat pencatatan
+   di kedua mode.
+8. **Pemeriksaan tampilan, lebar ponsel (375 px).** Kartu item melipat
+   menjadi dua baris tanpa judul yang membungkus buruk; badan halaman
+   tidak pernah menggulir horizontal.
+
 ## Next Up
 
-1. **Unit 4 lanjutan — halaman publik, gerbang item, dan `lib/audit/`.**
-   Evaluator izinnya sudah ada dan matriksnya lulus; yang tersisa adalah
-   pemanggilnya. Halaman group `/g/[slug]` memanggil
-   `evaluateGroupAccess()`, gerbang item `/g/[slug]/i/[itemId]` memanggil
-   `evaluateItemAccess()` — satu panggilan, bukan dua. `getFileStream()`
-   yang ditunda Unit 3 dibangun di sini, dipanggil hanya dari balik
-   gerbang. Penulisan `AccessLog` ditunggu sampai selesai sebelum
-   pengalihan atau pengaliran berkas dimulai.
+1. **Unit 5 — panel Bagikan.** `visibility`, `expiresAt`,
+   `shareEnabled`, penyalinan URL, QR code SVG dirender di server, dan
+   spanduk pratinjau pemilik untuk group yang dicabut atau kedaluwarsa
+   yang ia buka sendiri. **Prasyarat: kedelapan pemeriksaan peramban
+   Unit 4 harus tuntas lebih dulu** — belum ada satu pun yang
+   dijalankan, dan Unit 5 membangun di atas halaman group publik yang
+   pemeriksaan itu memvalidasi.
 
-   Ketiga hal warisan Unit 3 di bawah masih berlaku dan wajib ditangani
-   di task yang menyentuhnya.
+   **Gerbang D1 berlaku untuk unit ini secara langsung:** domain harus
+   sudah ditetapkan sebelum QR code dibangun, karena QR memuat URL
+   absolut dan QR yang sudah dicetak tidak dapat ditarik kembali.
+   Domain sudah ditetapkan — `diandiandian.web.id`, apex sebagai
+   Production — jadi gerbang ini sudah terpenuhi, tetapi periksa ulang
+   sebelum QR pertama dirender bahwa tidak ada perubahan arah
+   pengalihan yang terlewat sejak keputusan itu dicatat.
 
-   - **`resolveGroupStatus()` jangan dipakai ulang di
-     `lib/access/evaluate-access.ts`.** Ia fungsi tampilan yang cabang
-     terakhirnya permisif; evaluator akses menuntut penolakan sebagai
-     bawaan. (Diwariskan dari Unit 2, masih berlaku.)
-     (Ditangani 27 Agustus 2026: evaluator menulis ambang kedaluwarsanya
-     sendiri dan tidak mengimpor `lib/groups/status.ts`.)
-   - **Route handler unggahan Unit 3 memakai `getOwnerSession()`, BUKAN
-     `requireOwner()`** — dan gerbang item Unit 4 harus memilih dengan
-     sadar antara keduanya, bukan menyalin salah satu begitu saja.
-     `requireOwner()` mengalihkan, `getOwnerSession()` mengembalikan
-     `null`. Pengalihan salah untuk endpoint yang dipanggil `fetch`,
-     karena `fetch` mengikuti pengalihan diam-diam sehingga sesi yang
-     mati akan terbaca sebagai keberhasilan. Gerbang item dibuka lewat
-     navigasi peramban biasa, jadi di sana pengalihan justru yang benar
-     — tetapi keputusannya harus diambil, bukan diwarisi.
-     (Rumusan sebelumnya di berkas ini menyebut `requireOwner()`; itu
-     keliru dan diperbaiki 27 Agustus 2026 setelah dibaca dari kodenya.)
-   - **Sanitasi `fileName` sebelum ia menjadi header.** `route.ts`
-     membersihkan karakter kendali dan tanda kutip saat menulis, tetapi
-     Unit 4 yang akan menaruh nilai itu di `Content-Disposition`.
-     Pastikan penyandiannya benar di sisi sana juga.
+   **Tiga hal warisan yang kini TERTUTUP, dicatat di sini supaya tidak
+   dicari ulang:**
+
+   - **`getFileStream()` yang ditunda Unit 3 kini ada**, di
+     `lib/storage/blob.ts`, dipanggil hanya dari balik gerbang item.
+   - **Sanitasi `fileName` sebelum menjadi header kini ditegakkan**
+     fungsi murni beserta pengujiannya di
+     `lib/storage/content-disposition.ts`.
+   - **Pilihan sadar antara `requireOwner()` dan `getOwnerSession()`
+     untuk gerbang item ternyata tidak diperlukan — gerbang tidak
+     memakai keduanya.** Gerbang item melayani pengunjung, bukan
+     pemilik, dan seluruh keputusan izinnya datang dari
+     `evaluateItemAccess()`. Sesi dibaca lewat `auth()` biasa, sesudah
+     pemeriksaan rate limit (U4-11), semata untuk mengetahui identitas
+     yang dicatat — bukan untuk menggerbangi apa pun.
 
 2. **Uji satu unggahan di preview Vercel sebelum Unit 4 dimulai.**
    `dev` sudah sejajar dengan `main` sejak 27 Agustus 2026, jadi alias
@@ -1088,6 +1146,124 @@ baris pertamanya dan mengembalikan hasilnya bila bukan
 bukan disiplin pemanggil — tidak ada cara memanggil tahap dua
 tanpa tahap satu lolos lebih dulu. Gerbang item memanggil
 `evaluateItemAccess()` saja, satu panggilan, bukan dua.
+
+### Keputusan Unit 4 bagian kedua — 27–28 Agustus 2026
+
+Rinciannya di
+`docs/superpowers/specs/2026-08-27-unit-4-halaman-publik-design.md`,
+bagian "Keputusan yang diambil sebelum implementasi". U4-4 sampai U4-9
+diputuskan sebelum implementasi mulai; U4-10 sampai U4-13 lahir saat
+kode ditulis dan tidak ada di spesifikasi.
+
+**U4-4 — `NEEDS_LOGIN` merender layar masuk yang menyebut group, bukan
+mengalihkan langsung ke Google.** Tiga dokumen sebelumnya tidak
+sejalan: `project-overview.md` menuntut layar yang menyebut judul
+group, `architecture.md` menyebut pengalihan langsung, brief
+impeccable menutup barisnya di luar lingkup. Ketiganya tidak dapat
+berlaku sekaligus. Dipilih layar masuk, dibangun di kedua tempat yang
+menghasilkan `NEEDS_LOGIN` — halaman group menyebut judul group,
+gerbang item menyebut judul group **dan** nama item. Menyebut nama
+item bukan kebocoran karena pengunjung baru saja melihatnya di halaman
+group yang ia klik. Alternatif yang ditolak: pengalihan langsung ke
+Google, yang tidak memberi pengunjung kesempatan mengetahui apa yang
+akan dibuka sebelum menyerahkan identitasnya.
+
+**U4-5 — penghitung rate limit hanya menghitung percobaan yang gagal,
+ambang 20 per 10 menit per IP.** Kendalanya: dua ratus peserta di WiFi
+ruang acara berbagi satu alamat IP, dan rate limit yang menghitung
+seluruh permintaan akan mencekik satu ruangan penuh peserta sah.
+Penghitung naik hanya ketika gerbang berakhir `DENIED` (termasuk
+`FILE_MISSING`, tidak termasuk `RATE_LIMITED` itu sendiri). Alternatif
+yang ditolak: menghitung seluruh permintaan termasuk yang berhasil,
+yang akan mencekik peserta sah; dan menaikkan penghitung pada
+`RATE_LIMITED` sendiri, yang hanya memperpanjang hukuman klien yang
+sudah dihentikan tanpa menambah perlindungan.
+
+**U4-6 — gerbang item berbentuk route handler, halaman keadaan sebagai
+route anak.** Gerbang harus menghasilkan delapan keluaran berbeda dari
+satu URL, dan Next.js tidak punya satu bentuk berkas yang sanggup
+merender HTML maupun mengalirkan byte. Dipilih `route.ts` sebagai
+gerbang, dengan keluaran HTML dijawab 303 ke route anak yang
+mengevaluasi ulang untuk dirinya sendiri dan tidak mencatat.
+Alternatif yang ditolak: gerbang sebagai `page.tsx` dengan route anak
+`/berkas` untuk mengalirkan byte — ditolak karena route berkas itu
+dapat dibuka langsung dan wajib ikut mencatat, memecah `ITEM_ACCESS`
+menjadi dua tempat penulisan yang hanya dijaga kehati-hatian, dan
+karena berkas unggahan sensitif akan menempuh jalur terpanjang: dua
+render server, dua evaluasi.
+
+**U4-7 — kegagalan pencatatan berarti tidak ada yang disajikan,
+berlaku untuk `ITEM_ACCESS / GRANTED` maupun `PAGE_VIEW`.**
+`code-standards.md` sebelumnya hanya mengatur kegagalan pada
+`ITEM_ACCESS / GRANTED`; nasib kegagalan `PAGE_VIEW` tidak tertulis.
+Dipilih satu aturan untuk keduanya: gagal menulis log pada peristiwa
+yang menyajikan sesuatu berarti tidak ada yang disajikan. Alasannya
+dua aturan berbeda untuk dua peristiwa akan menjadi dua perilaku yang
+harus diingat, dan yang lebih longgar akan menjadi preseden bagi yang
+berikutnya. Alternatif yang ditolak: membiarkan `PAGE_VIEW` gagal diam-
+diam sementara halaman tetap tampil, yang berarti riwayat bisa hilang
+tanpa jejak apa pun.
+
+**U4-8 — pengunjung yang gagal dicatat melihat halaman galat
+tersendiri, HTTP 500.** Yang tidak tertulis sebelumnya adalah apa yang
+dilihat pengunjung saat penerusan dibatalkan. Dipilih halaman galat
+pencatatan tersendiri, menyatakan akses tidak dapat dicatat sehingga
+item tidak dibuka. Alternatif yang ditolak: memakai kembali halaman
+tidak tersedia, yang berbohong — pengunjung akan menyimpulkan link-nya
+mati dan berhenti mencoba, padahal berkasnya ada dan gerbang baru saja
+meloloskannya; dan halaman galat bawaan Next.js, ditolak karena
+teksnya berbahasa Inggris.
+
+**U4-9 — `redirectTo` disusun dari parameter route, tidak pernah dari
+query string.** Tombol masuk memanggil `signIn("google", { redirectTo })`.
+Dipilih menyusun nilainya di server dari parameter route halaman yang
+bersangkutan. Alternatif yang ditolak: membaca `redirectTo` dari query
+string lalu memvalidasinya — ditolak karena pengalihan terbuka lebih
+aman dicegah dengan tidak ada tempat masuknya sama sekali, bukan
+dengan validasi yang bisa keliru.
+
+**U4-10 — kegagalan `getFileStream()` menjawab HTTP 503 satu kalimat,
+tanpa menandai `isBroken` dan tanpa mencatat `FILE_MISSING`.** Lahir
+saat kode ditulis: SDK Blob sudah menandai ketiadaan berkas dengan
+mengembalikan `null`, sehingga sebuah `catch` di `getFileStream()`
+hanya akan menyamakan kegagalan sungguhan — Blob tumbang, token salah
+— dengan "berkasnya tidak ada", dan gerbang akan menandai `isBroken`
+permanen serta menulis riwayat yang berbohong kepada pemilik.
+Alternatif yang ditolak: menangkap seluruh galat di `getFileStream()`
+dan memperlakukannya sama seperti berkas hilang — ditolak karena
+gangguan sementara pada Blob akan salah ditafsirkan sebagai kerusakan
+permanen pada item.
+
+**U4-11 — sesi dibaca sesudah pemeriksaan rate limit, bukan
+sebelumnya.** Lahir saat kode ditulis: `auth()` memakai strategi sesi
+database, jadi ia sebuah kueri; menjalankannya lebih dulu membuat
+klien yang sudah melewati ambang tetap membayar satu kueri sesi
+sebelum menerima 429, melanggar butir 0 rancangan gerbang. Konsekuensi
+yang diterima: baris `DENIED / RATE_LIMITED` tercatat tanpa nama dan
+email — alamat IP adalah penanda yang relevan di sana, karena rate
+limit ada untuk menghentikan penebak `itemId`, yang hampir selalu
+anonim. Alternatif yang ditolak: membaca sesi lebih dulu demi baris
+log yang lebih lengkap, ditolak karena membayar kueri database untuk
+klien yang seharusnya sudah dihentikan di langkah pertama.
+
+**U4-12 — item `EXTERNAL` tanpa `targetUrl` ditolak sebagai
+`NOT_FOUND`, bukan `FILE_MISSING`.** Lahir saat kode ditulis, preseden
+sama dengan U4-1: tidak ada berkas yang terlibat, dan riwayat tidak
+boleh berbohong kepada pemilik dengan mencatat kegagalan berkas untuk
+sesuatu yang bukan berkas. `isBroken` tetap ditandai, karena itulah
+kolom yang memberi tahu pemilik ada baris yang perlu ia perbaiki.
+Alternatif yang ditolak: `FILE_MISSING`, ditolak karena istilah itu
+menjanjikan sesuatu yang tidak pernah ada.
+
+**U4-13 — modul `lib/gate/` berdiri sendiri, di luar `lib/audit/`.**
+Lahir saat kode ditulis. Memuat keputusan terminal gerbang: penyusunan
+respons untuk akses yang lolos, dan penolakan beserta pencatatannya.
+Ia di luar `lib/audit/` supaya modul itu tetap murni penulis
+`AccessLog` — menandai item rusak dan menaikkan penghitung rate limit
+adalah urusan gerbang, bukan urusan riwayat. Alternatif yang ditolak:
+menaruh logika ini di `lib/audit/` bersama penulisan log, ditolak
+karena akan mencampur "mencatat apa yang terjadi" dengan "memutuskan
+apa yang terjadi selanjutnya" di satu modul.
 
 ### Keputusan Fase 0 — 19 Agustus 2026
 

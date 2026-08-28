@@ -75,11 +75,18 @@ baris di database sendiri.
 - `lib/storage/` — pembungkus tipis di atas Vercel Blob:
   `putFile` membungkus `put(path, file, { access: 'private' })`,
   `getFileStream` membungkus `get(pathname, { access: 'private' })`,
-  dan `deleteFile` menghapus berkasnya. `getFileStream`
-  mengembalikan objek berisi `stream`, `blob.contentType`,
-  `blob.etag`, dan `statusCode` — ia mengalirkan isi berkas,
-  bukan menyusun URL. Tidak ada kode lain yang mengimpor SDK
-  Blob secara langsung.
+  dan `deleteFile` menghapus berkasnya. Ia mengalirkan isi berkas,
+  bukan menyusun URL. Di `@vercel/blob` 2.8 yang terpasang, `get()`
+  mengembalikan `Promise<GetBlobResult | null>`: `null` berarti
+  berkasnya tidak ditemukan — **tidak ada `statusCode: 404` di mana
+  pun**. Kembaliannya union terdiskriminasi pada `statusCode`, dan
+  arm `304` (`stream: null`) hanya terjangkau lewat header
+  `ifNoneMatch`, yang aplikasi ini tidak pernah kirim.
+  `getFileStream()` mengembalikan `null` untuk ketiadaan berkas,
+  dan **melempar** untuk kegagalan sungguhan — bukan menangkapnya —
+  karena SDK sudah menandai ketiadaan lewat `null`; sebuah `catch` di
+  sini hanya akan menyamakan galat sungguhan dengan "berkasnya tidak
+  ada". Tidak ada kode lain yang mengimpor SDK Blob secara langsung.
 - `lib/db/` — klien Prisma dan fungsi query.
 - `lib/auth/` — konfigurasi Auth.js, helper sesi, dan penentuan peran
   pemilik. `role.ts` berisi `resolveRole()` sebagai fungsi murni tanpa
