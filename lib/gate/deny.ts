@@ -5,7 +5,7 @@ import type { DenyReason } from "@prisma/client";
 import { logItemAccess, type Visitor } from "@/lib/audit/log-access";
 import type { RequestContext } from "@/lib/audit/request-context";
 import { markItemBroken } from "@/lib/db/gate";
-import { ITEM_GATE_SCOPE } from "@/lib/ratelimit/window";
+import { ITEM_GATE_SCOPE, rateLimitKey } from "@/lib/ratelimit/window";
 import { recordFailure } from "@/lib/ratelimit/counter";
 
 /**
@@ -57,7 +57,5 @@ export async function denyBrokenItem(input: {
     denyReason: input.denyReason,
     context: input.context,
   });
-  if (input.context.ipAddress !== null) {
-    await recordFailure(ITEM_GATE_SCOPE, input.context.ipAddress, input.now);
-  }
+  await recordFailure(ITEM_GATE_SCOPE, rateLimitKey(input.context.ipAddress), input.now);
 }

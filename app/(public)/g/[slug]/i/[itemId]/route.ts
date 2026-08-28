@@ -3,10 +3,10 @@ import { logItemAccess, type Visitor } from "@/lib/audit/log-access";
 import { readRequestContext } from "@/lib/audit/request-context";
 import { auth } from "@/lib/auth";
 import { itemGateCallbackUrl } from "@/lib/auth/callback-url";
-import { readGateData } from "@/lib/db/gate";
+import { readGateData, readGroupIdBySlug } from "@/lib/db/gate";
 import { logDenied } from "@/lib/gate/deny";
 import { serveGrantedItem } from "@/lib/gate/serve-item";
-import { ITEM_GATE_SCOPE, isOverLimit } from "@/lib/ratelimit/window";
+import { ITEM_GATE_SCOPE, isOverLimit, rateLimitKey } from "@/lib/ratelimit/window";
 import { readFailureCount, recordFailure } from "@/lib/ratelimit/counter";
 import { gateParamsSchema } from "@/lib/validation/gate";
 
@@ -30,38 +30,42 @@ export async function GET(
   const now = new Date();
   const context = await readRequestContext();
 
-  // LANGKAH 0 — rate limit, sebelum menyentuh database lebih jauh.
-  if (context.ipAddress !== null) {
-    const failures = await readFailureCount(ITEM_GATE_SCOPE, context.ipAddress, now);
-    if (isOverLimit(failures)) {
-      // Sesi sengaja belum dibaca karena membacanya adalah kueri database
-      // dan langkah 0 berhenti sebelum menyentuh database lebih jauh.
-      // Alamat IP adalah penanda yang relevan untuk penebak, yang hampir
-      // selalu anonim.
-      const anonymousVisitor: Visitor = {
-        userId: null,
-        visitorName: null,
-        visitorEmail: null,
-      };
-      // Barisnya tetap dicatat: percobaan akses ke link yang sudah mati
-      // pun terekam, dan pemilik berhak melihat bahwa seseorang sedang
-      // menggedor. groupId dan itemId diisi apa adanya dari URL tanpa
-      // kueri, karena langkah ini tidak boleh menyentuh database lagi.
-      await logDenied({
-        groupId: slug,
-        itemId,
-        visitor: anonymousVisitor,
-        denyReason: "RATE_LIMITED",
-        context,
-      });
-      // Penghitung TIDAK dinaikkan di sini: menghukum klien yang sudah
-      // dihentikan hanya membuat jendela sepuluh menitnya tidak pernah
-      // berakhir (U4-5).
-      return new Response(
-        "Terlalu banyak permintaan dari alamat ini. Coba lagi beberapa menit lagi.\n",
-        { status: 429, headers: { "Content-Type": "text/plain; charset=utf-8" } },
-      );
-    }
+  // LANGKAH 0 — rate limit. Langkah ini tidak mengambil group, item,
+  // maupun catatan izin, dan tidak membaca sesi; satu pencarian id
+  // berindeks dilakukan semata supaya barisnya terjangkau riwayat per
+  // group, karena baris yang tertulis tetapi tak terbaca sama saja
+  // dengan baris yang hilang.
+  const failures = await readFailureCount(ITEM_GATE_SCOPE, rateLimitKey(context.ipAddress), now);
+  if (isOverLimit(failures)) {
+    // Sesi sengaja belum dibaca karena membacanya adalah kueri database
+    // dan langkah 0 berhenti sebelum menyentuh database lebih jauh.
+    // Alamat IP adalah penanda yang relevan untuk penebak, yang hampir
+    // selalu anonim.
+    const anonymousVisitor: Visitor = {
+      userId: null,
+      visitorName: null,
+      visitorEmail: null,
+    };
+    // Barisnya tetap dicatat: percobaan akses ke link yang sudah mati
+    // pun terekam, dan pemilik berhak melihat bahwa seseorang sedang
+    // menggedor. groupId diisi dari id sungguhan bila slug-nya
+    // dikenal, dengan slug sendiri sebagai fallback untuk keadaan
+    // group memang tidak ada — sejalan dengan cabang DENIED di bawah.
+    const resolvedGroupId = await readGroupIdBySlug(slug);
+    await logDenied({
+      groupId: resolvedGroupId ?? slug,
+      itemId,
+      visitor: anonymousVisitor,
+      denyReason: "RATE_LIMITED",
+      context,
+    });
+    // Penghitung TIDAK dinaikkan di sini: menghukum klien yang sudah
+    // dihentikan hanya membuat jendela sepuluh menitnya tidak pernah
+    // berakhir (U4-5).
+    return new Response(
+      "Terlalu banyak permintaan dari alamat ini. Coba lagi beberapa menit lagi.\n",
+      { status: 429, headers: { "Content-Type": "text/plain; charset=utf-8" } },
+    );
   }
 
   const session = await auth();
@@ -107,9 +111,7 @@ export async function GET(
       denyReason: decision.reason,
       context,
     });
-    if (context.ipAddress !== null) {
-      await recordFailure(ITEM_GATE_SCOPE, context.ipAddress, now);
-    }
+    await recordFailure(ITEM_GATE_SCOPE, rateLimitKey(context.ipAddress), now);
     return seeOther(UNAVAILABLE);
   }
 

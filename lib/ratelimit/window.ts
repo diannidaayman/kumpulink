@@ -24,3 +24,17 @@ export function resolveWindowStart(now: Date, windowMs: number = WINDOW_MS): Dat
 export function isOverLimit(count: number, max: number = MAX_FAILURES): boolean {
   return count >= max;
 }
+
+/**
+ * Alamat IP yang tidak diketahui dikelompokkan ke satu kunci "unknown"
+ * bersama, bukan melewatkan rate limit sama sekali. Di Vercel proxy
+ * selalu mengisi `x-forwarded-for`, jadi ember ini hanya terpakai saat
+ * aplikasi diakses langsung tanpa proxy — dan menumpuk seluruh penebak
+ * tanpa header itu ke satu ember bersama tetap lebih ketat daripada
+ * membiarkan mereka tidak terbatas sama sekali. `AccessLog.ipAddress`
+ * tetap mencatat nilai apa adanya (termasuk null); hanya penghitung yang
+ * memakai kunci ini.
+ */
+export function rateLimitKey(ipAddress: string | null): string {
+  return ipAddress ?? "unknown";
+}

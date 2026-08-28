@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   MAX_FAILURES,
+  RETENTION_MS,
   WINDOW_MS,
   isOverLimit,
   resolveWindowStart,
@@ -25,6 +26,14 @@ describe("jendela rate limit", () => {
 
   it("memakai jendela sepuluh menit", () => {
     expect(WINDOW_MS).toBe(600_000);
+  });
+
+  it("memakai ambang dua puluh kegagalan", () => {
+    expect(MAX_FAILURES).toBe(20);
+  });
+
+  it("memakai masa simpan satu jam", () => {
+    expect(RETENTION_MS).toBe(3_600_000);
   });
 
   it("meloloskan percobaan gagal ke-20 dan menahan yang ke-21", () => {

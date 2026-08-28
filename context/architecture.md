@@ -572,9 +572,12 @@ mengajukannya.
 
 ### Gerbang item — `GET /g/[slug]/i/[itemId]`
 
-0. Periksa rate limit per alamat IP. Bila terlampaui,
-   kembalikan HTTP 429, catat `DENIED / RATE_LIMITED`, dan
-   hentikan tanpa menyentuh database lebih jauh.
+0. Periksa rate limit per alamat IP. Bila terlampaui, kembalikan HTTP
+   429 dan catat `DENIED / RATE_LIMITED`. Langkah ini tidak mengambil
+   group, item, maupun catatan izin, dan tidak membaca sesi; satu
+   pencarian id berindeks (slug → id group) dilakukan semata supaya
+   barisnya terjangkau riwayat per group, karena baris yang tertulis
+   tetapi tak terbaca sama saja dengan baris yang hilang.
    Penghitungnya dibaca di sini tetapi dinaikkan di butir 7 dan 9 saja —
    hanya percobaan yang gagal. `RATE_LIMITED` sendiri tidak menaikkannya.
 1. Baca sesi di server.

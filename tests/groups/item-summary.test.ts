@@ -8,9 +8,10 @@ describe("ringkasan item", () => {
       { accessMode: "OPEN" },
       { accessMode: "OPEN" },
       { accessMode: "IDENTITY" },
+      { accessMode: "IDENTITY" },
       { accessMode: "APPROVAL" },
     ]);
-    expect(summary).toEqual({ total: 4, needsLogin: 1, needsApproval: 1 });
+    expect(summary).toEqual({ total: 5, needsLogin: 2, needsApproval: 1 });
   });
 
   it("menyebut ketiganya bila ketiganya ada", () => {

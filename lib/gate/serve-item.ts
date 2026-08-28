@@ -44,10 +44,19 @@ export async function serveGrantedItem(
         context,
         now,
       });
-      return new Response(null, { status: 303, headers: { Location: unavailablePath } });
+      return new Response(null, {
+        status: 303,
+        headers: { Location: unavailablePath, "Cache-Control": "private, no-store" },
+      });
     }
     // 302, bukan 303: architecture.md menetapkan ini untuk EXTERNAL.
-    return new Response(null, { status: 302, headers: { Location: item.targetUrl } });
+    // Cache-Control mencegah 302 tersimpan di cache bersama: pengunjung
+    // kedua yang menerima 302 dari cache akan melewati gerbang tanpa
+    // baris AccessLog apa pun (temuan Fix 7).
+    return new Response(null, {
+      status: 302,
+      headers: { Location: item.targetUrl, "Cache-Control": "private, no-store" },
+    });
   }
 
   // UPLOAD — berkas dialirkan melalui respons ini. Tidak ada URL Blob
@@ -84,7 +93,10 @@ export async function serveGrantedItem(
       context,
       now,
     });
-    return new Response(null, { status: 303, headers: { Location: unavailablePath } });
+    return new Response(null, {
+      status: 303,
+      headers: { Location: unavailablePath, "Cache-Control": "private, no-store" },
+    });
   }
 
   return new Response(stored.stream, {

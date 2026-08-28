@@ -98,3 +98,14 @@ export async function readGateData(
 export async function markItemBroken(itemId: string): Promise<void> {
   await prisma.item.update({ where: { id: itemId }, data: { isBroken: true } });
 }
+
+/**
+ * Menerjemahkan slug URL menjadi id group sungguhan, dipakai jalur
+ * RATE_LIMITED di gerbang item supaya `AccessLog.groupId` yang tertulis
+ * di sana terjangkau riwayat per group — yang selalu menyaring lewat id,
+ * bukan slug. `slug` sudah `@unique`, jadi kueri ini murah.
+ */
+export async function readGroupIdBySlug(slug: string): Promise<string | null> {
+  const group = await prisma.group.findUnique({ where: { slug }, select: { id: true } });
+  return group?.id ?? null;
+}

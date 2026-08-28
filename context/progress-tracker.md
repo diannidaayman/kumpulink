@@ -948,10 +948,9 @@ dijalankan siapa pun**.
 
 ### Pemeriksaan peramban Unit 4 — BELUM DIJALANKAN, 28 Agustus 2026
 
-Kedelapan pemeriksaan berikut, dari `.superpowers/sdd/task-10-brief.md`
-Step 1 sampai 8, **BELUM DIJALANKAN**. Tidak satu pun boleh dianggap
-lulus sampai pemilik benar-benar menjalankannya dan mencatat hasilnya
-di sini.
+Kesembilan pemeriksaan berikut **BELUM DIJALANKAN**. Tidak satu pun
+boleh dianggap lulus sampai pemilik benar-benar menjalankannya dan
+mencatat hasilnya di sini.
 
 1. **CEK 1 — kebocoran di HTML.** Source halaman group: nol kecocokan
    untuk `targetUrl` item mana pun, host Vercel Blob, dan slug group
@@ -959,6 +958,12 @@ di sini.
 2. **CEK 2 — pencatatan tanpa JavaScript.** JavaScript dimatikan, item
    `IDENTITY` diklik dan dimasuki: penerusan tetap terjadi, tepat satu
    baris `ITEM_ACCESS / GRANTED` tertulis berisi nama, email, dan waktu.
+   **Catatan penting supaya hasil yang benar tidak salah dibaca sebagai
+   cacat:** hitung barisnya *menurut `eventType`*, bukan totalnya —
+   pengunjung yang sedang masuk juga menghasilkan satu baris `PAGE_VIEW`
+   tersendiri untuk halaman group saat CEK ini dimulai. Kriteria sukses
+   nomor 4 berbicara tentang satu baris `ITEM_ACCESS`, bukan satu baris
+   di seluruh tabel.
 3. **CEK 3 — ketiga penolakan tidak dapat dibedakan.** Group
    `shareEnabled = false`, group kedaluwarsa, dan slug yang tidak
    pernah ada: kode status dan halaman identik untuk ketiganya.
@@ -971,12 +976,29 @@ di sini.
 6. **CEK 6 — berkas hilang di Blob.** Berkas item `UPLOAD` dihapus
    langsung dari Blob store: `Item.isBroken` menjadi `true`, satu baris
    `DENIED / FILE_MISSING` tertulis, halaman tidak tersedia tampil.
+   **Ekspektasi yang benar, bukan cacat:** pemeriksaan ini menghasilkan
+   **dua** baris `ITEM_ACCESS` — `GRANTED` lalu `FILE_MISSING` — dan
+   itu urutan yang seharusnya, karena log ditulis tuntas dulu sebelum
+   pengaliran berkas dicoba; baris `GRANTED` bukan galat. Jalur 503
+   (Blob benar-benar gagal, bukan sekadar berkas hilang) berbeda dari
+   CEK ini dan **belum pernah dijalankan dalam bentuk apa pun** — ia
+   hanya terjangkau dengan merusak token Blob, dan itu belum dicoba.
 7. **Pemeriksaan tampilan, mode terang dan gelap.** Halaman group,
    layar masuk, halaman tidak tersedia, dan halaman galat pencatatan
    di kedua mode.
 8. **Pemeriksaan tampilan, lebar ponsel (375 px).** Kartu item melipat
    menjadi dua baris tanpa judul yang membungkus buruk; badan halaman
    tidak pernah menggulir horizontal.
+9. **CEK 9 — status HTTP halaman galat pencatatan.** Buka
+   `/galat-pencatatan` langsung dan baca kode statusnya di tab Network:
+   ia wajib **500**, bukan 200. Keputusan U4-8 memilih halaman galat
+   tersendiri justru supaya kegagalan pencatatan terbaca sebagai
+   kegagalan oleh pengunjung maupun oleh alat pemantauan; status 200
+   membatalkan seluruh alasan halaman ini dipisahkan dari halaman tidak
+   tersedia. Di App Router, galat yang ditangkap `error.tsx` bersarang
+   berisiko terlayani 200 begitu shell-nya sudah mengalir sebagian —
+   itulah sebabnya statusnya harus dibaca langsung dari Network, bukan
+   diasumsikan dari perilaku `throw` di kode.
 
 ## Next Up
 
