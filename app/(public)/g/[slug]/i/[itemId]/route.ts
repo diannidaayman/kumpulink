@@ -37,10 +37,10 @@ export async function GET(
   // dengan baris yang hilang.
   const failures = await readFailureCount(ITEM_GATE_SCOPE, rateLimitKey(context.ipAddress), now);
   if (isOverLimit(failures)) {
-    // Sesi sengaja belum dibaca karena membacanya adalah kueri database
-    // dan langkah 0 berhenti sebelum menyentuh database lebih jauh.
-    // Alamat IP adalah penanda yang relevan untuk penebak, yang hampir
-    // selalu anonim.
+    // Sesi sengaja belum dibaca: membacanya adalah kueri yang harus
+    // dibayar setiap permintaan, sedangkan pencarian id di bawah hanya
+    // dibayar oleh klien yang sudah melewati ambang. Alamat IP adalah
+    // penanda yang relevan untuk penebak, yang hampir selalu anonim.
     const anonymousVisitor: Visitor = {
       userId: null,
       visitorName: null,
