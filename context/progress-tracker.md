@@ -1005,7 +1005,7 @@ mencatat hasilnya di sini.
 1. **Unit 5 — panel Bagikan.** `visibility`, `expiresAt`,
    `shareEnabled`, penyalinan URL, QR code SVG dirender di server, dan
    spanduk pratinjau pemilik untuk group yang dicabut atau kedaluwarsa
-   yang ia buka sendiri. **Prasyarat: kedelapan pemeriksaan peramban
+   yang ia buka sendiri. **Prasyarat: kesembilan pemeriksaan peramban
    Unit 4 harus tuntas lebih dulu** — belum ada satu pun yang
    dijalankan, dan Unit 5 membangun di atas halaman group publik yang
    pemeriksaan itu memvalidasi.

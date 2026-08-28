@@ -32,8 +32,8 @@ describe("header Content-Disposition", () => {
   });
 
   it("menyandikan karakter RFC 5987 ' ( ) * di filename*", () => {
-    const header = inlineContentDisposition("rapat(1)'.pdf");
-    expect(header).toContain("filename*=UTF-8''rapat%281%29%27.pdf");
+    const header = inlineContentDisposition("rapat(1)'*.pdf");
+    expect(header).toContain("filename*=UTF-8''rapat%281%29%27%2A.pdf");
   });
 
   it("mengembalikan inline saja bila nama berkas tidak ada atau kosong", () => {

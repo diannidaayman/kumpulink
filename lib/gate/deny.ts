@@ -35,7 +35,10 @@ export async function logDenied(input: {
 
 /**
  * Menandai item rusak, mencatat penolakannya, lalu menaikkan penghitung
- * rate limit bila alamat IP diketahui. Dipakai oleh kedua jalur "berkas
+ * rate limit. Penghitung naik tanpa syarat: alamat IP yang tidak diketahui
+ * dikelompokkan ke ember "unknown" bersama oleh `rateLimitKey()`, karena
+ * ember bersama yang lebih ketat lebih baik daripada tidak ada batas sama
+ * sekali. Dipakai oleh kedua jalur "berkas
  * tidak dapat dilayani" di gerbang item: EXTERNAL tanpa targetUrl
  * (denyReason NOT_FOUND) dan UPLOAD tanpa berkas yang ditemukan di Blob
  * (denyReason FILE_MISSING). Keduanya berarti pemilik perlu memperbaiki
