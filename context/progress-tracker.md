@@ -98,10 +98,11 @@ yang berarti.
 
 ## Current Goal
 
-- **Pemeriksaan peramban Unit 4, lalu Unit 5.** Kedelapan pemeriksaan
-  peramban di `.superpowers/sdd/task-10-brief.md` (Step 1 sampai 8)
-  belum dijalankan siapa pun dan harus tuntas di tangan pemilik
-  sebelum Unit 4 benar-benar ditutup. Sesudah itu, Unit 5 — panel
+- **Pemeriksaan peramban Unit 4, lalu Unit 5.** Kesembilan pemeriksaan
+  peramban di bagian "Pemeriksaan peramban Unit 4" di bawah — delapan
+  dari `.superpowers/sdd/task-10-brief.md` ditambah CEK 9 yang lahir
+  dari review akhir — belum dijalankan siapa pun dan harus tuntas di
+  tangan pemilik sebelum Unit 4 benar-benar ditutup. Sesudah itu, Unit 5 — panel
   Bagikan. Rinciannya di bagian Next Up.
 - Tidak ada keputusan yang menggantung.
 
