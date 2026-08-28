@@ -184,6 +184,11 @@
 - `app/api/` — route handler
 - `lib/access/` — evaluasi izin
 - `lib/audit/` — penulisan riwayat akses
+- `lib/gate/` — keputusan terminal gerbang item: penyusunan respons untuk
+  akses yang lolos, dan penolakan beserta pencatatannya. Berdiri di luar
+  `lib/audit/` supaya modul itu tetap murni penulis `AccessLog` — menandai
+  item rusak dan menaikkan penghitung rate limit adalah urusan gerbang,
+  bukan urusan riwayat
 - `lib/ratelimit/` — penghitung rate limit per alamat IP. Ambang dan
   jendelanya fungsi murni di `window.ts`, lapisan Postgres-nya di
   `counter.ts` — pemisahan yang sama dengan `lib/groups/`

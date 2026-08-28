@@ -1,9 +1,9 @@
 import "server-only";
 
-import { denyBrokenItem } from "@/lib/audit/gate-denial";
 import type { Visitor } from "@/lib/audit/log-access";
 import type { RequestContext } from "@/lib/audit/request-context";
 import type { GateGroup, GateItem } from "@/lib/db/gate";
+import { denyBrokenItem } from "@/lib/gate/deny";
 import { getFileStream } from "@/lib/storage/blob";
 import { inlineContentDisposition } from "@/lib/storage/content-disposition";
 
@@ -42,7 +42,6 @@ export async function serveGrantedItem(
         visitor,
         denyReason: "NOT_FOUND",
         context,
-        ipAddress: context.ipAddress,
         now,
       });
       return new Response(null, { status: 303, headers: { Location: unavailablePath } });
@@ -83,7 +82,6 @@ export async function serveGrantedItem(
       visitor,
       denyReason: "FILE_MISSING",
       context,
-      ipAddress: context.ipAddress,
       now,
     });
     return new Response(null, { status: 303, headers: { Location: unavailablePath } });

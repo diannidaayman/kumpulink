@@ -47,7 +47,6 @@ export async function denyBrokenItem(input: {
   visitor: Visitor;
   denyReason: DenyReason;
   context: RequestContext;
-  ipAddress: string | null;
   now: Date;
 }): Promise<void> {
   await markItemBroken(input.itemId);
@@ -58,7 +57,7 @@ export async function denyBrokenItem(input: {
     denyReason: input.denyReason,
     context: input.context,
   });
-  if (input.ipAddress !== null) {
-    await recordFailure(ITEM_GATE_SCOPE, input.ipAddress, input.now);
+  if (input.context.ipAddress !== null) {
+    await recordFailure(ITEM_GATE_SCOPE, input.context.ipAddress, input.now);
   }
 }

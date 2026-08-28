@@ -40,9 +40,12 @@ baris di database sendiri.
   Satu-satunya jalan masuk pengunjung ke konten.
 
   Gerbang item adalah **route handler**, bukan halaman: hanya route
-  handler yang dapat mengalirkan byte berkas, dan menempatkan seluruh
-  keluarannya di satu berkas membuat pencatatan dan penerusan punya
-  tepat satu tempat. Keluaran yang berbentuk HTML dijawab 303 ke route
+  handler yang dapat mengalirkan byte berkas. Ia tetap satu-satunya
+  jalan masuk menuju konten, dan urutannya — rate limit, evaluasi,
+  pencatatan yang ditunggu tuntas, lalu penerusan — hidup di satu
+  berkas, sehingga berkas itu dapat dibaca sebagai urutan. Penyusunan
+  responsnya sendiri dipisah ke `lib/gate/` justru supaya urutan itu
+  tetap terbaca. Keluaran yang berbentuk HTML dijawab 303 ke route
   anak — `/masuk`, `/tidak-tersedia`, `/galat-pencatatan` — yang
   mengevaluasi ulang untuk melindungi dirinya sendiri dan **tidak**
   menulis log, karena tak satu pun menyajikan konten. Ditetapkan
@@ -56,6 +59,11 @@ baris di database sendiri.
   keputusan beserta alasannya.
 - `lib/audit/` — penulisan `AccessLog`. Hanya dipanggil
   dari sisi server.
+- `lib/gate/` — keputusan terminal gerbang item: penyusunan respons
+  untuk akses yang lolos, dan penolakan yang menyertai pencatatannya.
+  Ia berdiri di luar `lib/audit/` supaya modul itu tetap murni penulis
+  `AccessLog`; menandai `Item.isBroken` dan menaikkan penghitung rate
+  limit adalah urusan gerbang, bukan urusan riwayat.
 - `lib/ratelimit/` — penghitung rate limit per alamat IP untuk route
   gerbang item. Ambang dan jendela sebagai fungsi murni; hanya
   `counter.ts` yang menyentuh Prisma.

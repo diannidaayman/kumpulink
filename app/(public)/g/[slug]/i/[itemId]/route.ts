@@ -1,10 +1,10 @@
 import { evaluateItemAccess } from "@/lib/access/evaluate-access";
-import { logDenied } from "@/lib/audit/gate-denial";
 import { logItemAccess, type Visitor } from "@/lib/audit/log-access";
 import { readRequestContext } from "@/lib/audit/request-context";
 import { auth } from "@/lib/auth";
 import { itemGateCallbackUrl } from "@/lib/auth/callback-url";
 import { readGateData } from "@/lib/db/gate";
+import { logDenied } from "@/lib/gate/deny";
 import { serveGrantedItem } from "@/lib/gate/serve-item";
 import { ITEM_GATE_SCOPE, isOverLimit } from "@/lib/ratelimit/window";
 import { readFailureCount, recordFailure } from "@/lib/ratelimit/counter";
