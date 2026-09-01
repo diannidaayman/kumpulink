@@ -44,3 +44,9 @@ Thumbs.db
 /.idea
 /.vscode/*
 !/.vscode/extensions.json
+
+# Skrip pemeriksaan peramban sekali pakai. Dibuat per unit, dijalankan
+# terhadap basis data sungguhan, lalu dihapus. Sempat ter-commit di
+# Unit 4 dan dikeluarkan lagi saat penggabungan: isinya data uji dan
+# kueri diagnostik, bukan kode aplikasi.
+/scripts-cek/
