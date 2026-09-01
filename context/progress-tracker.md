@@ -94,14 +94,14 @@ yang berarti.
 
 ## Current Goal
 
-- **Menutup dua pemeriksaan peramban yang tersisa, memutuskan satu
-  temuan, lalu Unit 5.** Tujuh dari sembilan pemeriksaan dijalankan
-  28 Agustus 2026 terhadap build produksi dan lulus; rinciannya di
-  bagian "Pemeriksaan peramban Unit 4" di bawah. Dua yang tersisa —
-  CEK 2 dan CEK 4 — menuntut masuk dengan Google. Satu temuan terbuka
-  menunggu keputusan: seluruh permukaan galat menyajikan DOM kosong
-  tanpa JavaScript. Sesudah itu, Unit 5 — panel
-  Bagikan. Rinciannya di bagian Next Up.
+- **Unit 4 tuntas. Berikutnya Unit 5 — panel Bagikan.** Kesembilan
+  pemeriksaan peramban dijalankan terhadap build produksi dan lulus —
+  tujuh pada 28 Agustus 2026, dua sisanya (CEK 2 dan CEK 4) pada
+  1 September 2026 — ditambah jalur 503 yang sebelumnya belum pernah
+  dijalankan dalam bentuk apa pun. Satu temuan yang sempat menahan Unit
+  5, permukaan galat kosong tanpa JavaScript, sudah ditelusuri sampai
+  akar dan **ditutup** pada 1 September 2026. Rinciannya di bagian
+  "Pemeriksaan peramban Unit 4" di bawah, dan Unit 5 di bagian Next Up.
 - Tidak ada keputusan yang menggantung.
 
   Rumusan sebelumnya di bagian ini masih menyebut Fase 2 sebagai
@@ -945,22 +945,24 @@ pemeriksaan peramban yang menuntut server pengembangan hidup, basis data
 sungguhan, dan mata manusia, **diserahkan ke pemilik dan belum
 dijalankan siapa pun**.
 
-### Pemeriksaan peramban Unit 4 — TUJUH DARI SEMBILAN DIJALANKAN, 28 Agustus 2026
+### Pemeriksaan peramban Unit 4 — KESEMBILANNYA DIJALANKAN, 28 Agustus dan 1 September 2026
 
-**Hasil, dicatat apa adanya.** Tujuh pemeriksaan dijalankan terhadap
+**Hasil, dicatat apa adanya.** Seluruh pemeriksaan dijalankan terhadap
 build **produksi** (`npm run build && npm start`) dari worktree
-`unit-4-halaman-publik`, dengan data uji berawalan `cek-u4-`.
+`unit-4-halaman-publik`, dengan data uji berawalan `cek-u4-`. Tujuh pada
+28 Agustus 2026; CEK 2, CEK 4, dan penilaian visual yang tertunda pada
+1 September 2026.
 
 | Pemeriksaan | Hasil |
 | ----------- | ----- |
 | CEK 1 — kebocoran di HTML | **LULUS** |
-| CEK 2 — pencatatan tanpa JavaScript | belum — menuntut masuk dengan Google |
+| CEK 2 — pencatatan tanpa JavaScript | **LULUS** (1 September 2026) |
 | CEK 3 — ketiga penolakan tidak dapat dibedakan | **LULUS** |
-| CEK 4 — pratinjau pemilik | belum — menuntut masuk dengan Google |
+| CEK 4 — pratinjau pemilik | **LULUS** (1 September 2026) |
 | CEK 5 — rate limit | **LULUS** |
 | CEK 6 — berkas hilang di Blob | **LULUS** |
-| Mode terang dan gelap | **LULUS sebagian** — kontras terukur, penilaian visual belum |
-| Lebar ponsel 375 px | **LULUS sebagian** — tata letak terukur, penilaian visual belum |
+| Mode terang dan gelap | **LULUS** — penilaian visual dilakukan 1 September 2026 |
+| Lebar ponsel 375 px | **LULUS** — nol gulir horizontal; satu temuan tata letak, di bawah |
 | CEK 9 — status halaman galat pencatatan | **LULUS** (status 500) — tetapi memunculkan temuan di bawah |
 
 **CEK 1.** Nol kecocokan untuk kedelapan probe: `targetUrl` item `OPEN`,
@@ -998,15 +1000,22 @@ baris ringkasan. Lencana terbukti tidak pernah terisi: latar beralfa
 0,1, garis batas 0,67 px beralfa 0,4, dan tepat **satu** lencana di
 seluruh halaman.
 
-**Lebar 375 px.** Nol gulir horizontal, nol elemen meluber. Kartu
-`IDENTITY` setinggi 135 px melawan 79 px milik kartu polos — lipatannya
-terjadi.
+**Lebar 375 px.** Nol gulir horizontal, nol elemen meluber
+(`scrollWidth` 375 = `innerWidth` 375). Kartu `IDENTITY` setinggi 136 px
+melawan 80 px milik kartu polos.
 
-**Penilaian visual belum dilakukan.** Panel peramban tidak dapat
-ditampilkan saat pemeriksaan berjalan, sehingga tangkapan layar tidak
-diambil. Yang di atas adalah pengukuran, bukan penilaian mata.
+**Koreksi atas catatan 28 Agustus 2026.** Selisih tinggi itu sempat
+dibaca sebagai bukti "lipatannya terjadi". Pengukuran 1 September 2026
+menunjukkan sebaliknya — lihat temuan kedua di bawah.
 
-#### TEMUAN — permukaan galat kosong tanpa JavaScript
+**Penilaian visual dilakukan 1 September 2026.** Panel peramban kali ini
+tersedia. Terang, gelap, dan 375 px semuanya dilihat pada build produksi
+di `/g/cek-u4-publik`, ditambah layar masuk gerbang item. Hierarki
+terbaca di ketiganya, ikon tipe lurus satu rel, lencana tetap satu-satunya
+aksen, dan keterangan "Akses Anda akan dicatat" hadir hanya pada kartu
+`IDENTITY`. Satu temuan tata letak muncul di 375 px — lihat di bawah.
+
+#### TEMUAN DITUTUP — permukaan galat kosong tanpa JavaScript
 
 Diverifikasi pada build produksi. Halaman group yang lolos bekerja penuh
 tanpa JavaScript: judul, slug, ringkasan, deskripsi, ketiga judul item,
@@ -1024,40 +1033,200 @@ pencatatan dari halaman tidak tersedia: pengunjung yang aksesnya gagal
 dicatat tidak diberi tahu apa pun, sehingga ia tidak tahu keadaannya
 sementara dan layak dicoba lagi.
 
-Belum diputuskan cara menutupnya. Dua dugaan penyebab yang belum diuji:
-`app/(public)/error.tsx` sebagai batas klien yang memaksa segmennya
-dirender di klien, atau perilaku bawaan Next saat `notFound()` dilempar
-setelah shell mengalir. Jalan keluar yang sejalan dengan preseden yang
-sudah ada di unit ini adalah menjadikan kedua rute itu route handler
-yang mengirim badan responsnya sendiri, seperti 429 dan 503.
+**Penyebabnya ditelusuri dan ditemukan, 1 September 2026.**
 
-#### Yang belum dijalankan
+Dugaan `app/(public)/error.tsx` **GUGUR**. Diuji dengan menyingkirkan
+berkas itu, membangun ulang, dan mengukur ulang ketiga permukaan:
+hasilnya identik byte demi byte — badan tanpa `<script>` tetap 294
+karakter dengan penanda yang sama. `error.tsx` bukan penyebabnya.
 
-Kedua pemeriksaan berikut menuntut masuk dengan Google dan **belum
-dijalankan**. Tidak boleh dianggap lulus.
+Penyebab sesungguhnya terbaca dari penanda React di HTML mentah:
 
-1. **CEK 2 — pencatatan tanpa JavaScript.** JavaScript dimatikan, item
-   `IDENTITY` diklik dan dimasuki: penerusan tetap terjadi, tepat satu
-   baris `ITEM_ACCESS / GRANTED` tertulis berisi nama, email, dan waktu.
-   **Catatan supaya hasil yang benar tidak salah dibaca sebagai cacat:**
-   hitung barisnya *menurut `eventType`*, bukan totalnya — pengunjung
-   yang sedang masuk juga menghasilkan satu baris `PAGE_VIEW` tersendiri
-   untuk halaman group. Kriteria sukses nomor 4 berbicara tentang satu
-   baris `ITEM_ACCESS`, bukan satu baris di seluruh tabel.
+- Halaman yang lolos: `<div hidden=""><!--$--><!--/$--></div>` —
+  Suspense boundary **terselesaikan**, markup ada langsung di kawat.
+- Ketiga permukaan galat:
+  `<div hidden=""><!--$?--><template id="B:0"></template><!--/$--></div>`
+  — boundary **tertunda**, ditambah `<div hidden id="S:0"></div>` yang
+  **kosong**.
 
-   Separuh jalur ini sudah terbukti tanpa sesi: item `IDENTITY` yang
-   dibuka pengunjung anonim menghasilkan nol baris dan mengalihkan ke
-   layar masuk, dan halaman group terbukti dirender penuh tanpa
-   JavaScript. Yang belum terbukti adalah penerusan sesudah masuk dan
-   isi kolom nama serta email pada barisnya.
+Kalimat "Halaman ini tidak tersedia." hanya muncul satu kali di seluruh
+respons, yaitu di dalam slot `notFound` pada payload RSC
+(`self.__next_f.push`) — sebagai **data untuk klien**, bukan sebagai
+HTML. Next 15.5.23 / React 19.1.0 memang tidak merender UI `notFound()`
+maupun error boundary ke HTML pada render dinamis: ia mengirim
+penampung kosong, lalu `NotFoundBoundary` di runtime klien yang
+merendernya saat hidrasi. `$RC` yang menukarnya masuk hanya ada di
+`<script>`.
 
-2. **CEK 4 — pratinjau pemilik.** Pemilik membuka group yang dicabut —
-   `cek-u4-dicabut` tersedia untuk itu: halaman tampil normal, didahului
-   spanduk peringatan berikon `Ban`.
+**Artinya tidak ada perbaikan kecil.** Ini perilaku bawaan kerangka,
+bukan cacat kode kita. Arah 2 ("telusuri dulu, mungkin perbaikannya jauh
+lebih kecil") dengan demikian TERTUTUP.
 
-Satu jalur lagi **belum pernah dijalankan dalam bentuk apa pun**: jalur
-503, yaitu Blob benar-benar gagal, berbeda dari berkas yang hilang. Ia
-hanya terjangkau dengan merusak token Blob, dan itu belum dicoba.
+**DITUTUP 1 September 2026 — permukaan keadaan menjadi route handler.**
+
+Arah yang dipilih pemilik: bukan sekadar mengubah kedua halaman menjadi
+route handler, melainkan sekaligus membuat halaman group yang ditolak
+BERMUARA di route handler yang sama. Alasannya sebuah jebakan yang
+ditemukan saat menimbang arah: kalau `/tidak-tersedia` mengirim HTML
+sungguhan sedangkan `/g/[slug]` tetap memanggil `notFound()`, keduanya
+berhenti identik — dan keidentikan itu kriteria sukses nomor 5.
+
+Yang berubah:
+
+- **`lib/public/keadaan.ts` (baru).** Satu-satunya tempat kalimat keadaan
+  ditulis dan satu-satunya tempat dokumen HTML-nya disusun, beserta
+  `JALUR_TIDAK_TERSEDIA` dan `JALUR_GALAT_PENCATATAN`. Tanpa React dan
+  tanpa Tailwind — dokumennya harus berdiri sendiri, karena nama lembar
+  gaya aplikasi di-hash saat build dan tidak dapat dirujuk route handler.
+- **`app/(public)/tidak-tersedia/route.ts`** menggantikan `page.tsx`,
+  mengirim 404 berbadan HTML.
+- **`app/(public)/galat-pencatatan/route.ts`** menggantikan `page.tsx`,
+  mengirim 500 berbadan HTML.
+- **`app/(public)/g/[slug]/page.tsx`** mengalihkan alih-alih memanggil
+  `notFound()`, dan MENANGKAP kegagalan `logPageView` lalu mengalihkan ke
+  `/galat-pencatatan` alih-alih membiarkannya melempar ke `error.tsx`.
+- **`not-found.tsx` dan `error.tsx` tetap ada** sebagai jaring pengaman
+  untuk alamat yang tidak cocok rute mana pun dan lemparan yang tidak
+  diantisipasi. Keduanya kini memakai kalimat dari sumber yang sama.
+
+**Jebakan yang harus diingat bila berkas itu disunting:** `redirect()`
+bekerja dengan melempar. Memanggilnya di dalam blok `try` yang sama
+dengan `logPageView` akan membuat `catch` menelan pengalihannya sendiri.
+Karena itu penanda `gagalMencatat` dipakai, dan `redirect()` dipanggil DI
+LUAR blok itu.
+
+**Harga yang dibayar, dicatat apa adanya.** Kedua permukaan berhenti
+memakai komponen React dan Tailwind; gayanya inline dan fontnya tumpukan
+font sistem, bukan Inter. Kesebelas token warna karena itu tersalin ke
+`lib/public/keadaan.ts` — nilainya hidup di dua tempat, diterima secara
+sadar karena alternatifnya membaca CSS saat runtime dari route handler.
+Kalimatnya sendiri TIDAK terduplikasi: sebuah pengujian menuntut tiap
+kalimat keadaan hanya ditulis sekali di seluruh repositori.
+
+**Diverifikasi pada build produksi, port terpisah:**
+
+| Yang diuji | Hasil |
+| ---------- | ----- |
+| `/tidak-tersedia` | 404, `text/html`, kalimat ada di luar `<script>` |
+| `/galat-pencatatan` | 500, `text/html`, kalimat ada di luar `<script>` |
+| `/g/[slug]` ditolak | 307 → `/tidak-tersedia` → 404 |
+| Keempat penolakan | MD5 **identik**, dan identik pula dengan `/tidak-tersedia` |
+| Kontras terang | judul 17,06:1, redup 4,55:1 — sama persis dengan aplikasi |
+| Kontras gelap | judul 16,29:1, redup 7,47:1 — sama persis dengan aplikasi |
+| Mode gelap tanpa JavaScript | bekerja lewat `prefers-color-scheme`; `html` tanpa kelas |
+| 375 px | nol gulir horizontal |
+| Tautan di halaman tidak tersedia | **nol** — kekosongannya tetap fiturnya |
+| Regresi CEK 1 | nol kecocokan untuk kedelapan probe |
+| Regresi gerbang item | 302 EXTERNAL dan 303 ke `/masuk` tetap benar |
+
+**Kriteria sukses nomor 5 justru menguat.** Sebelumnya satu-satunya
+variasi antara slug yang ada dan yang tidak adalah pathname yang
+dipantulkan; kini keempat penolakan mendarat di URL yang sama dengan
+badan yang identik byte demi byte. Variasinya nol.
+
+Keempat gerbang setelah perubahan: `typecheck` 0, `lint` 0 tanpa
+peringatan, **346 pengujian di 32 berkas**, `build` sukses.
+
+#### TEMUAN — lencana tidak pernah melipat di 375 px
+
+`components/public/item-card.tsx` memberi kartu kelas
+`flex flex-wrap ... sm:flex-nowrap`. `sm:flex-nowrap` menyiratkan bahwa
+di bawah `sm` lencana memang dimaksudkan melipat ke barisnya sendiri.
+Itu tidak pernah terjadi: kolom tengah memakai `min-w-0 flex-1`, jadi ia
+**menyusut** alih-alih memaksa pembungkusan.
+
+Terukur pada 375 px: ketiga anak kartu `IDENTITY` duduk di `y` yang sama
+persis, dan kolom teksnya hanya **123 px** melawan 245 px dan 261 px
+milik kedua kartu polos. Deskripsi karena itu terbungkus jauh lebih dini
+("Susunan acara / lengkap.") padahal ada ruang kosong di sebelahnya.
+
+Bukan kebocoran, bukan pelanggaran kriteria sukses mana pun — nol gulir
+horizontal tetap terpenuhi. Murni kerapian. Dicatat di sini supaya tidak
+ditemukan ulang, dan supaya `sm:flex-nowrap` tidak dibaca sebagai
+perilaku yang sudah bekerja. Perbaikan yang mungkin: beri kolom tengah
+`basis-full sm:basis-auto`, atau pindahkan lencana ke bawah judul di
+lebar ponsel.
+
+#### CEK 2 dan CEK 4 — dijalankan pemilik, 1 September 2026
+
+**CEK 2 — pencatatan tanpa JavaScript: LULUS.** Sesi diperoleh lebih
+dulu dengan JavaScript hidup (halaman Google sendiri menuntutnya, dan itu
+bukan bagian yang diuji), JavaScript lalu dimatikan, item `IDENTITY`
+diklik. Penerusan tetap terjadi dan barisnya tertulis.
+
+Diverifikasi langsung di basis data, bukan dari layar: ketiga baris
+`ITEM_ACCESS / GRANTED` pada item `cmtcoraye0002iim07knkchaq` memuat
+`visitorName`, `visitorEmail`, **dan** `userId` terisi — satu baris per
+klik, tepat seperti kriteria sukses nomor 4. Baris `PAGE_VIEW` milik
+halaman group berdiri sendiri dan tidak ikut dihitung, sesuai peringatan
+yang ditulis sebelumnya.
+
+Dengan ini separuh jalur yang sebelumnya belum terbukti — penerusan
+sesudah masuk, dan isi kolom identitas — tertutup.
+
+**CEK 4 — pratinjau pemilik: LULUS.** Pemilik membuka `cek-u4-dicabut`;
+halaman tampil normal dengan spanduk `Ban`. Jejaknya ada di log sebagai
+`PAGE_VIEW / GRANTED` ber-`groupId` `cek-u4-dicabut` atas nama pemilik —
+yang mustahil dihasilkan pengunjung anonim, karena CEK 3 sudah
+membuktikan slug yang sama menjawab 404 tanpa sesi.
+
+#### CEK 503 — Blob benar-benar gagal: LULUS, 1 September 2026
+
+Jalur terakhir yang belum pernah dijalankan dalam bentuk apa pun kini
+tertutup. `BLOB_READ_WRITE_TOKEN` di `.env.local` dirusak dengan menukar
+beberapa karakternya — **bukan dikosongkan**, karena `lib/env-schema.ts`
+mewajibkannya non-kosong sehingga token kosong menggagalkan boot dan
+menguji hal yang salah. Server direstart (`next start` membaca env saat
+boot; build ulang tidak perlu), lalu item `UPLOAD` `Notulen Rapat`
+diminta lewat gerbangnya.
+
+`Item.isBroken` direset ke `false` LEBIH DULU lewat
+`scripts-cek/reset-broken.mjs`. Tanpa itu, "tetap `true`" tidak dapat
+dibedakan dari "baru diset `true`" dan pemeriksaannya kehilangan seluruh
+daya buktinya.
+
+| Yang diuji | Hasil |
+| ---------- | ----- |
+| Respons | `503`, `text/plain; charset=utf-8`, kalimat sesuai |
+| Baris `AccessLog` baru | tepat **satu**: `ITEM_ACCESS / GRANTED` |
+| `DENIED / FILE_MISSING` | **nol** |
+| `Item.isBroken` | **tetap `false`** |
+| `RateLimitCounter` | identik sebelum dan sesudah — 503 bukan penolakan |
+
+**Yang paling berharga dari pemeriksaan ini:** SDK Vercel Blob memang
+**melempar** untuk token tidak sah, bukan mengembalikan `null`. Asumsi
+yang selama ini hanya tertulis di komentar `lib/storage/blob.ts` dan
+`lib/gate/serve-item.ts` — bahwa `null` berarti berkas tidak ada
+sedangkan lemparan berarti kegagalan sungguhan — terbukti berlaku juga
+untuk kegagalan autentikasi. Andai sebaliknya, gangguan Blob sementara
+akan menandai item pemilik rusak permanen.
+
+Yang TIDAK diverifikasi pemeriksa otomatis: baris
+`Gagal mengambil berkas dari Blob:` di konsol server, karena servernya
+berjalan di terminal pemilik. Namun 503 berbadan itu hanya diproduksi
+satu blok `catch`, dan `console.error` ada di blok yang sama.
+
+**Perbandingan A/B langsung, jalur pemulihan.** Token dikembalikan,
+server direstart, dan permintaan yang SAMA PERSIS diulang ke item yang
+sama dari IP yang sama. Hasilnya berbalik ke jalur `FILE_MISSING`:
+
+| | Token rusak | Token benar |
+| --- | --- | --- |
+| Respons | `503` | `303` → `/tidak-tersedia` |
+| Baris log | `GRANTED` saja | `GRANTED` lalu `DENIED / FILE_MISSING` |
+| `isBroken` | tetap `false` | menjadi `true` |
+| `RateLimitCounter` | tidak naik | naik satu |
+
+Dua keadaan yang secara permukaan mirip — berkas tidak sampai ke
+pengunjung — ternyata terbedakan pada keempat dimensi sekaligus, diukur
+dalam satu sesi tanpa variabel lain yang berubah. Ini bukti terkuat yang
+dimiliki unit ini bahwa pemisahan `null` versus lemparan di
+`lib/storage/blob.ts` benar-benar bekerja, bukan sekadar diniatkan.
+
+Keadaan basis data dengan demikian PULIH ke kondisi pasca-CEK 6:
+`isBroken` kembali `true`. Jejak baru yang tertinggal dan bukan keadaan
+produksi: satu baris `RateLimitCounter` ber-`count` 1 untuk `::1` pada
+jendela `02:10`, yang kedaluwarsa sendiri dalam sepuluh menit.
 
 #### Cara melanjutkan — keadaan yang ditinggalkan 28 Agustus 2026
 
@@ -1099,11 +1268,23 @@ berkasnya memuat spasi, kurung, dan apostrof, sehingga penyandian
 Perlu diketahui sebelum membaca ulang riwayat: `Item.isBroken` pada item
 `UPLOAD` itu sudah bernilai `true` hasil CEK 6, dan `RateLimitCounter`
 memuat satu baris ber-`count` 20 untuk `::1`. Keduanya jejak pemeriksaan,
-bukan keadaan produksi.
+bukan keadaan produksi. Jendela rate limit hanya 10 menit
+(`WINDOW_MS` di `lib/ratelimit/window.ts`) dan hanya menghitung
+percobaan **gagal**, jadi baris itu tidak pernah menghalangi pemeriksaan
+berikutnya.
+
+Log 1 September 2026 juga memuat dua jejak yang tidak boleh salah dibaca
+sebagai cacat: satu `DENIED / NOT_FOUND` ber-`itemId` harfiah `<itemId>`
+— placeholder yang tersalin apa adanya ke bilah alamat — dan beberapa
+`PAGE_VIEW` anonim dari sesi penilaian visual.
 
 **Skrip pemeriksaan** ada di `scripts-cek/`, tidak ter-commit dan memang
 tidak untuk di-commit — `inspect.mjs`, `seed.mjs`, `cek-group.mjs`,
-`baca-log.mjs`, dan `bersihkan.mjs`. Semuanya dijalankan dengan
+`baca-log.mjs`, `bersihkan.mjs`, serta dua tambahan 1 September 2026:
+`cek-identitas.mjs` (karena `baca-log.mjs` tidak mencetak `visitorEmail`
+maupun `userId`, dan CEK 2 menuntut keduanya dilihat) dan
+`reset-broken.mjs` (persiapan CEK 503).
+Semuanya dijalankan dengan
 `node --env-file=.env.local scripts-cek/<nama>.mjs`. Hapus foldernya
 setelah pemeriksaan tuntas:
 
@@ -1115,35 +1296,20 @@ Penyapunya menghapus keempat group, seluruh baris `AccessLog` miliknya —
 termasuk yang ber-`groupId` berisi slug mentah bila ada peninggalan lama
 — dan seluruh baris `RateLimitCounter`.
 
-**Keputusan yang menunggu.** Temuan "permukaan galat kosong tanpa
-JavaScript" di atas belum ditutup, dan kodenya belum disentuh. Dua arah
-yang sudah dipertimbangkan:
-
-1. Menjadikan `/tidak-tersedia` dan `/galat-pencatatan` route handler
-   yang mengirim badan responsnya sendiri. Sejalan dengan preseden 429
-   dan 503 yang sudah ada di gerbang item, dan pasti bekerja. Harganya:
-   kedua halaman berhenti memakai komponen React dan kalimatnya hidup di
-   dua tempat.
-2. Menelusuri penyebabnya lebih dulu. Dugaan yang belum diuji:
-   `app/(public)/error.tsx` sebagai batas klien memaksa segmennya
-   dirender di klien. Bila benar, memindahkan atau melepasnya mungkin
-   memulihkan render server untuk `not-found.tsx` sekaligus — perbaikan
-   jauh lebih kecil, tetapi belum terbukti dan bisa saja bukan
-   penyebabnya.
-
-Yang tidak berubah apa pun arahnya: halaman group yang lolos sudah
-terbukti bekerja penuh tanpa JavaScript, dan gerbang item tidak
-terpengaruh.
+**Keputusan yang menunggu: tidak ada.** Temuan "permukaan galat kosong
+tanpa JavaScript" ditutup 1 September 2026; rinciannya di bagian temuan
+di atas. Halaman group yang lolos maupun gerbang item tidak terpengaruh
+perubahan itu, dan keduanya diuji ulang sesudahnya.
 
 ## Next Up
 
 1. **Unit 5 — panel Bagikan.** `visibility`, `expiresAt`,
    `shareEnabled`, penyalinan URL, QR code SVG dirender di server, dan
    spanduk pratinjau pemilik untuk group yang dicabut atau kedaluwarsa
-   yang ia buka sendiri. **Prasyarat: kesembilan pemeriksaan peramban
-   Unit 4 harus tuntas lebih dulu** — belum ada satu pun yang
-   dijalankan, dan Unit 5 membangun di atas halaman group publik yang
-   pemeriksaan itu memvalidasi.
+   yang ia buka sendiri. **Seluruh prasyarat terpenuhi** —
+   kesembilan pemeriksaan peramban tuntas dan lulus pada 1 September
+   2026, jalur 503 ikut dijalankan, dan temuan permukaan galat kosong
+   sudah ditutup. Tidak ada lagi yang menahan unit ini.
 
    **Gerbang D1 berlaku untuk unit ini secara langsung:** domain harus
    sudah ditetapkan sebelum QR code dibangun, karena QR memuat URL
