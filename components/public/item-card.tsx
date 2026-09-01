@@ -30,13 +30,32 @@ const TYPE_ICON: Record<ItemType, typeof LinkIcon> = {
  */
 export function PublicItemCard({ item, slug }: { item: PublicItem; slug: string }) {
   const Icon = TYPE_ICON[item.type];
+  // AccessBadge mengembalikan null untuk OPEN. Lipatan di bawah hanya
+  // berlaku bila lencananya memang ada: memaksa kartu polos ikut melipat
+  // menambah satu baris kosong setinggi jarak antarbaris pada kartu yang
+  // tidak punya masalah apa pun.
+  const berlencana = item.accessMode !== "OPEN";
 
   const body = (
     <>
       <span className="flex w-6 shrink-0 justify-center pt-0.5">
         <Icon className="h-6 w-6 text-muted-foreground" aria-hidden />
       </span>
-      <span className="min-w-0 flex-1">
+      <span
+        className={`min-w-0 flex-1${
+          // Rel ikon w-6 ditambah gap-3 tepat 2.25rem. Memberi kolom teks
+          // sisa seluruh baris memaksa kolom kanan membungkus ke baris
+          // sendiri di bawah sm.
+          //
+          // flex-wrap saja TIDAK cukup, dan itulah cacat yang diperbaiki:
+          // min-w-0 flex-1 membuat kolom teks MENYUSUT alih-alih memaksa
+          // pembungkusan, sehingga sm:flex-nowrap tidak pernah punya
+          // lawan. Terukur di 375 px: kolom teks 123 px melawan 245 px
+          // dan 261 px milik kartu polos, membungkus dini padahal ada
+          // ruang kosong di sebelahnya.
+          berlencana ? " basis-[calc(100%-2.25rem)] sm:basis-auto" : ""
+        }`}
+      >
         <span className="block font-medium">{item.title}</span>
         {item.description !== null && (
           <span className="mt-0.5 block text-sm text-muted-foreground">{item.description}</span>
@@ -47,7 +66,13 @@ export function PublicItemCard({ item, slug }: { item: PublicItem; slug: string 
           </span>
         )}
       </span>
-      <span className="flex shrink-0 items-center gap-2">
+      <span
+        className={`flex shrink-0 items-center gap-2${
+          // Sejajar dengan kolom teks di atasnya, bukan dengan rel ikon:
+          // 2.25rem yang sama.
+          berlencana ? " ml-9 sm:ml-0" : ""
+        }`}
+      >
         <AccessBadge accessMode={item.accessMode} />
         {item.source === "EXTERNAL" && (
           <ExternalLink className="h-4 w-4 text-muted-foreground" aria-hidden />

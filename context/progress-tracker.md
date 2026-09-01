@@ -962,7 +962,7 @@ build **produksi** (`npm run build && npm start`) dari worktree
 | CEK 5 — rate limit | **LULUS** |
 | CEK 6 — berkas hilang di Blob | **LULUS** |
 | Mode terang dan gelap | **LULUS** — penilaian visual dilakukan 1 September 2026 |
-| Lebar ponsel 375 px | **LULUS** — nol gulir horizontal; satu temuan tata letak, di bawah |
+| Lebar ponsel 375 px | **LULUS** — nol gulir horizontal; satu temuan tata letak, diperbaiki 1 September 2026 |
 | CEK 9 — status halaman galat pencatatan | **LULUS** (status 500) — tetapi memunculkan temuan di bawah |
 
 **CEK 1.** Nol kecocokan untuk kedelapan probe: `targetUrl` item `OPEN`,
@@ -1127,7 +1127,7 @@ badan yang identik byte demi byte. Variasinya nol.
 Keempat gerbang setelah perubahan: `typecheck` 0, `lint` 0 tanpa
 peringatan, **346 pengujian di 32 berkas**, `build` sukses.
 
-#### TEMUAN — lencana tidak pernah melipat di 375 px
+#### TEMUAN DITUTUP — lencana tidak pernah melipat di 375 px
 
 `components/public/item-card.tsx` memberi kartu kelas
 `flex flex-wrap ... sm:flex-nowrap`. `sm:flex-nowrap` menyiratkan bahwa
@@ -1141,11 +1141,34 @@ milik kedua kartu polos. Deskripsi karena itu terbungkus jauh lebih dini
 ("Susunan acara / lengkap.") padahal ada ruang kosong di sebelahnya.
 
 Bukan kebocoran, bukan pelanggaran kriteria sukses mana pun — nol gulir
-horizontal tetap terpenuhi. Murni kerapian. Dicatat di sini supaya tidak
-ditemukan ulang, dan supaya `sm:flex-nowrap` tidak dibaca sebagai
-perilaku yang sudah bekerja. Perbaikan yang mungkin: beri kolom tengah
-`basis-full sm:basis-auto`, atau pindahkan lencana ke bawah judul di
-lebar ponsel.
+horizontal tetap terpenuhi. Murni kerapian.
+
+**DIPERBAIKI 1 September 2026.** Kolom teks diberi
+`basis-[calc(100%-2.25rem)] sm:basis-auto` — 2.25rem adalah rel ikon
+`w-6` ditambah `gap-3`, sehingga kolom teks mengisi sisa baris pertama
+dan kolom kanan tidak punya tempat selain membungkus. Kolom kanan diberi
+`ml-9 sm:ml-0` supaya di baris keduanya ia sejajar dengan kolom teks,
+bukan dengan rel ikon.
+
+**Lipatan hanya berlaku pada kartu berlencana** (`accessMode !== "OPEN"`,
+yaitu ketika `AccessBadge` tidak mengembalikan null). Memaksa kartu polos
+ikut melipat akan menambah satu baris kosong setinggi jarak antarbaris
+pada kartu yang tidak punya masalah apa pun — kolom kanannya di sana
+selebar 16 px atau bahkan 0.
+
+Terukur ulang dengan metode yang sama seperti saat cacatnya ditemukan:
+
+| Lebar | Kartu `IDENTITY` | Kartu polos |
+| ----- | ---------------- | ----------- |
+| 375 px sebelum | 1 baris, kolom teks **123 px**, tinggi 136 px | 1 baris, 245 & 261 px |
+| 375 px sesudah | **2 baris**, kolom teks **273 px**, tinggi 134 px | **tidak berubah** — 1 baris, 245 & 261 px, tinggi 80 & 100 px |
+| 639 px | 2 baris, tinggi 134 px | — |
+| 640 px | **1 baris**, tinggi 100 px | — |
+| 1280 px | 1 baris, kolom teks 420 px | 1 baris, 542 & 558 px |
+
+Ambang `sm` berbalik tepat di 640 px, dan di 375 px tetap nol gulir
+horizontal dengan nol elemen meluber. Lencana di baris kedua mulai pada
+`x` yang sama persis dengan kolom teks di atasnya.
 
 #### CEK 2 dan CEK 4 — dijalankan pemilik, 1 September 2026
 
