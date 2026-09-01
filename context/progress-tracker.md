@@ -90,6 +90,29 @@ yang berarti.
   berkas** di `npm test` akhir sesi. Keempat gerbang lulus:
   `typecheck` bersih, `lint` nol peringatan, `test` 327/327, `build`
   sukses.
+- **Unit 4 TUTUP dan digabung ke `main`, 1 September 2026.** Kesembilan
+  pemeriksaan peramban dijalankan dan lulus, jalur 503 ikut dibuktikan,
+  dan kedua temuan yang tersisa — permukaan galat kosong tanpa JavaScript
+  dan lencana yang tidak melipat di 375 px — ditutup dengan perbaikan.
+  Fast-forward dari `7274cf6`, 22 commit, ditambah satu commit yang
+  mengeluarkan `scripts-cek/` dari repositori. Keempat gerbang lulus di
+  akhir: `typecheck` 0, `lint` 0 tanpa peringatan, **346 pengujian di 32
+  berkas**, `build` sukses dengan seluruh rute `app/(public)/` bertanda
+  dinamis.
+- **`main` SENGAJA BELUM DIDORONG.** `dev` dan cabang
+  `unit-4-halaman-publik` sudah ada di `origin`; `main` ditahan di
+  `4dca8fc` lokal. Alasannya Next Up nomor 2 di bawah: autentikasi Blob
+  lewat OIDC belum pernah dijalankan sekali pun di luar mesin lokal, dan
+  Unit 4 justru unit yang mengalirkan berkas dari Blob. Mendorong `main`
+  berarti Production, dan kegagalan Blob di sana baru akan ketahuan dari
+  pengunjung sungguhan. Alias `kumpulink-preview.vercel.app` kini
+  membangun kode ini — **uji satu unggahan di sana lebih dulu, baru
+  dorong `main`.**
+- **`scripts-cek/` kini di `.gitignore`.** Kelima skripnya sempat
+  ter-commit di cabang, bertentangan dengan catatan di bagian "Cara
+  melanjutkan" yang menyatakan skrip itu tidak untuk di-commit. Catatan
+  itulah yang menyatakan niatnya, jadi kodenya yang menyesuaikan.
+  Berkasnya tetap ada di disk, hanya berhenti dilacak.
 - Tidak ada lagi pertanyaan terbuka.
 
 ## Current Goal
@@ -1301,8 +1324,9 @@ sebagai cacat: satu `DENIED / NOT_FOUND` ber-`itemId` harfiah `<itemId>`
 — placeholder yang tersalin apa adanya ke bilah alamat — dan beberapa
 `PAGE_VIEW` anonim dari sesi penilaian visual.
 
-**Skrip pemeriksaan** ada di `scripts-cek/`, tidak ter-commit dan memang
-tidak untuk di-commit — `inspect.mjs`, `seed.mjs`, `cek-group.mjs`,
+**Skrip pemeriksaan** ada di `scripts-cek/`, kini benar-benar tidak
+dilacak — foldernya masuk `.gitignore` pada 1 September 2026 setelah
+ketahuan sempat ter-commit di cabang — `inspect.mjs`, `seed.mjs`, `cek-group.mjs`,
 `baca-log.mjs`, `bersihkan.mjs`, serta dua tambahan 1 September 2026:
 `cek-identitas.mjs` (karena `baca-log.mjs` tidak mencetak `visitorEmail`
 maupun `userId`, dan CEK 2 menuntut keduanya dilihat) dan
