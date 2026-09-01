@@ -1,25 +1,24 @@
 "use client";
 
+import { GALAT_PENCATATAN } from "@/lib/public/keadaan";
+
 /**
- * Halaman galat pencatatan — keputusan U4-8.
+ * Jaring pengaman untuk lemparan yang TIDAK diantisipasi di bawah
+ * app/(public)/. Jalur galat pencatatan yang diantisipasi tidak lagi
+ * sampai ke sini: gerbang item dan halaman group sama-sama menangkap
+ * kegagalan penulisan AccessLog lalu mengalihkan ke route handler
+ * /galat-pencatatan, karena batas galat Next dirender di klien dan
+ * karenanya kosong tanpa JavaScript.
  *
- * Aplikasi ini membatalkan penerusan ketika penulisan AccessLog gagal,
- * dan pengunjung berhak tahu bahwa keadaannya sementara. Memakai kembali
- * halaman tidak tersedia ditolak karena ia berbohong: pengunjung akan
- * menyimpulkan linknya mati dan berhenti mencoba, padahal gerbangnya
- * baru saja meloloskannya.
- *
- * Client component karena Next.js menuntutnya untuk error boundary. Ia
- * memberi HTTP 500 dengan sendirinya.
+ * Client component karena Next.js menuntutnya untuk error boundary.
+ * Kalimatnya tetap datang dari sumber yang sama supaya keduanya tidak
+ * pernah menyimpang.
  */
 export default function PublicError() {
   return (
     <div className="py-16">
-      <h1 className="text-xl font-medium">Akses Anda tidak dapat dicatat.</h1>
-      <p className="mt-2 text-sm text-muted-foreground">
-        Aplikasi ini tidak meneruskan apa pun yang tidak dapat ia catat, jadi
-        halaman ini tidak dibuka. Coba lagi sebentar lagi.
-      </p>
+      <h1 className="text-xl font-medium">{GALAT_PENCATATAN.judul}</h1>
+      <p className="mt-2 text-sm text-muted-foreground">{GALAT_PENCATATAN.penjelasan}</p>
     </div>
   );
 }

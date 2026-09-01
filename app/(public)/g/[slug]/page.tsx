@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 
 import { GroupHeader } from "@/components/public/group-header";
 import { IdentityBar } from "@/components/public/identity-bar";
@@ -11,6 +11,7 @@ import { readRequestContext } from "@/lib/audit/request-context";
 import { auth } from "@/lib/auth";
 import { groupCallbackUrl } from "@/lib/auth/callback-url";
 import { readPublicGroup } from "@/lib/db/public-group";
+import { JALUR_GALAT_PENCATATAN, JALUR_TIDAK_TERSEDIA } from "@/lib/public/keadaan";
 import { formatItemSummary, summarizeItems } from "@/lib/groups/item-summary";
 
 export const dynamic = "force-dynamic";
@@ -38,24 +39,44 @@ export default async function PublicGroupPage({
   // NOT_FOUND, REVOKED, dan EXPIRED menghasilkan halaman DAN kode status
   // yang identik. Dari luar, group yang dicabut tidak dapat dibedakan
   // dari slug yang tidak pernah ada. Perbedaannya hanya tercatat di log.
-  if (decision.kind !== "GRANTED" || group === null) notFound();
+  //
+  // MENGALIHKAN, bukan notFound(): batas not-found Next dirender di
+  // klien, sehingga notFound() mengirim DOM kosong kepada pengunjung
+  // tanpa JavaScript. Mengalihkan ke route handler membuat ketiga
+  // penolakan bermuara di satu badan respons — keidentikannya lahir dari
+  // konstruksi, bukan dari dua berkas yang kebetulan mirip.
+  if (decision.kind !== "GRANTED" || group === null) redirect(JALUR_TIDAK_TERSEDIA);
 
   // PAGE_VIEW dicatat bila DAN HANYA BILA identitas diketahui — berlaku
   // sama untuk ketiga nilai visibility, termasuk ketika yang membuka
-  // adalah pemilik. Kegagalannya MELEMPAR, dan lemparannya sengaja tidak
-  // ditangkap: app/(public)/error.tsx merendernya sebagai halaman galat
-  // pencatatan berstatus 500 (U4-7).
+  // adalah pemilik. Kegagalannya membatalkan halaman ini (U4-7).
+  //
+  // Ditangkap lalu dialihkan, bukan dibiarkan melempar ke error.tsx:
+  // batas galat Next dirender di klien, sehingga pengunjung tanpa
+  // JavaScript tidak akan diberi tahu apa pun — padahal justru dialah
+  // yang perlu tahu bahwa keadaannya sementara. Pola yang sama sudah
+  // dipakai gerbang item.
+  let gagalMencatat = false;
   if (session?.user) {
-    await logPageView({
-      groupId: group.id,
-      visitor: {
-        userId: session.user.id,
-        visitorName: session.user.name ?? null,
-        visitorEmail: session.user.email ?? null,
-      },
-      context: await readRequestContext(),
-    });
+    try {
+      await logPageView({
+        groupId: group.id,
+        visitor: {
+          userId: session.user.id,
+          visitorName: session.user.name ?? null,
+          visitorEmail: session.user.email ?? null,
+        },
+        context: await readRequestContext(),
+      });
+    } catch (error) {
+      console.error("Gagal mencatat kunjungan halaman group:", error);
+      gagalMencatat = true;
+    }
   }
+  // DI LUAR catch: redirect() bekerja dengan melempar, sehingga
+  // memanggilnya di dalam blok try akan membuat catch di atas menelan
+  // pengalihannya sendiri.
+  if (gagalMencatat) redirect(JALUR_GALAT_PENCATATAN);
 
   return (
     <>

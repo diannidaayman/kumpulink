@@ -1,3 +1,5 @@
+import { TIDAK_TERSEDIA } from "@/lib/public/keadaan";
+
 /**
  * Halaman terpendek di aplikasi, dan satu-satunya yang tidak boleh tahu
  * apa pun: tanpa nama group, tanpa baris kembali, tanpa tautan ke /g/
@@ -5,18 +7,18 @@
  * keramahan semacam itu membocorkan keberadaan group. Kekosongannya
  * adalah fiturnya.
  *
- * Dipakai not-found.tsx untuk NOT_FOUND, REVOKED, dan EXPIRED sekaligus,
- * sehingga ketiganya menghasilkan halaman dan kode status yang identik —
- * kriteria sukses nomor 5, dijaga oleh satu berkas komponen dan bukan
- * oleh dua halaman yang kebetulan ditulis mirip.
+ * Kalimatnya datang dari lib/public/keadaan.ts, sumber yang SAMA dengan
+ * route handler /tidak-tersedia. Sejak permukaan keadaan menjadi route
+ * handler, komponen ini hanya melayani not-found.tsx — yaitu alamat di
+ * bawah app/(public)/ yang tidak cocok dengan rute mana pun. Ia tidak
+ * lagi berada di jalur penolakan group; jalur itu mengalihkan ke route
+ * handler supaya kalimatnya sampai tanpa JavaScript.
  */
 export function UnavailablePage() {
   return (
     <div className="py-16">
-      <h1 className="text-xl font-medium">Halaman ini tidak tersedia.</h1>
-      <p className="mt-2 text-sm text-muted-foreground">
-        Link mungkin sudah tidak berlaku atau alamatnya keliru.
-      </p>
+      <h1 className="text-xl font-medium">{TIDAK_TERSEDIA.judul}</h1>
+      <p className="mt-2 text-sm text-muted-foreground">{TIDAK_TERSEDIA.penjelasan}</p>
     </div>
   );
 }

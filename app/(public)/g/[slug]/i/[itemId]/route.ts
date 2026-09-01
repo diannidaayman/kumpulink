@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { itemGateCallbackUrl } from "@/lib/auth/callback-url";
 import { readGateData, readGroupIdBySlug } from "@/lib/db/gate";
 import { logDenied } from "@/lib/gate/deny";
+import { JALUR_GALAT_PENCATATAN, JALUR_TIDAK_TERSEDIA } from "@/lib/public/keadaan";
 import { serveGrantedItem } from "@/lib/gate/serve-item";
 import { ITEM_GATE_SCOPE, isOverLimit, rateLimitKey } from "@/lib/ratelimit/window";
 import { readFailureCount, recordFailure } from "@/lib/ratelimit/counter";
@@ -12,8 +13,10 @@ import { gateParamsSchema } from "@/lib/validation/gate";
 
 export const dynamic = "force-dynamic";
 
-const UNAVAILABLE = "/tidak-tersedia";
-const LOGGING_ERROR = "/galat-pencatatan";
+// Jalurnya datang dari lib/public/keadaan.ts, sumber yang sama dengan
+// route handler yang melayaninya dan dengan halaman group yang ditolak.
+const UNAVAILABLE = JALUR_TIDAK_TERSEDIA;
+const LOGGING_ERROR = JALUR_GALAT_PENCATATAN;
 
 function seeOther(location: string): Response {
   return new Response(null, { status: 303, headers: { Location: location } });
