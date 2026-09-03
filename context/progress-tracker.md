@@ -108,6 +108,32 @@ yang berarti.
   pengunjung sungguhan. Alias `kumpulink-preview.vercel.app` kini
   membangun kode ini — **uji satu unggahan di sana lebih dulu, baru
   dorong `main`.**
+- **BUILD VERCEL GAGAL SEJAK 1 SEPTEMBER — ditemukan dan diperbaiki
+  3 September 2026.** Ketiga deployment Preview untuk `dev`@`fa6408d`
+  berstatus Error. Gagal di tahap build, dengan galat tipe
+  `Property 'rateLimitCounter' does not exist on type 'PrismaClient'`
+  pada `lib/ratelimit/counter.ts:17`. Akibatnya alias
+  `kumpulink-preview.vercel.app` masih menunjuk
+  `kumpulink-knntl3gcq`, deployment berumur delapan hari dari sebelum
+  Unit 4 — **preview tidak pernah sekali pun menyajikan kode Unit 4.**
+  Perbaikannya keputusan U5-0 di bawah.
+
+  **Keputusan menahan `main` terbukti benar, tetapi bukan karena alasan
+  yang dicatat.** Yang ditakutkan adalah kegagalan Blob lewat OIDC.
+  Yang sebenarnya terjadi adalah build yang tidak pernah selesai — dan
+  itu akan gagal persis sama di Production, karena `main` berisi commit
+  yang sama. Mendorongnya minggu lalu akan membuat
+  `diandiandian.web.id` diam-diam terus menyajikan kode lama tanpa satu
+  pun tanda bahwa rilisnya tidak pernah mendarat.
+
+- **Preview dilindungi Deployment Protection Vercel.** Permintaan
+  anonim ke `kumpulink-preview.vercel.app` dialihkan ke layar masuk
+  Vercel (`vercel.com/sso-api`), bukan dilayani aplikasi. Ini bukan
+  cacat — tetapi berarti pemeriksaan apa pun di preview menuntut sesi
+  Vercel lebih dulu, dan pemeriksaan yang menuntut pengunjung ANONIM
+  tidak dapat dijalankan di sana sama sekali. Dicatat di
+  `docs/cek-unggahan-preview.md` sebagai P0-f.
+
 - **`scripts-cek/` kini di `.gitignore`.** Kelima skripnya sempat
   ter-commit di cabang, bertentangan dengan catatan di bagian "Cara
   melanjutkan" yang menyatakan skrip itu tidak untuk di-commit. Catatan
@@ -1400,6 +1426,34 @@ perubahan itu, dan keduanya diuji ulang sesudahnya.
    Lebih murah ketahuan sekarang daripada di tengah unit yang sudah
    ditandai paling berisiko.
 
+   **Daftar periksanya sudah ditulis: `docs/cek-unggahan-preview.md`,
+   3 September 2026.** Enam pemeriksaan, CEK P1 sampai P6, seluruhnya
+   dijalankan lewat antarmuka. Judul butir ini masih berbunyi "sebelum
+   Unit 4 dimulai" — itu basi; Unit 4 sudah tutup, dan yang ditahannya
+   sekarang adalah pendorongan `main`.
+
+   Dua hal yang ditemukan saat menyusunnya dan mengubah bentuk
+   pemeriksaan:
+
+   - **Tidak perlu seed.** `evaluate-access.ts:44` dan `:106`
+     meloloskan `OWNER` di kedua tahap, jadi pemilik dapat membuka
+     group `PRIVATE` yang belum dibagikan berikut itemnya. Ini penting
+     karena `visibility` dan `shareEnabled` belum punya antarmuka —
+     keduanya baru lahir di Unit 5, dan defaultnya `PRIVATE` dan
+     `false`. Pemeriksaan Unit 4 dulu memakai `scripts-cek/seed.mjs`
+     yang menulis langsung ke basis data; di preview itu tidak
+     tersedia dan ternyata tidak diperlukan.
+   - **Arah baca yang menentukan, bukan arah tulis.** Unggahan yang
+     berhasil hanya membuktikan `putFile()`. `getFileStream()` baru
+     tersentuh saat gerbang mengalirkan berkas, dan justru di sanalah
+     kegagalan kredensial akan muncul. Percabangan di
+     `lib/gate/serve-item.ts` membuat ketiga hasilnya dapat dibedakan
+     dari status respons saja: 200 berarti lulus, 503 berarti Blob
+     melempar, dan 303 berarti Blob menjawab tetapi berkasnya tidak
+     ada di sana — store yang berbeda antara tulis dan baca. Hasil 303
+     menandai item `isBroken` secara permanen, jadi daftar periksanya
+     menyuruh berhenti di situ alih-alih mengulang.
+
 ## Open Questions
 
 Kelima pertanyaan sebelumnya ditutup di Fase 0 dan dipindahkan
@@ -1479,6 +1533,41 @@ dilupakan:
   menembus kuota gratis; lihat keputusan D5.
 
 ## Architecture Decisions
+
+### Keputusan U5-0 — 3 September 2026
+
+**`prisma generate` masuk ke dalam `npm run build`.** Skripnya menjadi
+`prisma generate && next build`.
+
+Sebelumnya `build` hanya `next build`, dan Prisma Client yang benar ada
+di `node_modules` semata sebagai efek samping `npm run db:migrate` yang
+dijalankan pemilik di mesinnya sendiri. Di lokal itu tidak pernah
+terlihat sebagai masalah. Di Vercel ia mematikan build, dan dua sebab
+bekerja bersama:
+
+- **Cache build dipulihkan.** Log deployment menunjukkan
+  `Restored build cache from previous deployment` lalu
+  `up to date in 2s` — `node_modules` datang utuh dari deployment
+  sebelumnya, berisi client yang di-generate SEBELUM `RateLimitCounter`
+  ada. Model itu lahir di `8d1645c`, di dalam Unit 4.
+- **npm memblokir install script dependensi.** Log yang sama memuat
+  `npm warn allow-scripts ... @prisma/client@6.19.3 (postinstall:
+  node scripts/postinstall.js)`. Jadi bahkan pemasangan tanpa cache pun
+  tidak akan meregenerasi client itu sendiri.
+
+Menaruhnya di `build` menutup kedua sebab sekaligus dan tidak
+bergantung pada perilaku npm maupun kebijakan cache Vercel yang
+keduanya di luar kendali kita. Alternatif `postinstall` di package.json
+ditolak karena ia tidak berjalan saat cache membuat pemasangan menjadi
+tanpa-operasi — persis keadaan yang mematikan build ini.
+
+**Dibuktikan, bukan diasumsikan:** `prisma generate` dijalankan dengan
+`DATABASE_URL` dan `DIRECT_URL` sengaja dihapus dari environment dan
+tetap berhasil, jadi menaruhnya di `build` tidak memecahkan gerbang
+`npm run build` di mesin lokal yang tidak memuat `.env.local` ke Prisma
+CLI. Reproduksinya juga dijalankan: `node_modules/.prisma` dihapus,
+`tsc --noEmit` jatuh, lalu `npm run build` yang sudah diperbaiki lulus
+dari keadaan yang sama persis.
 
 ### Keputusan Unit 4 — 27 Agustus 2026
 
