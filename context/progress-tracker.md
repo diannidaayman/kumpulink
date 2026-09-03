@@ -1571,6 +1571,49 @@ dilupakan:
 
 ## Architecture Decisions
 
+### Keputusan U5-2 — 3 September 2026
+
+**`connect_timeout=15` pada `DATABASE_URL` dan `DIRECT_URL`.** Sebab
+ketiga dari tiga yang menghalangi preview, dan satu-satunya yang
+menimpa pengunjung sungguhan. Rinciannya di `architecture.md` bagian
+Storage Model; ringkasnya: compute Neon tidur, membangunkannya sekitar
+sepuluh detik, batas bawaan Prisma lima detik, jadi permintaan pertama
+setelah menganggur selalu gagal.
+
+Dibuktikan berurutan, bukan disimpulkan: host Neon menjawab DNS dan
+TCP 5432 dari mesin lokal; host di `.env.local` identik dengan yang
+disebut log Vercel; `prisma db pull` dari mesin lokal berhasil dan
+memakan sekitar sepuluh detik; lalu login di preview berhasil pada
+percobaan berikutnya, selagi compute masih hangat karena panggilan itu.
+
+### Keputusan U5-1 — 3 September 2026
+
+**Sepuluh variabel lingkungan tersimpan sebagai string kosong di
+Vercel, bukan tidak ada.** Dibedakan dengan menjalankan skema Zod yang
+sama terhadap dua masukan: nilai yang tidak ada menghasilkan pesan
+bawaan Zod (`expected string, received undefined`), sedangkan nilai
+kosong menghasilkan pesan kustom kita. Log Vercel memuat pesan kustom,
+jadi variabelnya sampai ke runtime dan nilainya yang kosong.
+
+Tiga hal menutupinya selama empat belas hari, dan ketiganya perlu
+diingat karena akan berulang: kesebelas variabel bertipe `Sensitive`
+sehingga nilainya tidak terbaca siapa pun termasuk pemilik;
+`vercel env ls` menampilkannya "ada", karena memang namanya ada; dan
+seluruh pemeriksaan Unit 1 sampai 4 dijalankan di localhost, tempat
+`.env.local` terisi benar. **Production pun 500 sejak hari pertama dan
+tidak ada yang mengetahuinya.**
+
+Dugaan asal-usulnya, dan ini tetap dugaan: `.env.example` berisi persis
+sebelas nama tanpa nilai, dan mengimpornya ke Vercel menghasilkan
+keadaan ini. Berkas itu memang dirancang begitu.
+
+**Pelajaran yang dicatat sebagai aturan, bukan sebagai cerita:**
+sebuah nilai rahasia yang sudah ditulis tidak dapat dibaca ulang untuk
+diperiksa. Satu-satunya bukti bahwa ia benar adalah aplikasi yang
+berjalan di lingkungan itu. Karena itu setiap environment wajib
+dibuktikan lewat satu permintaan sungguhan, bukan lewat layar daftar
+variabel.
+
 ### Keputusan U5-0 — 3 September 2026
 
 **`prisma generate` masuk ke dalam `npm run build`.** Skripnya menjadi

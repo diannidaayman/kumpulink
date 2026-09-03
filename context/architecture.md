@@ -360,6 +360,33 @@ sehingga menghitung seluruh permintaan akan mencekik satu ruangan penuh
 peserta sah alih-alih penebak `itemId`. Kegagalan `RATE_LIMITED` sendiri
 tidak menaikkan penghitung, supaya jendelanya dapat berakhir.
 
+**Kedua URL Postgres memakai `connect_timeout=15`.** Ditetapkan
+3 September 2026, sesudah dibuktikan di atas Vercel. Compute Neon di
+paket gratis turun ke nol saat menganggur, dan koneksi pertama
+sesudahnya harus membangunkannya lebih dulu — diukur sekitar sepuluh
+detik. Batas bawaan Prisma lima detik, sehingga permintaan pertama
+setelah masa menganggur **selalu gagal** dengan
+`Can't reach database server`, bukan sesekali.
+
+Ini bukan gangguan pengembangan. Ia menimpa pengunjung pertama yang
+membuka halaman group dan pengunjung pertama yang mengklik item
+terproteksi di tengah acara — persis orang yang paling tidak punya cara
+menafsirkan kegagalannya.
+
+**Invarian pencatatan tidak terancam olehnya.** Panggilan basis data
+pertama di gerbang item adalah pembacaan rate limit, yang terjadi
+sebelum berkas mengalir dan sebelum pengalihan disusun. Kegagalan
+koneksi karena itu berarti tidak ada yang disajikan DAN tidak ada yang
+dicatat — bukan pengunjung yang diteruskan tanpa jejak. Yang diperbaiki
+di sini keandalan, bukan kebenaran.
+
+Pertukarannya diterima secara sadar: pengunjung pertama menunggu sampai
+sekitar sepuluh detik alih-alih melihat galat. Pindah ke driver
+serverless Neon lewat adapter Prisma akan menghapus masalahnya di akar,
+tetapi itu perubahan cara koneksi berikut dependensi baru — ditunda,
+dan bila kelak diambil, ia perubahan arsitektur yang wajib menulis
+ulang bagian ini.
+
 - **Vercel Blob (private store)** — isi berkas PDF dan gambar
   unggahan. Berkas hanya dapat dibaca melalui route gerbang
   aplikasi. Kunci Blob tidak pernah dikirim ke klien dalam

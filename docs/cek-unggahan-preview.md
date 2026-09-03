@@ -114,6 +114,14 @@ membuat pemeriksaan gagal karena alasan yang salah bila terlewat.
   diterapkan ke basis data itu — dashboard yang menampilkan galat
   Prisma berarti belum, bukan berarti Blob gagal.
 
+- **P0-g — permintaan pertama boleh jadi lambat, dan itu wajar.**
+  Compute Neon tidur saat menganggur dan butuh sekitar sepuluh detik
+  untuk bangun. `connect_timeout=15` membuat permintaan itu menunggu
+  alih-alih gagal (keputusan U5-2). Bila sebuah langkah di bawah gagal
+  dengan `Can't reach database server`, ulangi sekali sebelum
+  mencatatnya sebagai temuan — percobaan kedua berjalan di atas compute
+  yang sudah hangat.
+
 ## CEK P1 — masuk sebagai pemilik
 
 Buka `https://kumpulink-preview.vercel.app/dashboard`, masuk dengan
