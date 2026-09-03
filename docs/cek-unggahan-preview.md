@@ -76,11 +76,32 @@ membuat pemeriksaan gagal karena alasan yang salah bila terlewat.
   pemeriksaan semacam itu di daftar ini; catatan ini ada supaya
   kekeliruan itu tidak lahir kelak.
 - **P0-c — variabel lingkungan terpasang di environment Preview**, bukan
-  hanya Production: `DATABASE_URL`, `DIRECT_URL`, `AUTH_SECRET`,
-  `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, dan `OWNER_EMAIL`.
+  hanya Production. **Ini sudah pernah gagal**, 3 September 2026:
+  sepuluh dari sebelas variabel kosong di Preview, dan setiap halaman
+  menjawab 500 tanpa satu kata pun penjelasan di layar. Production
+  berjalan normal sepanjang waktu itu — kedua environment memang
+  terpisah, dan mengisi yang satu tidak mengisi yang lain.
+
+  Periksa dengan perintah, bukan dengan mata:
+
+  ```bash
+  vercel env ls preview --scope diandiandian
+  ```
+
+  Sepuluh nama ini wajib ada: `DATABASE_URL`, `DIRECT_URL`,
+  `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `OWNER_EMAIL`,
+  `BLOB_STORE_ID`, `RESEND_API_KEY`, `EMAIL_FROM`, dan `CRON_SECRET`.
+  `BLOB_READ_WRITE_TOKEN` tidak wajib di atas Vercel —
+  `lib/env-schema.ts` melonggarkannya lewat penanda `onVercel`.
+
   `OWNER_EMAIL` harus `laluardiansyah903@gmail.com` — bila salah atau
   kosong, dashboard menolak masuk dan tidak ada satu pun langkah di
   bawah yang dapat dijalankan.
+
+  Gejalanya menipu: halaman hanya berkata `Internal Server Error.`,
+  sedangkan daftar variabel yang kurang ditulis lengkap ke log runtime.
+  Bacanya dengan
+  `vercel logs <url-deployment> --scope diandiandian`.
 - **P0-d — kredensial Blob di environment Preview.** Periksa di layar
   apakah store Blob tertaut ke proyek dan kredensial mana yang
   benar-benar berlaku untuk Preview. Bila tidak ada satu pun, unggahan

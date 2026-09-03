@@ -126,6 +126,33 @@ yang berarti.
   `diandiandian.web.id` diam-diam terus menyajikan kode lama tanpa satu
   pun tanda bahwa rilisnya tidak pernah mendarat.
 
+- **SEPULUH VARIABEL LINGKUNGAN KOSONG DI ENVIRONMENT PREVIEW,
+  ditemukan 3 September 2026.** Ini sebab kedua, terpisah dari build,
+  dan tetap ada setelah build diperbaiki. `/dashboard` menjawab 500;
+  log runtime memuat lemparan dari `lib/env.ts` yang menyebut
+  `DATABASE_URL`, `DIRECT_URL`, `AUTH_SECRET`, `AUTH_GOOGLE_ID`,
+  `AUTH_GOOGLE_SECRET`, `OWNER_EMAIL`, `BLOB_STORE_ID`,
+  `RESEND_API_KEY`, `EMAIL_FROM`, dan `CRON_SECRET` seluruhnya kosong
+  atau tidak sah.
+
+  Production tidak pernah terpengaruh: kedua environment Vercel
+  terpisah, dan Fase 0 hanya mengisi Production. Variabelnya tidak
+  pernah kurang — ia kurang di tempat yang belum pernah dipakai.
+
+  **Validatornya bekerja persis sebagaimana dirancang.** Ia menolak
+  menjalankan aplikasi dengan konfigurasi setengah jadi, dan daftar
+  lengkapnya masuk ke log server sementara pengunjung hanya melihat
+  `Internal Server Error.` — rahasia tidak bocor ke layar. Yang mahal
+  bukan perilakunya, melainkan bahwa tidak ada seorang pun yang
+  membaca log itu selama dua hari.
+
+  **Diputuskan 3 September 2026: Preview memakai basis data yang sama
+  dengan Production.** Belum ada acara sungguhan, jadi basis data itu
+  praktis masih berisi data uji. **Konsekuensi yang diterima sadar:**
+  baris `AccessLog` dari pemeriksaan preview bercampur di sana.
+  Memisahkan Preview dan Production menjadi prasyarat rilis sebelum
+  acara pertama; lihat bagian Release Prerequisites.
+
 - **Preview dilindungi Deployment Protection Vercel.** Permintaan
   anonim ke `kumpulink-preview.vercel.app` dialihkan ke layar masuk
   Vercel (`vercel.com/sso-api`), bukan dilayani aplikasi. Ini bukan
@@ -1527,6 +1554,16 @@ dilupakan:
   alur uji utamanya di lingkungan preview — di titik itu
   preview akan menampilkan aplikasi yang salah tanpa
   peringatan apa pun.
+
+- **Preview dan Production harus memakai basis data terpisah sebelum
+  acara pertama.** Ditetapkan 3 September 2026, saat keduanya sengaja
+  disamakan supaya pemeriksaan unggahan dapat berjalan. Alasannya sah
+  hanya selama basis data itu belum memuat data sungguhan. Begitu ada
+  satu acara nyata, setiap pemeriksaan di preview akan menulis baris
+  `AccessLog` ke riwayat yang dibaca pemilik — dan riwayat itulah
+  alasan aplikasi ini ada. Neon mendukung branch basis data; yang
+  perlu diingat, branch baru wajib dijalankan `prisma migrate deploy`
+  sendiri.
 
 - **Repositori harus tetap publik** selama penjadwalan
   memakai GitHub Actions tiap lima menit. Repositori privat
