@@ -16,6 +16,14 @@ dipakai di sini, berbeda dari pemeriksaan Unit 4.
 Dua hal, dan hanya dua. Keduanya belum pernah dijalankan sekali pun di
 luar mesin lokal:
 
+**Perubahan 7 September 2026, keputusan U5-3.** Butir 1 di bawah kini
+membuktikan jalur **token statis**, bukan OIDC: `BLOB_READ_WRITE_TOKEN`
+terpasang di environment Preview dengan cakupan cabang `dev`, dan
+`@vercel/blob` memakainya begitu ia ada. Jalur OIDC — yang akan dipakai
+Production, karena di sana token itu tidak ada — menjadi prasyarat
+rilis tersendiri di `progress-tracker.md`, dibuktikan dengan
+pemeriksaan yang sama persis sesudah `main` didorong.
+
 1. **Autentikasi Vercel Blob di atas Vercel.** Di lokal `lib/storage/`
    memakai `BLOB_READ_WRITE_TOKEN` statis. Di atas Vercel jalurnya
    berbeda, dan tidak ada pengujian yang dapat menyentuhnya — ia hanya
@@ -63,6 +71,23 @@ membuat pemeriksaan gagal karena alasan yang salah bila terlewat.
 
   Baris pertama harus `● Ready` dan berumur semenit-dua menit, dan
   alias `kumpulink-preview.vercel.app` harus menunjuk deployment itu.
+
+  **Status Ready dan alias yang benar pun belum cukup — periksa
+  commitnya.** Pada 7 September 2026 butir ini gagal untuk kedua
+  kalinya dengan bentuk yang berbeda: deployment Ready, alias terpasang,
+  tetapi cabang dan commit yang dibangun adalah `main`@`f0a57cd`,
+  keadaan sebelum Unit 4. Redeploy dari dasbor membangun ulang commit
+  deployment itu, bukan commit terbaru cabang mana pun. Satu-satunya
+  tempat yang menyebutkannya adalah log build:
+
+  ```bash
+  vercel inspect <url-deployment> --logs --scope diandiandian
+  ```
+
+  Baris `Cloning github.com/... (Branch: dev, Commit: <sha>)` harus
+  menyebut cabang dan commit yang Anda maksud. Bila tidak, dorong
+  cabangnya lebih dulu lalu arahkan alias ke deployment hasilnya dengan
+  `vercel alias set <url-deployment> kumpulink-preview.vercel.app`.
   Bila statusnya `● Error`, baca sebabnya dengan
   `vercel inspect <url-deployment> --logs --scope diandiandian` dan
   berhenti di situ — tidak ada gunanya melanjutkan.

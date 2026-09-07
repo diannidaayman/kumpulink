@@ -161,6 +161,36 @@ yang berarti.
   tidak dapat dijalankan di sana sama sekali. Dicatat di
   `docs/cek-unggahan-preview.md` sebagai P0-f.
 
+- **ALIAS PREVIEW MENUNJUK KODE SEBELUM UNIT 4 — ditemukan dan
+  diperbaiki 7 September 2026.** Sebab keempat, dan bentuknya sama
+  persis dengan yang dijaga P0-b: preview terbuka dan tampak normal,
+  tetapi bukan kode yang dimaksud. Redeploy yang dijalankan pemilik hari
+  ini setelah menyunting kredensial Blob membangun **`main`@`f0a57cd`**,
+  keadaan sebelum Unit 4 dan 30 commit di belakang `main` lokal;
+  alias `kumpulink-preview.vercel.app` sendiri menunjuk
+  `kumpulink-r4r0l2xcp`, juga `main`@`f0a57cd`. Ketiga deployment
+  `dev`@`e11185e` yang berisi kode Unit 4 berstatus Ready tetapi tidak
+  memegang alias.
+
+  Dibaca dari baris perintah, bukan dari layar: baris
+  `Cloning ... (Branch: main, Commit: f0a57cd)` di log build tiap
+  deployment. Layar dasbor tidak menyebutkannya.
+
+  Diperbaiki dengan mendorong `dev` ke `fbad594` — fast-forward dua
+  commit dokumentasi dari `e11185e` — sehingga Vercel membangun ulang
+  cabang itu dengan nilai environment hari ini, lalu alias diarahkan ke
+  hasilnya, `kumpulink-mi3bb9wcj`. Diverifikasi:
+  `Cloning ... (Branch: dev, Commit: fbad594)`, `● Ready`, dan
+  kesembilan rute Unit 4 hadir bertanda dinamis termasuk
+  `/g/[slug]/i/[itemId]`. `main` tetap tidak didorong.
+
+  **U5-0 ikut terbukti di lingkungan aslinya.** Log build yang sama
+  memuat `Restored build cache from previous deployment` dan
+  `npm warn allow-scripts @prisma/client` — kedua sebab yang mematikan
+  build 1 September — lalu `prisma generate && next build` berjalan dan
+  `✔ Generated Prisma Client (v6.19.3)`. Perbaikannya bekerja pada
+  keadaan yang dulu menjatuhkannya, bukan pada keadaan bersih.
+
 - **`scripts-cek/` kini di `.gitignore`.** Kelima skripnya sempat
   ter-commit di cabang, bertentangan dengan catatan di bagian "Cara
   melanjutkan" yang menyatakan skrip itu tidak untuk di-commit. Catatan
@@ -1565,11 +1595,43 @@ dilupakan:
   perlu diingat, branch baru wajib dijalankan `prisma migrate deploy`
   sendiri.
 
+- **Autentikasi Blob lewat OIDC harus dibuktikan di Production sebelum
+  acara pertama.** Ditetapkan 7 September 2026, keputusan U5-3. Preview
+  memakai `BLOB_READ_WRITE_TOKEN` statis, sedangkan Production tidak
+  memilikinya dan akan memakai OIDC dengan `BLOB_STORE_ID`. Jalur itu
+  belum pernah dijalankan sekali pun. Yang membuktikannya sama seperti
+  CEK P3: unggah satu berkas, buka lewat gerbang item, dan pastikan
+  responsnya 200 — bukan 503 dan bukan 303. Lakukan segera setelah
+  `main` didorong, saat belum ada pengunjung, bukan saat acara berjalan.
+
 - **Repositori harus tetap publik** selama penjadwalan
   memakai GitHub Actions tiap lima menit. Repositori privat
   menembus kuota gratis; lihat keputusan D5.
 
 ## Architecture Decisions
+
+### Keputusan U5-3 — 7 September 2026
+
+**Preview memakai `BLOB_READ_WRITE_TOKEN` statis; jalur OIDC tetap
+belum terbukti dan menjadi prasyarat rilis.** Variabel itu kini
+terpasang di environment Preview dengan cakupan khusus cabang `dev`.
+`lib/env-schema.ts` memang melonggarkannya di atas Vercel lewat penanda
+`onVercel`, dan `@vercel/blob` memakai token statis begitu ia ada —
+sehingga CEK P2 sampai P4 membuktikan jalur token, bukan jalur OIDC.
+
+Ini mengubah salah satu dari dua hal yang disebut sedang dibuktikan di
+`docs/cek-unggahan-preview.md`. Diterima secara sadar: yang mendesak
+adalah membuktikan bahwa gerbang item benar-benar mengalirkan berkas di
+atas Vercel, dan token menutup pertanyaan itu tanpa menambah variabel
+baru ke jalur yang sedang diperiksa.
+
+Konsekuensinya dicatat sebagai prasyarat rilis, bukan sebagai catatan
+kaki: Production tidak memiliki `BLOB_READ_WRITE_TOKEN`, jadi di sana
+`@vercel/blob` akan memakai OIDC dengan `BLOB_STORE_ID` — jalur yang
+sampai hari ini belum pernah dijalankan sekali pun. Alternatif yang
+ditolak: menghapus token dari Preview supaya OIDC ikut teruji di sana,
+ditolak karena akan mencampur dua kegagalan yang berbeda dalam satu
+pemeriksaan yang sudah tertunda empat hari.
 
 ### Keputusan U5-2 — 3 September 2026
 
