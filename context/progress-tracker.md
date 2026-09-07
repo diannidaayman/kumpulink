@@ -1651,11 +1651,72 @@ dilupakan:
   pastikan responsnya 200 — bukan 503 dan bukan 303. Lakukan saat belum
   ada pengunjung, bukan saat acara berjalan.
 
+- **Peringatan Safe Browsing di `diandiandian.web.id` harus dibersihkan.**
+  Ditemukan 7 September 2026. Chrome menampilkan **Dangerous site**
+  berklasifikasi rekayasa sosial; setiap peserta acara akan melihat layar
+  yang sama, dan menembusnya di satu mesin tidak mengubah apa pun bagi
+  mereka. Pemicunya sudah dihapus lewat U5-5, tetapi penandaan tidak
+  hilang sendiri. Dua langkah, keduanya perlu, dan dijalankan **sesudah**
+  U5-5 mendarat di Production supaya peninjauannya tidak menemukan
+  halaman yang sama:
+
+  1. Search Console — tambahkan properti domain, verifikasi lewat TXT di
+     Cloudflare, lalu **Security & Manual Actions → Security issues →
+     Request review**. Hanya jalur ini yang memberi kabar hasilnya.
+  2. Formulir peringatan keliru di
+     `https://safebrowsing.google.com/safebrowsing/report_error/`.
+
+  Selama belum bersih, login ke Production terhalang di Chrome, sehingga
+  pembuktian unggahan di Production ikut tertunda.
+
 - **Repositori harus tetap publik** selama penjadwalan
   memakai GitHub Actions tiap lima menit. Repositori privat
   menembus kuota gratis; lihat keputusan D5.
 
 ## Architecture Decisions
+
+### Keputusan U5-5 — 7 September 2026
+
+**Layar masuk dashboard menjadi milik kita sendiri, di `/masuk`.**
+Halaman bawaan Auth.js di `/api/auth/signin` berhenti dipakai sebagai
+permukaan yang dilihat siapa pun.
+
+Ditemukan karena Chrome menandai `diandiandian.web.id` sebagai
+**Dangerous site** berklasifikasi rekayasa sosial, tepat saat hendak
+membuktikan unggahan di Production. Sebabnya terbaca begitu akar
+domainnya dibuka: `app/page.tsx` mengalihkan `/` ke `/dashboard`,
+`requireOwner()` mengalihkan sesi kosong ke `/api/auth/signin`, dan
+halaman itu berisi judul **"Sign In"** dengan satu tombol **"Sign in
+with Google"** di atas halaman kosong. Sebuah domain berumur delapan
+belas hari yang seluruh isinya adalah tombol login Google berbentuk
+persis seperti halaman phishing yang meniru Google.
+
+**Dua aturan yang sudah ada seharusnya cukup, dan tidak cukup.** Seluruh
+teks yang dilihat pengguna wajib berbahasa Indonesia — halaman itu
+berbahasa Inggris. Aplikasi ini juga tidak memiliki halaman depan publik
+— dan justru karena itu halaman masuk menjadi wajah akarnya. Yang hilang
+adalah ketentuan tentang pintu dashboard itu sendiri; `ui-context.md`
+**diam** soal itu, persis pola cacat yang sudah tercatat di Session
+Notes 21 Agustus tentang tombol keluar. Ketentuannya kini ditulis di
+`ui-context.md` bagian Layout Patterns, dan `architecture.md` mencatat
+`app/masuk/` sebagai batas sistem.
+
+**Yang berubah, empat berkas.** `SIGN_IN_PATH` di `lib/auth/session.ts`
+menggantikan pengalihan ke `/api/auth/signin`; `app/masuk/page.tsx`
+merender layar masuk berbahasa Indonesia yang menyebut nama aplikasi;
+`app/akses-ditolak/page.tsx` ikut menunjuk ke sana; dan
+`isSafeCallbackUrl()` menerima `/dashboard` sebagai **literal persis**,
+bukan awalan — `/dashboard/requests` yang lahir di Unit 7 tidak boleh
+ikut lolos hanya karena namanya berawalan sama.
+
+**Peringatan Chrome tidak hilang oleh perbaikan ini.** Ia hanya
+menghapus pemicunya, supaya peninjauan yang diajukan tidak ditandai
+ulang. Pemulihannya menuntut permintaan peninjauan lewat Search Console;
+lihat Release Prerequisites.
+
+Keempat gerbang lulus sesudah perubahan: `typecheck` bersih, `lint` nol
+peringatan, **347 pengujian di 32 berkas**, `build` sukses dengan
+`/masuk` bertanda dinamis.
 
 ### Keputusan U5-4 — 7 September 2026
 

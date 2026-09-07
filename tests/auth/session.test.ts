@@ -17,12 +17,16 @@ vi.mock("next/navigation", () => ({
   },
 }));
 
-const { requireOwner, DASHBOARD_PATH, ACCESS_DENIED_PATH } = await import(
+const { requireOwner, SIGN_IN_PATH, ACCESS_DENIED_PATH } = await import(
   "@/lib/auth/session"
 );
 
 const SESSION_EXPIRES = "2999-01-01T00:00:00.000Z";
-const SIGNIN_REDIRECT = `REDIRECT:/api/auth/signin?callbackUrl=${encodeURIComponent(DASHBOARD_PATH)}`;
+// Layar masuk kita sendiri, bukan halaman bawaan Auth.js — keputusan
+// U5-5. Pengujian ini yang menahan tempat itu: mengembalikannya ke
+// /api/auth/signin akan membuat halaman berbahasa Inggris tanpa merek
+// menjadi wajah akar domain lagi.
+const SIGNIN_REDIRECT = `REDIRECT:${SIGN_IN_PATH}`;
 const ACCESS_DENIED_REDIRECT = `REDIRECT:${ACCESS_DENIED_PATH}`;
 
 function buildSession(role: string | undefined): Session {
@@ -37,13 +41,13 @@ describe("requireOwner", () => {
     auth.mockReset();
   });
 
-  it("mengalihkan ke halaman masuk dengan callbackUrl ke /dashboard ketika tidak ada sesi", async () => {
+  it("mengalihkan ke layar masuk kita sendiri ketika tidak ada sesi", async () => {
     auth.mockResolvedValue(null);
 
     await expect(requireOwner()).rejects.toThrow(SIGNIN_REDIRECT);
   });
 
-  it("tetap mengalihkan ke halaman masuk ketika sesi ada tetapi user tidak ada", async () => {
+  it("tetap mengalihkan ke layar masuk ketika sesi ada tetapi user tidak ada", async () => {
     auth.mockResolvedValue({ expires: SESSION_EXPIRES } as unknown as Session);
 
     await expect(requireOwner()).rejects.toThrow(SIGNIN_REDIRECT);

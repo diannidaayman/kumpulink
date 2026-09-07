@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { auth, signOut } from "@/lib/auth";
-import { DASHBOARD_PATH } from "@/lib/auth/session";
+import { SIGN_IN_PATH } from "@/lib/auth/session";
 import { Button } from "@/components/ui/button";
 
 export default async function AccessDeniedPage() {
@@ -13,9 +13,7 @@ export default async function AccessDeniedPage() {
   // risiko berputar: halaman ini berada di luar grup (dashboard) dan
   // tidak memanggil requireOwner().
   if (!session?.user) {
-    redirect(
-      `/api/auth/signin?callbackUrl=${encodeURIComponent(DASHBOARD_PATH)}`,
-    );
+    redirect(SIGN_IN_PATH);
   }
 
   return (

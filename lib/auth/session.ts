@@ -7,9 +7,18 @@ export const DASHBOARD_PATH = "/dashboard";
 export const ACCESS_DENIED_PATH = "/akses-ditolak";
 
 /**
+ * Layar masuk milik kita sendiri — keputusan U5-5. Sebelumnya tempat ini
+ * berisi `/api/auth/signin`, halaman bawaan Auth.js: berbahasa Inggris,
+ * tanpa merek, satu tombol di atas halaman kosong. Karena `/` dialihkan
+ * ke `/dashboard`, halaman itu menjadi wajah akar domain, dan Chrome
+ * menandainya sebagai rekayasa sosial pada 7 September 2026.
+ */
+export const SIGN_IN_PATH = "/masuk";
+
+/**
  * Dipakai server component yang hanya boleh dibuka pemilik.
  *
- * Tanpa sesi -> dialihkan ke Google. Ada sesi tetapi bukan pemilik ->
+ * Tanpa sesi -> dialihkan ke layar masuk kita. Ada sesi tetapi bukan pemilik ->
  * dialihkan ke halaman penjelasan, bukan 404: /dashboard adalah rute yang
  * dapat ditebak siapa pun dan bukan rahasia yang dijaga aplikasi ini,
  * sementara layar itu satu-satunya yang menyebutkan penyebabnya ketika
@@ -19,9 +28,7 @@ export async function requireOwner(): Promise<Session> {
   const session = await auth();
 
   if (!session?.user) {
-    redirect(
-      `/api/auth/signin?callbackUrl=${encodeURIComponent(DASHBOARD_PATH)}`,
-    );
+    redirect(SIGN_IN_PATH);
   }
 
   if (session.user.role !== "OWNER") {

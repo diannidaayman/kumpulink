@@ -331,7 +331,7 @@ tindakan yang mengubah izin.
   Laptop ruang rapat dipakai bergantian; tanpa tombol ini,
   riwayat akses akan mencatat lima orang berikutnya sebagai
   orang yang pertama masuk.
-- **Layar masuk** — bentuknya sama di kedua tempat yang
+- **Layar masuk** — bentuknya sama di **tiga** tempat yang
   memerlukannya. Judul, satu kalimat penjelas, lalu satu tombol
   terisi "Masuk dengan Google" berikon `LogIn`. Tanpa lencana, tanpa
   kartu, tanpa ilustrasi.
@@ -345,6 +345,29 @@ tindakan yang mengubah izin.
   Tombolnya `<form>` dengan server action, bukan tombol berpenangan
   klik: halaman publik wajib dapat dipakai tanpa JavaScript.
   Ditetapkan 27 Agustus 2026, keputusan U4-4.
+
+  **Tempat ketiga: pintu dashboard, di `/masuk`.** Ditetapkan
+  7 September 2026, keputusan U5-5. Ia memakai bingkai kartu terpusat
+  yang sama dengan `/akses-ditolak` — keduanya halaman satu pesan yang
+  berdiri sendiri tanpa bilah apa pun di atasnya — menyebut **nama
+  aplikasi** sebagai judul dan menyatakan bahwa halaman yang dituju
+  hanya dapat dibuka pemiliknya.
+
+  Menyebut nama aplikasi di sini wajib, bukan hiasan. Sebelum ini,
+  pengunjung yang belum masuk dialihkan ke halaman bawaan Auth.js di
+  `/api/auth/signin`: berbahasa Inggris, tanpa merek, hanya sebuah
+  tombol "Sign in with Google" di atas halaman kosong. Karena
+  `app/page.tsx` mengalihkan `/` ke `/dashboard`, halaman itulah wajah
+  akar domain ini — dan Chrome menandainya sebagai situs berbahaya
+  dengan klasifikasi rekayasa sosial pada 7 September 2026. Sebuah
+  domain muda yang seluruh isinya satu tombol login Google memang
+  berbentuk persis seperti halaman phishing yang meniru Google.
+
+  Dua aturan yang sudah ada seharusnya cukup mencegahnya dan tidak
+  cukup: seluruh teks yang dilihat pengguna berbahasa Indonesia, dan
+  aplikasi ini tidak memiliki halaman depan publik. Yang hilang adalah
+  ketentuan tentang pintu dashboard itu sendiri, dan bagian inilah yang
+  menutupnya.
 - **Modal** — overlay terpusat dengan latar buram.
 - **Halaman Riwayat** — **halaman tersendiri per group**,
   bukan tab di dalam akordeon dan bukan sheet. Penyaring

@@ -36,6 +36,13 @@ baris di database sendiri.
 - `app/akses-ditolak/` — halaman untuk sesi yang bukan pemilik. Berada di
   luar grup `(dashboard)` supaya tidak melewati gerbangnya sendiri, yang
   akan membuat pengalihannya berputar tanpa henti.
+- `app/masuk/` — layar masuk dashboard, tujuan `requireOwner()` ketika tidak
+  ada sesi. Di luar grup `(dashboard)` dengan alasan yang sama seperti
+  `akses-ditolak`. Ia menggantikan halaman bawaan Auth.js di
+  `/api/auth/signin`, yang tidak pernah boleh menjadi permukaan yang
+  dilihat pengunjung: berbahasa Inggris, tanpa merek, dan — karena `/`
+  dialihkan ke `/dashboard` — menjadi wajah akar domain. Ditetapkan
+  7 September 2026, keputusan U5-5.
 - `app/(public)/g/[slug]/` — halaman group publik dan route gerbang item.
   Satu-satunya jalan masuk pengunjung ke konten.
 

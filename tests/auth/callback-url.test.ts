@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  DASHBOARD_CALLBACK_URL,
   groupCallbackUrl,
   isSafeCallbackUrl,
   itemGateCallbackUrl,
@@ -32,8 +33,18 @@ describe("penjagaan callbackUrl", () => {
     expect(isSafeCallbackUrl("//contoh.example")).toBe(false);
   });
 
-  it("menolak tujuan di luar /g/", () => {
-    expect(isSafeCallbackUrl("/dashboard")).toBe(false);
+  // Ditambahkan 7 September 2026, keputusan U5-5. /dashboard adalah
+  // tujuan sah bagi layar masuk di /masuk, dan ia diizinkan sebagai
+  // LITERAL PERSIS — bukan sebagai awalan. "/dashboard/apa-pun" tetap
+  // ditolak, sehingga daftar putih ini tidak melebar diam-diam.
+  it("menerima /dashboard sebagai literal persis", () => {
+    expect(isSafeCallbackUrl(DASHBOARD_CALLBACK_URL)).toBe(true);
+    expect(isSafeCallbackUrl("/dashboard")).toBe(true);
+  });
+
+  it("menolak tujuan di luar /g/ dan di luar /dashboard persis", () => {
+    expect(isSafeCallbackUrl("/dashboard/requests")).toBe(false);
+    expect(isSafeCallbackUrl("/dashboardx")).toBe(false);
     expect(isSafeCallbackUrl("/g/rapat-kerja/i/clx123/berkas")).toBe(false);
   });
 });
