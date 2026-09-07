@@ -191,6 +191,13 @@ yang berarti.
   `✔ Generated Prisma Client (v6.19.3)`. Perbaikannya bekerja pada
   keadaan yang dulu menjatuhkannya, bukan pada keadaan bersih.
 
+- **`main` DIDORONG, 7 September 2026.** `f0a57cd..0fcc396`, 31 commit,
+  setelah keenam pemeriksaan unggahan lulus di preview. `dev` disusulkan
+  ke titik yang sama dan ikut didorong, sesuai kebiasaan di Release
+  Prerequisites. Production membangun kode Unit 4 untuk pertama kalinya
+  dan berstatus Ready — `diandiandian.web.id` berhenti menyajikan
+  keadaan sebelum Unit 4 yang selama ini ia sajikan diam-diam.
+
 - **`scripts-cek/` kini di `.gitignore`.** Kelima skripnya sempat
   ter-commit di cabang, bertentangan dengan catatan di bagian "Cara
   melanjutkan" yang menyatakan skrip itu tidak untuk di-commit. Catatan
@@ -1431,6 +1438,45 @@ tanpa JavaScript" ditutup 1 September 2026; rinciannya di bagian temuan
 di atas. Halaman group yang lolos maupun gerbang item tidak terpengaruh
 perubahan itu, dan keduanya diuji ulang sesudahnya.
 
+### Pemeriksaan unggahan di preview — KEENAMNYA LULUS, 7 September 2026
+
+Dijalankan terhadap `kumpulink-preview.vercel.app` di deployment
+`kumpulink-k3l0ogfi4`, `dev`@`fbad594`, dengan sesi pemilik hidup.
+
+| CEK | Hasil | Bukti |
+|---|---|---|
+| P1 masuk sebagai pemilik | **LULUS** | dashboard terbuka sebagai `Lalu Ardiansyah` |
+| P2 unggah PDF 102.400 byte | **LULUS** | `POST .../items` → **201**, item muncul bertipe PDF |
+| P3 buka lewat gerbang | **LULUS** | `GET /g/cek-preview/i/…` → **200**, PDF dirender peramban |
+| P4 unggah dan buka PNG | **LULUS** | 201, lalu 200 dengan peramban menampilkannya sebagai gambar `64×64` — `Content-Type` gambar, bukan `application/octet-stream` |
+| P5 batas ukuran | **LULUS** | A 4.194.304 → 201; B 4.194.305 → **413** `{"error":{"code":"FILE_TOO_LARGE"}}`; C 5.000.000 → 413 teks biasa `FUNCTION_PAYLOAD_TOO_LARGE` dari Vercel |
+| P6 pembersihan | **LULUS** | group dihapus; store kembali ke 1 berkas / 32,66 KB, persis keadaan sebelum pemeriksaan — `deleteFilesByPrefix()` menyapu keempat unggahan |
+
+**Autentikasi Blob dua arah terbukti, dan lewat OIDC.** Ini melampaui
+apa yang semula direncanakan: `BLOB_READ_WRITE_TOKEN` sudah dihapus dari
+Preview sebelum pemeriksaan berhasil, jadi jalur yang terbukti adalah
+jalur yang sama dengan Production. U5-3 karena itu dicabut, lihat di
+bawah.
+
+**Hasil berkas C, dicatat apa adanya sesuai permintaan daftar periksa.**
+Vercel menolak lebih dulu di tingkat infrastruktur dengan **413**,
+badan respons **teks biasa** — bukan JSON — berbunyi
+`Request Entity Too Large / FUNCTION_PAYLOAD_TOO_LARGE`, disertai id
+jejak. Bentuk kedua ini **tidak perlu ditangani Unit 5**:
+`components/dashboard/item-upload-form.tsx:39` menolak berkas melebihi
+`MAX_UPLOAD_BYTES` sebelum `fetch` dipanggil, sehingga tidak ada jalan
+dari antarmuka menuju respons itu. Ia hanya terjangkau dengan memanggil
+rutenya langsung — dan begitulah ia dibuktikan di sini, lewat `fetch`
+dari konteks halaman yang sudah bersesi.
+
+**Dua hal ditemukan karena B diuji dua kali.** Lewat antarmuka, berkas
+4.194.305 byte ditolak di klien tanpa satu byte pun dikirim — benar,
+tetapi itu bukan yang hendak dibuktikan P5. Panggilan langsung ke rute
+menghasilkan 413 dengan JSON kita, membuktikan sekaligus bahwa Vercel
+**meneruskan** amplop 4,19 MB kepada aplikasi alih-alih memotongnya
+lebih dulu. Batas 4 MB karena itu benar-benar ditegakkan oleh kode kita,
+bukan oleh infrastruktur yang kebetulan menolak duluan.
+
 ## Next Up
 
 1. **Unit 5 — panel Bagikan.** `visibility`, `expiresAt`,
@@ -1595,14 +1641,15 @@ dilupakan:
   perlu diingat, branch baru wajib dijalankan `prisma migrate deploy`
   sendiri.
 
-- **Autentikasi Blob lewat OIDC harus dibuktikan di Production sebelum
-  acara pertama.** Ditetapkan 7 September 2026, keputusan U5-3. Preview
-  memakai `BLOB_READ_WRITE_TOKEN` statis, sedangkan Production tidak
-  memilikinya dan akan memakai OIDC dengan `BLOB_STORE_ID`. Jalur itu
-  belum pernah dijalankan sekali pun. Yang membuktikannya sama seperti
-  CEK P3: unggah satu berkas, buka lewat gerbang item, dan pastikan
-  responsnya 200 — bukan 503 dan bukan 303. Lakukan segera setelah
-  `main` didorong, saat belum ada pengunjung, bukan saat acara berjalan.
+- **Satu unggahan harus dibuktikan di Production sebelum acara pertama.**
+  Diperbarui 7 September 2026. Jalur OIDC **sudah terbukti di Preview**
+  lewat keenam pemeriksaan — token statisnya dihapus lebih dulu, jadi
+  yang berjalan di sana adalah jalur yang sama dengan Production. Yang
+  tersisa hanyalah membuktikan bahwa `BLOB_STORE_ID` Production benar,
+  karena nilainya baru diperbaiki hari ini (U5-4) dan belum pernah
+  dipakai sekali pun: unggah satu berkas, buka lewat gerbang item, dan
+  pastikan responsnya 200 — bukan 503 dan bukan 303. Lakukan saat belum
+  ada pengunjung, bukan saat acara berjalan.
 
 - **Repositori harus tetap publik** selama penjadwalan
   memakai GitHub Actions tiap lima menit. Repositori privat
@@ -1610,7 +1657,46 @@ dilupakan:
 
 ## Architecture Decisions
 
-### Keputusan U5-3 — 7 September 2026
+### Keputusan U5-4 — 7 September 2026
+
+**`BLOB_STORE_ID` berisi sebuah token, bukan id store — dan itu berlaku
+di Preview maupun Production sejak 20 Agustus 2026.** Sebab kelima yang
+menghalangi preview, dan yang paling lama tersembunyi. Tiga unggahan
+berturut-turut dijawab 500 dengan
+`Vercel Blob: This store does not exist.`; nilai yang tersimpan ternyata
+berawalan `eyJ2IjoidjIiLCJjIj…`, base64 dari `{"v":"v2","c":…`, sedangkan
+`normalizeStoreId()` di `@vercel/blob` menuntut bentuk `store_` diikuti
+16 karakter. Diperbaiki menjadi `store_Vew9mWEpZsv0vb6L`, id store satu-
+satunya yang benar-benar ada, sama dengan yang selama ini ada di
+`.env.local` dan karena itu tidak pernah gagal di mesin lokal.
+
+Entrinya satu dan mencakup kedua environment, jadi **Production membawa
+nilai salah yang sama sejak hari pertama.** Tidak ada yang menyadarinya
+karena belum pernah ada berkas yang diunggah di sana.
+
+**Tanda kutip di `.env.local` bukan penyebabnya**, meskipun sempat
+diduga begitu: dotenv melepasnya sebelum nilainya sampai ke aplikasi,
+sedangkan kolom di dasbor Vercel menyimpan apa adanya. Yang salah bukan
+bentuk penulisannya, melainkan nilai yang ditempel.
+
+**Aturan yang diambil dari sini, menguatkan U5-1:** variabel yang
+bukan rahasia **tidak boleh** disimpan sebagai `Sensitive`. Id store
+sudah dipajang Vercel sendiri sebagai `store_Vew9mWEpZsv0vb6L_STORE_ID`
+bertipe Non-sensitive di daftar yang sama, jadi merahasiakan
+`BLOB_STORE_ID` tidak melindungi apa pun — ia hanya membuat nilai yang
+salah tidak dapat dilihat siapa pun selama delapan belas hari. Kesalahan
+ini baru ketahuan dalam hitungan detik begitu variabelnya dibuat terbaca.
+
+### Keputusan U5-3 — 7 September 2026 — DICABUT hari yang sama
+
+**Dicabut sesudah pemeriksaan berhasil.** Isinya menetapkan Preview
+memakai token statis dan menjadikan pembuktian OIDC sebagai prasyarat
+rilis. Keduanya tidak lagi berlaku: tokennya dihapus dari Preview
+sebelum P2 berhasil, sehingga **keenam pemeriksaan lulus di atas jalur
+OIDC** — jalur yang sama dengan Production. Yang sempat dikira sebagai
+sebab (token salah) ternyata bukan; sebabnya `BLOB_STORE_ID`, lihat
+U5-4. Teks aslinya di bawah, disimpan karena catatan di
+`docs/cek-unggahan-preview.md` merujuk kepadanya.
 
 **Preview memakai `BLOB_READ_WRITE_TOKEN` statis; jalur OIDC tetap
 belum terbukti dan menjadi prasyarat rilis.** Variabel itu kini

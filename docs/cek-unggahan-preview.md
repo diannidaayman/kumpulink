@@ -16,13 +16,17 @@ dipakai di sini, berbeda dari pemeriksaan Unit 4.
 Dua hal, dan hanya dua. Keduanya belum pernah dijalankan sekali pun di
 luar mesin lokal:
 
-**Perubahan 7 September 2026, keputusan U5-3.** Butir 1 di bawah kini
-membuktikan jalur **token statis**, bukan OIDC: `BLOB_READ_WRITE_TOKEN`
-terpasang di environment Preview dengan cakupan cabang `dev`, dan
-`@vercel/blob` memakainya begitu ia ada. Jalur OIDC — yang akan dipakai
-Production, karena di sana token itu tidak ada — menjadi prasyarat
-rilis tersendiri di `progress-tracker.md`, dibuktikan dengan
-pemeriksaan yang sama persis sesudah `main` didorong.
+**SELESAI 7 September 2026 — keenam pemeriksaan lulus di atas jalur
+OIDC.** Hasilnya tercatat di `progress-tracker.md`. Daftar ini disimpan
+karena bentuk pemeriksaannya masih dipakai untuk membuktikan Production,
+dan karena tiga hal yang menjatuhkannya hari itu akan berulang: alias
+yang menunjuk commit lama (P0-b), `BLOB_STORE_ID` yang salah nilai
+(U5-4), dan rahasia yang tidak dapat dibaca ulang (U5-1).
+
+**Catatan yang gugur:** rumusan sebelumnya di tempat ini menyatakan
+butir 1 hanya membuktikan jalur token statis. Itu tidak jadi berlaku —
+`BLOB_READ_WRITE_TOKEN` dihapus dari Preview sebelum pemeriksaan
+berhasil, jadi yang terbukti justru jalur OIDC, sama dengan Production.
 
 1. **Autentikasi Vercel Blob di atas Vercel.** Di lokal `lib/storage/`
    memakai `BLOB_READ_WRITE_TOKEN` statis. Di atas Vercel jalurnya
