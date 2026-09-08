@@ -75,3 +75,21 @@ describe("toCalendarDate dan fromCalendarDate", () => {
     expect(fromCalendarDate(new Date(2026, 0, 5, 12, 0, 0))).toBe("2026-01-05");
   });
 });
+
+// Tanggal cacat harus ditolak, bukan digeser diam-diam: Date constructor
+// menggeser tanggal yang tidak ada ke hari berikutnya (2026-02-31 → 3 Maret),
+// dan pergeseran senyap adalah keadaan tidak pasti yang lolos jika penjaga
+// `isCalendarDate` hilang. Tahan penjaga dengan pengujian eksplisit.
+describe("penolakan tanggal cacat", () => {
+  it("endOfDayWIT menolak tanggal yang tidak ada di kalender", () => {
+    expect(() => endOfDayWIT("2026-02-31")).toThrow();
+  });
+
+  it("endOfDayWIT menolak bentuk yang bukan YYYY-MM-DD", () => {
+    expect(() => endOfDayWIT("30-09-2026")).toThrow();
+  });
+
+  it("toCalendarDate menolak bentuk yang bukan YYYY-MM-DD", () => {
+    expect(() => toCalendarDate("bukan tanggal")).toThrow();
+  });
+});
