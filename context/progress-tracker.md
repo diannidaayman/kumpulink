@@ -1510,7 +1510,13 @@ bukan oleh infrastruktur yang kebetulan menolak duluan.
    Yang tersisa adalah keenam pemeriksaan peramban di
    `.superpowers/sdd/task-10-brief.md` Step 2 — dijalankan pemilik
    sendiri, seperti Unit 1 sampai 4 — di mode terang dan gelap serta
-   lebar 375 px. Baru setelah keenamnya lulus unit ini tertutup.
+   lebar 375 px. Pemeriksaan QR termasuk verifikasi pengalihan: QR
+   code memuat URL absolut dan tidak dapat ditarik kembali setelah
+   dicetak. Gerbang D1 sudah terpenuhi di tingkat kode (domain
+   `diandiandian.web.id`, apex production), tetapi pengalihan perlu
+   diperiksa ulang sebelum QR pertama dirender dan dipindai,
+   memastikan tidak ada perubahan arah sejak keputusan itu dicatat.
+   Baru setelah keenamnya lulus unit ini tertutup.
 
    **Tiga hal warisan yang kini TERTUTUP, dicatat di sini supaya tidak
    dicari ulang:**
