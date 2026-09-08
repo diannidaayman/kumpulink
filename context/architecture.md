@@ -561,8 +561,12 @@ Hanya dijalankan bila tahap satu menghasilkan `GRANTED`.
    2. `status = PENDING` → `PENDING_APPROVAL`
    3. `status = REJECTED` → `DENIED / REQUEST_REJECTED`
    4. `status = REVOKED` → `DENIED / REQUEST_REVOKED`
-   5. `status = APPROVED` dan `expiresAt` sudah lewat →
-      `DENIED / APPROVAL_EXPIRED`
+   5. `status = APPROVED` dan masa berlakunya sudah lewat →
+      `DENIED / APPROVAL_EXPIRED`. Masa berlaku yang dipakai
+      adalah **yang lebih dulu** di antara `group.expiresAt` dan
+      `AccessRequest.expiresAt`, dihitung saat pembacaan ini —
+      bukan salinan di baris izin saja. Lihat invarian 12 dan
+      keputusan U5-14; salinan itu plafon, bukan otoritas.
    6. `status = APPROVED` → `GRANTED`
 8. Nilai `accessMode` yang tidak dikenal → `DENIED / NOT_FOUND`
 
