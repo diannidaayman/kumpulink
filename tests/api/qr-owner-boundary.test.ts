@@ -22,7 +22,11 @@ describe("gerbang pemilik di route QR", () => {
   });
 
   it("menempatkan gerbang sebelum QR dibuat", () => {
-    const gate = SOURCE.indexOf("getOwnerSession()");
+    // Jangkarkan ke (await getOwnerSession()), bukan getOwnerSession() saja.
+    // Identifier tanpa await juga muncul di JSDoc berkas untuk menjelaskan
+    // kenapa ia tidak dipakai; itu akan menemukan komentar, bukan panggilan.
+    // Anchor ini hanya muncul di call site — gagal jelas jika nama dirubah.
+    const gate = SOURCE.indexOf("(await getOwnerSession())");
     const render = SOURCE.indexOf("QRCode.toString");
     expect(gate).toBeGreaterThanOrEqual(0);
     expect(render).toBeGreaterThan(gate);
