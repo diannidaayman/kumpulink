@@ -157,6 +157,22 @@ dibagikan. Struktur datar — tidak ada group di dalam group.
 | `createdAt`     | `DateTime`                             |                                                   |
 | `updatedAt`     | `DateTime`                             |                                                   |
 
+**`expiresAt` disetel per tanggal dan mati pada akhir hari
+WIT.** Pemilik memilih tanggal saja; nilai yang disimpan adalah
+23:59:59.999 waktu `Asia/Jayapura` pada tanggal itu. Memilih
+30 September berarti link hidup sepanjang 30 September dan mati
+saat tanggal berganti — pembacaan yang sama dengan tanggal
+kedaluwarsa pada umumnya.
+
+Konversinya aritmetika tetap UTC+9 di `lib/time/expiry.ts`,
+bukan pustaka zona waktu: `Asia/Jayapura` tidak pernah mengenal
+DST, dan menambah dependensi untuk satu penjumlahan konstanta
+tidak sebanding.
+
+Aturan ini ikut mengikat `AccessRequest.expiresAt`, yang
+diwarisi dari `group.expiresAt` saat izin disetujui.
+Ditetapkan 8 September 2026, keputusan U5-8.
+
 Indeks pada `slug` — dipenuhi oleh constraint `@unique` di atas, yang di
 Postgres otomatis membuat indeks btree unik; tidak ada `@@index` terpisah
 untuk kolom yang sama, karena itu hanya menambah beban tulis tanpa
@@ -773,6 +789,62 @@ Kegagalan mengirim email tidak pernah membatalkan
 pembuatan atau keputusan permintaan. Permintaan tetap
 tercatat dan tetap terlihat di dashboard; email hanyalah
 lapisan pemberitahuan di atasnya.
+
+### Panel Bagikan — server action
+
+Dua server action di `app/(dashboard)/dashboard/share-actions.ts`,
+keduanya memanggil `requireOwner()` di baris pertama karena
+layout tidak melindungi server action.
+
+- `toggleShareAction(formData)` — menulis `shareEnabled` saja.
+  Dipanggil langsung saat saklar digeser. Masukan yang tidak
+  dapat diuraikan berarti batal diam-diam tanpa menulis, pola
+  yang sama dengan `moveGroupAction`.
+- `updateShareSettingsAction(prev, formData)` — menulis
+  `visibility` dan `expiresAt` bersama-sama. `expiresOn` masuk
+  sebagai string `YYYY-MM-DD` atau kosong; kosong berarti tanpa
+  batas waktu, dan yang terisi dilewatkan `endOfDayWIT()`.
+
+Keduanya ditutup `revalidatePath(DASHBOARD_PATH)` sehingga
+lencana dan tanggal di baris akordeon ikut berubah tanpa muat
+ulang.
+
+### QR code — `GET /api/groups/[groupId]/qr`
+
+Alamat di dalam QR memakai konstanta `APP_ORIGIN` di
+`lib/groups/share-url.ts`, bukan variabel lingkungan dan bukan
+header permintaan. Domain bukan rahasia, dan nilai yang ikut
+masuk repositori terbaca mata di diff — menutup persis kegagalan
+U5-1, ketika sepuluh variabel bertipe `Sensitive` tersimpan
+kosong selama empat belas hari tanpa dapat dibaca siapa pun.
+QR yang sudah dicetak tidak dapat ditarik kembali, jadi
+alamatnya tidak boleh bergantung pada environment tempat ia
+dirender.
+
+Urutan handler-nya:
+
+1. `getOwnerSession()`; `null` → 403 `{ error: { code, message } }`.
+   Bukan `requireOwner()`: pemanggilnya memuat gambar, dan
+   pengalihan yang diikuti diam-diam menghasilkan 200 berisi
+   halaman masuk.
+2. Validasi `groupId`; group tidak ada → 404 berbentuk sama.
+3. `qrcode` merender SVG dengan `errorCorrectionLevel: "M"` dan
+   `margin: 4` — 4 modul adalah quiet zone minimum spesifikasi
+   QR, bukan selera.
+4. `withPhysicalSize()` memasang `width="80mm" height="80mm"`
+   dan mempertahankan `viewBox`. Jarak pindai kira-kira sepuluh
+   kali lebar QR, jadi 8 cm terbaca dari sekitar 80 cm — jarak
+   orang membaca kertas di meja rapat. SVG tetap vektor, jadi
+   angka ini hanya ukuran bawaan saat ditempel.
+5. `?unduh=1` → `Content-Disposition: attachment`; tanpa itu →
+   `inline`, dipakai pratinjau di panel. `Cache-Control:
+   no-store`, karena slug dapat berubah dan QR basi di layar
+   akan disalin ke kertas.
+
+QR tidak pernah disimpan sebagai berkas turunan di Blob:
+berkas seperti itu wajib disapu dan dibuat ulang setiap slug
+berubah, satu keadaan basi baru demi komputasi yang murah.
+Ditetapkan 8 September 2026, keputusan U5-6, U5-9, dan U5-10.
 
 ## Invariants
 

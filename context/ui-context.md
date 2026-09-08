@@ -294,9 +294,65 @@ tindakan yang mengubah izin.
   halaman tersendiri, tidak ada konsep arsip, dan tidak ada
   paginasi daftar group.
 - **Panel Bagikan** — `sheet` yang muncul dari kanan pada
-  layar lebar, dan dari bawah pada ponsel. Berisi pilihan
-  tingkat akses, tanggal kedaluwarsa, saklar aktif, URL
-  yang dapat disalin, dan pratinjau QR code.
+  layar lebar (≥640 px) dan dari bawah pada ponsel. Dibuka
+  dari tombol **Bagikan** berikon `Share2` di badan akordeon,
+  sebaris dengan "Ubah judul dan slug" dan "Hapus group".
+
+  Urutan isinya dari atas, dan urutan ini bagian dari
+  aturannya:
+
+  1. **Saklar "Link berbagi aktif"** — menyimpan pada detik
+     digeser, tanpa tombol dan tanpa dialog konfirmasi.
+     Lingkup unit ini berbunyi mencabut link *seketika*;
+     tombol simpan di antara saklar dan akibatnya membatalkan
+     kata itu, dan panel yang tertutup tanpa ditekan simpan
+     akan membuang pencabutan yang dikira sudah terjadi.
+     Pencabutan dapat dibatalkan dengan menggeser balik, jadi
+     konfirmasi hanya menambah satu ketukan pada satu-satunya
+     tindakan darurat di panel ini.
+  2. **Tingkat akses** — tiga pilihan `radio-group`. Pilihan
+     Privat diberi baris penjelas **"Hanya Anda. Berguna saat
+     group masih disiapkan."**
+  3. **Tanggal kedaluwarsa** — `popover` berisi `calendar`,
+     ditambah tombol **"Tanpa batas waktu"** untuk
+     mengosongkannya. Tanggal terpilih ditampilkan monospasi
+     berlabel WIT.
+  4. **Tombol Simpan** — hanya untuk butir 2 dan 3. Keduanya
+     sering diubah berbarengan saat menyiapkan acara, dan
+     menyimpan tiap ketukan kalender menghasilkan tulisan
+     basis data yang tidak diminta siapa pun.
+  5. **URL berbagi** — monospasi, selalu terlihat dan dapat
+     diseleksi, dengan tombol Salin di sebelahnya.
+  6. **QR** — pratinjau persegi, tombol **"Unduh QR (SVG)"**,
+     dan baris redup **"QR memuat alamat lengkap group ini.
+     Mengubah slug membuat QR yang sudah dicetak berhenti
+     berfungsi."**
+
+  **Saklar dan tingkat akses adalah dua pekerjaan berbeda.**
+  Saklar menjawab "hidup atau mati"; ketiga pilihan menjawab
+  "siapa yang boleh membuka selama hidup". Ketika saklar mati,
+  ketiga pilihan **tetap dapat diubah**, disertai keterangan
+  bahwa setelan itu belum berlaku selama link mati. Mengunci
+  pilihan akan memaksa pemilik menghidupkan link lebih dulu —
+  termasuk beberapa detik ke publik — hanya untuk menyiapkan
+  setelan acara yang belum ingin ia sebarkan.
+
+  **URL dan QR tetap ditampilkan saat saklar mati.** Pemilik
+  menyiapkan bahan acara sebelum menyebarkannya;
+  menyembunyikannya memaksa link dihidupkan lebih dulu —
+  persis yang tidak ingin ia lakukan.
+
+  **Tombol Salin adalah jalan pintas, bukan satu-satunya
+  jalan.** Ketika peramban menolak akses clipboard, teks URL
+  diseleksi dan pesannya berbunyi **"Tidak dapat menyalin
+  otomatis. Tekan Ctrl+C untuk menyalin."** Tidak ada
+  kemunduran diam-diam ke `document.execCommand("copy")`:
+  API itu usang dan pada sebagian peramban mengembalikan
+  `true` tanpa menyalin apa pun, menghasilkan pesan berhasil
+  yang berbohong.
+
+  Ditetapkan 8 September 2026, keputusan U5-7, U5-11, dan
+  U5-12.
 - **Halaman publik** — satu kolom terpusat `max-w-2xl`
   dengan padding lega. Judul group, deskripsi, lalu daftar
   kartu item ditumpuk vertikal. Tidak ada bilah samping
@@ -325,6 +381,25 @@ tindakan yang mengubah izin.
   dibuat **lebih datar daripada kartu item** — tanpa
   bayangan, tanpa bobot tebal — supaya terbaca sebagai
   chrome, bukan isi. Tidak dapat ditutup.
+
+  **Teksnya membedakan sebab.** Aturan yang sama dengan
+  lencana dashboard: nada mengikuti siapa penyebabnya.
+
+  - Dicabut → "Link berbagi group ini Anda matikan. Hanya
+    Anda yang dapat melihat halaman ini."
+  - Kedaluwarsa → "Link berbagi group ini kedaluwarsa
+    30 Sep 2026 WIT. Hanya Anda yang dapat melihat halaman
+    ini." Tanggalnya diformat `formatDateWIT()`.
+
+  Bila keduanya berlaku, saklar mati menang — urutan yang sama
+  dengan lencana. Bentuk visualnya tidak berubah: satu spanduk,
+  satu aksen peringatan, di kedua sebab.
+
+  Sebabnya dihitung fungsi murni `resolvePreviewReason()` dari
+  `shareEnabled` dan `expiresAt` yang sudah dibaca halaman.
+  `evaluate-access.ts` tidak berubah dan `ownerPreview` tetap
+  boolean: ini keputusan teks, bukan keputusan izin.
+  Ditetapkan 8 September 2026, keputusan U5-13.
 - **Bilah identitas halaman publik** — bila pengunjung
   sedang masuk, tampilkan nama dan tombol keluar di bagian
   atas halaman, selalu terlihat tanpa perlu membuka menu.
