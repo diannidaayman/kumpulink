@@ -1,12 +1,13 @@
 "use client";
 
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Share2, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 import { GroupDeleteDialog } from "@/components/dashboard/group-delete-dialog";
 import { GroupFormRow } from "@/components/dashboard/group-form-row";
 import { ItemAddPanel } from "@/components/dashboard/item-add-panel";
 import { ItemList } from "@/components/dashboard/item-list";
+import { ShareSheet } from "@/components/dashboard/share-sheet";
 import { Button } from "@/components/ui/button";
 import type { GroupListItem } from "@/lib/types/group";
 import type { ItemListEntry } from "@/lib/types/item";
@@ -31,6 +32,7 @@ export function GroupAccordionBody({
   onDeleteOpenChange: (next: boolean) => void;
 }) {
   const [addingToId, setAddingToId] = useState<string | null>(null);
+  const [shareOpen, setShareOpen] = useState(false);
 
   return editingId === group.id ? (
     <GroupFormRow mode="edit" group={group} onDone={onEditDone} />
@@ -61,6 +63,15 @@ export function GroupAccordionBody({
           type="button"
           variant="outline"
           size="sm"
+          onClick={() => setShareOpen(true)}
+        >
+          <Share2 className="h-4 w-4" aria-hidden />
+          Bagikan
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
           onClick={() => onEditStart(group.id)}
         >
           Ubah judul dan slug
@@ -76,6 +87,7 @@ export function GroupAccordionBody({
           Hapus group
         </Button>
       </div>
+      <ShareSheet group={group} open={shareOpen} onOpenChange={setShareOpen} />
       {deletingId === group.id && (
         <GroupDeleteDialog group={group} open onOpenChange={onDeleteOpenChange} />
       )}
