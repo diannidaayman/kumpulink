@@ -251,6 +251,20 @@ yang berarti.
   membuktikan apa pun. Jalankan `npm run dev` dari dalam direktori
   worktree, dan matikan server lain yang sudah memegang porta 3000
   lebih dulu.
+- **Unit 5 digabung ke `main` dan didorong, 9 September 2026.** Cabang
+  `worktree-unit-5-panel-bagikan` digabung secara lokal, worktree-nya
+  dibersihkan, dan cabangnya dihapus. `main` bergerak `53484fc..6fdbb3a`,
+  fast-forward murni 22 commit, dan `origin/main` diperiksa ulang lewat
+  `fetch` — keduanya `6fdbb3a`. Empat commit yang selama ini tertahan di
+  lokal — spec, rencana, dan dua putusan Pre-Flight — ikut terdorong.
+- **Production kini membangun kode Unit 5, dan keenam pemeriksaan
+  peramban BELUM dijalankan saat itu terjadi.** Ini urutan yang berbeda
+  dari Unit 2 sampai 4, yang digabung setelah pemeriksaannya lulus.
+  Dicatat sebagai fakta, bukan sebagai kebiasaan baru: pemilik meminta
+  dorongan itu dengan mengetahui ketiga butir "Before Moving to the Next
+  Unit" — unit berjalan ujung ke ujung, antarmuka di dua mode, halaman
+  publik di lebar ponsel — masih terbuka. Ketiganya tetap terbuka sampai
+  pemilik menjalankannya di `diandiandian.web.id` atau di lokal.
 - Tidak ada lagi pertanyaan terbuka di luar keenam pemeriksaan itu.
 
 ## Current Goal
