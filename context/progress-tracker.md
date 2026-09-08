@@ -205,9 +205,11 @@ yang berarti.
   Berkasnya tetap ada di disk, hanya berhenti dilacak.
 - **Implementasi Unit 5 selesai, 8 September 2026 — menunggu
   pemeriksaan peramban pemilik.** Sepuluh task dieksekusi, delapan
-  keputusan U5-6 sampai U5-13 dicatat di atas. Keempat gerbang kode
-  lulus: `typecheck` bersih, `lint` nol peringatan, **401 pengujian
-  di 39 berkas**, `build` sukses. Keenam pemeriksaan peramban di
+  keputusan U5-6 sampai U5-13 dicatat di atas, ditambah U5-14 yang
+  lahir dari review menyeluruh. Keempat gerbang kode lulus pada
+  8 September 2026: `typecheck` keluar 0, `lint` nol peringatan,
+  **402 pengujian di 39 berkas**, `build` keluar 0. Keenam
+  pemeriksaan peramban di
   Step 2 task brief **belum dijalankan** — pemeriksaan itu menuntut
   masuk sebagai pemilik lewat Google OAuth, dan itu bukan sesuatu
   yang boleh dilakukan agen atas nama pemilik. Unit belum tertutup
@@ -221,7 +223,34 @@ yang berarti.
   di-`.gitignore`, jadi tidak ditelusuri git. Tanpa berkas itu server
   dev menjawab 500 sebelum satu gerbang pun sempat berjalan; berkas
   itu wajib disalin dari checkout utama lebih dulu, baru pemeriksaan
-  peramban dapat dimulai.
+  peramban dapat dimulai. Sudah disalin ke worktree Unit 5.
+- **Review menyeluruh satu cabang dijalankan 8 September 2026**,
+  memakai keempat belas invarian `architecture.md` sebagai lensa.
+  **Nol Critical.** Dua Important, keduanya diperbaiki: rumusan
+  warisan kedaluwarsa yang akan melanggar invarian 12 begitu pemilik
+  memendekkan kedaluwarsa group — kini keputusan U5-14 — dan label
+  konfirmasi kedaluwarsa yang memformat tengah hari lokal peramban
+  alih-alih instan yang tersimpan, salah satu hari bagi peramban di
+  sebelah barat UTC−3. Ditambah satu Minor yang dinaikkan: slug
+  disanitasi ulang di dalam rute QR tepat sebelum header. Verifikasi
+  perbaikannya menemukan satu Important susulan — butir 7.5 di
+  "Tahap dua: item" masih menyebut `expiresAt` sendirian, dan butir
+  itulah yang akan Unit 7 salin menjadi kode.
+- **PERANGKAP saat menjalankan pemeriksaan peramban di worktree,
+  ditemukan 8 September 2026.** Sebuah server dev yang dijalankan
+  lewat perkakas pratinjau ternyata berakar di **checkout utama**,
+  bukan di worktree — dibuktikan dengan `netstat` lalu membaca
+  baris perintah prosesnya: `D:\Kumpulink\kumpulink-app\node_modules\
+  next\...`, tanpa segmen `.claude\worktrees`. Akibatnya halaman
+  yang dibuka adalah kode `main`, dan `GET /api/groups/<id>/qr`
+  menjawab **404** karena rute itu memang belum ada di sana.
+  **Cara memastikan sebelum percaya pada satu pemeriksaan pun:**
+  buka `/api/groups/apa-saja/qr` tanpa masuk. Jawaban **403 JSON**
+  berarti server melayani cabang Unit 5; **404 HTML** berarti ia
+  melayani `main` dan seluruh pemeriksaan berikutnya tidak
+  membuktikan apa pun. Jalankan `npm run dev` dari dalam direktori
+  worktree, dan matikan server lain yang sudah memegang porta 3000
+  lebih dulu.
 - Tidak ada lagi pertanyaan terbuka di luar keenam pemeriksaan itu.
 
 ## Current Goal
