@@ -1698,6 +1698,42 @@ dilupakan:
 
 ## Architecture Decisions
 
+### Keputusan U5-14 — 8 September 2026
+
+Ditemukan oleh tinjauan seluruh cabang atas Unit 5.
+Invariant 12 (`context/architecture.md`) menuntut izin
+tidak pernah hidup lebih lama daripada group yang
+menaunginya, pada **setiap** saat — bukan hanya saat
+persetujuan. Teks sebelumnya hanya menyalin
+`group.expiresAt` ke `AccessRequest.expiresAt` saat
+disetujui. Salinan itu basi begitu pemilik memperpendek
+tanggal kedaluwarsa group setelahnya, dan Unit 5 adalah
+unit yang membuat pemendekan itu terjangkau lewat
+antarmuka — sebelum Unit 5, `group.expiresAt` tidak
+pernah berubah setelah ditulis.
+
+**Aturan yang berlaku sekarang:** ditegakkan saat
+pembacaan. Evaluator mengambil mana pun yang lebih dulu
+di antara `group.expiresAt` dan
+`AccessRequest.expiresAt`, setiap kali ia membaca — bukan
+hanya sekali saat persetujuan. Salinan yang tersimpan di
+`AccessRequest.expiresAt` tetap ada dan tetap berguna
+sebagai riwayat, tetapi berstatus plafon, bukan otoritas.
+
+**Alternatif yang ditolak:** menjalarkan pemendekan ke
+semua baris `AccessRequest` di transaksi yang sama saat
+group diubah (cascade-on-write). Ditolak karena
+bergantung pada setiap jalur tulis di masa depan ingat
+menjalankan penjalaran itu — sekali ada jalur yang lupa,
+invariant diam-diam bocor. Aturan baca-waktu tidak dapat
+dikalahkan oleh jalur tulis yang lupa, dan sejalan dengan
+sikap tolak-secara-default aplikasi ini: keadaan tak
+pasti kedaluwarsa lebih cepat, tidak pernah lebih lambat.
+
+Implementasi aturan baca-waktu adalah pekerjaan Unit 7
+(cabang `APPROVAL` di `lib/access/evaluate-access.ts`);
+keputusan ini hanya mencatat aturannya.
+
 ### Keputusan U5-6 sampai U5-13 — 8 September 2026
 
 Delapan keputusan Unit 5, diambil di sesi brainstorming dan

@@ -170,8 +170,12 @@ DST, dan menambah dependensi untuk satu penjumlahan konstanta
 tidak sebanding.
 
 Aturan ini ikut mengikat `AccessRequest.expiresAt`, yang
-diwarisi dari `group.expiresAt` saat izin disetujui.
-Ditetapkan 8 September 2026, keputusan U5-8.
+disalin dari `group.expiresAt` saat izin disetujui — tapi
+salinan itu hanya catatan riwayat, bukan sumber kebenaran.
+Sumber kebenarannya dibaca ulang setiap kali: lihat
+Invariant 12 dan penjelasan di bagian `AccessRequest`.
+Ditetapkan 8 September 2026, keputusan U5-8; ditegaskan
+ulang sebagai aturan baca-waktu oleh keputusan U5-14.
 
 Indeks pada `slug` — dipenuhi oleh constraint `@unique` di atas, yang di
 Postgres otomatis membuat indeks btree unik; tidak ada `@@index` terpisah
@@ -287,8 +291,18 @@ pada `(userId, status)`.
   menilai.
 - Saat disetujui, `expiresAt` diisi dari `group.expiresAt`.
   Bila group tidak memiliki kedaluwarsa, `expiresAt` bernilai
-  null dan izin berlaku sampai dicabut. Izin tidak pernah
-  hidup lebih lama daripada group yang menaunginya.
+  null dan izin berlaku sampai dicabut. Nilai ini adalah
+  **plafon yang dicatat untuk riwayat, bukan otoritas.**
+  Evaluator tidak pernah memercayainya sendirian: setiap
+  pembacaan mengambil mana pun yang lebih dulu di antara
+  `AccessRequest.expiresAt` dan `group.expiresAt` saat itu
+  juga (Invariant 12). Alasannya, salinan yang dibuat saat
+  persetujuan basi begitu pemilik memperpendek tanggal
+  kedaluwarsa group setelahnya — dan Unit 5 adalah unit yang
+  membuat pemendekan itu terjangkau lewat antarmuka. Izin
+  tidak pernah hidup lebih lama daripada group yang
+  menaunginya, pada setiap saat, bukan hanya pada saat
+  disetujui.
 
 ### AccessLog
 
@@ -889,8 +903,14 @@ Ditetapkan 8 September 2026, keputusan U5-6, U5-9, dan U5-10.
     sesi berperan `OWNER`. Pemohon hanya dapat membuat
     baris berstatus `PENDING`.
 12. Izin tidak pernah berlaku lebih lama daripada group
-    yang menaunginya. `AccessRequest.expiresAt` tidak boleh
-    melewati `group.expiresAt`.
+    yang menaunginya. Ini ditegakkan saat pembacaan, bukan
+    saat penulisan: evaluator memakai mana pun yang lebih
+    dulu di antara `group.expiresAt` dan
+    `AccessRequest.expiresAt`, setiap kali membaca. Bila
+    pemilik memperpendek `group.expiresAt` setelah izin
+    disetujui, setiap persetujuan di bawahnya ikut
+    memendek seketika, tanpa menunggu baris `AccessRequest`
+    ditulis ulang.
 13. Kegagalan pengiriman email tidak membatalkan transaksi
     permintaan maupun keputusan.
 14. Route handler dan server action tidak menjalankan
