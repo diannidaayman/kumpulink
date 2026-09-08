@@ -4,6 +4,7 @@ import QRCode from "qrcode";
 import { getOwnerSession } from "@/lib/auth/session";
 import { getGroupSlugById } from "@/lib/db/groups";
 import { withPhysicalSize } from "@/lib/groups/qr-svg";
+import { SLUG_PATTERN } from "@/lib/groups/resolve-slug";
 import { shareUrl } from "@/lib/groups/share-url";
 import { groupIdSchema } from "@/lib/validation/group";
 
@@ -52,8 +53,15 @@ export async function GET(
     }),
   );
 
-  // Slug hanya memuat huruf kecil, angka, dan tanda hubung (SLUG_PATTERN),
-  // jadi ia aman masuk header tanpa penyandian tambahan.
+  // SLUG_PATTERN ditegakkan saat slug ditulis (lib/groups/resolve-slug.ts),
+  // tapi header di bawah tidak boleh memercayai invarian dari modul lain —
+  // kalau suatu saat ada jalur tulis yang lupa menegakkannya, slug nakal
+  // tidak boleh ikut sampai ke header. Diperiksa ulang di sini, tepat di
+  // titik nilainya menjadi header, bukan diwariskan dari kepercayaan.
+  if (!SLUG_PATTERN.test(slug)) {
+    return failure(500, "INVALID_SLUG", "Slug group tidak valid.");
+  }
+
   const unduh = new URL(request.url).searchParams.get("unduh") === "1";
 
   return new NextResponse(svg, {

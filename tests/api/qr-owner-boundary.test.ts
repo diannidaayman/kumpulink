@@ -36,4 +36,15 @@ describe("gerbang pemilik di route QR", () => {
     expect(SOURCE).toContain(`export const dynamic = "force-dynamic"`);
     expect(SOURCE).toContain("no-store");
   });
+
+  it("menyandikan ulang slug tepat sebelum Content-Disposition, bukan memercayai penulisnya", () => {
+    // Header itu sendiri harus dijamin aman DI SINI, bukan disimpulkan dari
+    // aturan yang ditegakkan di modul lain. SLUG_PATTERN diimpor ulang dan
+    // diperiksa sebelum slug masuk ke header — bukan sekadar dikomentari.
+    expect(SOURCE).toContain("SLUG_PATTERN");
+    const guard = SOURCE.indexOf("SLUG_PATTERN.test(slug)");
+    const header = SOURCE.indexOf("Content-Disposition");
+    expect(guard).toBeGreaterThanOrEqual(0);
+    expect(header).toBeGreaterThan(guard);
+  });
 });
