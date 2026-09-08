@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { fromCalendarDate, toCalendarDate, witDateParts } from "@/lib/time/expiry";
+import { endOfDayWIT, fromCalendarDate, toCalendarDate, witDateParts } from "@/lib/time/expiry";
 import { formatDateWIT } from "@/lib/time/format";
 import { EMPTY_SHARE_ACTION_STATE, type ShareActionState } from "@/lib/types/share-action";
 import type { GroupListItem } from "@/lib/types/group";
@@ -109,7 +109,13 @@ export function ShareSettingsForm({ group }: { group: GroupListItem }) {
         <p className="mt-2 font-mono text-sm text-muted-foreground">
           {expiresOn === ""
             ? "Tanpa batas waktu"
-            : `Berlaku sampai akhir hari ${formatDateWIT(toCalendarDate(expiresOn))}`}
+            : // toCalendarDate() di atas sengaja memakai tengah hari LOKAL
+              // untuk kalender; label ini harus mencerminkan instan yang
+              // benar-benar TERSIMPAN, yaitu akhir hari WIT — endOfDayWIT(),
+              // bukan toCalendarDate(). Di sisi barat UTC-3, tengah hari
+              // lokal jatuh ke hari WIT berikutnya, sehingga memakai
+              // toCalendarDate() di sini akan salah menampilkan tanggal.
+              `Berlaku sampai akhir hari ${formatDateWIT(endOfDayWIT(expiresOn))}`}
         </p>
       </div>
 
