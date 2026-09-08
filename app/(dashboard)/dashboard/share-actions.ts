@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { DASHBOARD_PATH, requireOwner } from "@/lib/auth/session";
 import { setShareEnabled, updateGroupSharing } from "@/lib/db/groups";
+import { isRecordNotFoundError } from "@/lib/db/prisma-errors";
 import { endOfDayWIT } from "@/lib/time/expiry";
 import type { ShareActionState } from "@/lib/types/share-action";
 import { groupIdSchema } from "@/lib/validation/group";
@@ -26,7 +27,16 @@ export async function toggleShareAction(formData: FormData): Promise<void> {
   // tanpa menulis. Pola yang sama dengan moveGroupAction.
   if (!id.success || !enabled.success) return;
 
-  await setShareEnabled(id.data, enabled.data);
+  try {
+    await setShareEnabled(id.data, enabled.data);
+  } catch (error) {
+    // Group sudah terhapus (tab lain, atau balapan dengan hapus): tidak
+    // ada yang perlu dicabut, dan tidak ada yang perlu diberitahu ke
+    // pemilik yang belum ditunjukkan dashboard yang disegarkan. Pola yang
+    // sama dengan deleteGroupAction.
+    if (isRecordNotFoundError(error)) return;
+    throw error;
+  }
   revalidatePath(DASHBOARD_PATH);
 }
 
@@ -36,9 +46,14 @@ export async function updateShareSettingsAction(
 ): Promise<ShareActionState> {
   await requireOwner();
 
+  const NOT_FOUND_STATE: ShareActionState = {
+    status: "error",
+    error: { code: "NOT_FOUND", message: "Group tidak ditemukan." },
+  };
+
   const id = groupIdSchema.safeParse(formData.get("id"));
   if (!id.success) {
-    return { status: "error", error: { code: "NOT_FOUND", message: "Group tidak ditemukan." } };
+    return NOT_FOUND_STATE;
   }
 
   const parsed = shareSettingsSchema.safeParse({
@@ -52,11 +67,16 @@ export async function updateShareSettingsAction(
     };
   }
 
-  await updateGroupSharing({
-    id: id.data,
-    visibility: parsed.data.visibility,
-    expiresAt: parsed.data.expiresOn === "" ? null : endOfDayWIT(parsed.data.expiresOn),
-  });
+  try {
+    await updateGroupSharing({
+      id: id.data,
+      visibility: parsed.data.visibility,
+      expiresAt: parsed.data.expiresOn === "" ? null : endOfDayWIT(parsed.data.expiresOn),
+    });
+  } catch (error) {
+    if (isRecordNotFoundError(error)) return NOT_FOUND_STATE;
+    throw error;
+  }
   revalidatePath(DASHBOARD_PATH);
 
   return { status: "ok" };

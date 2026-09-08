@@ -121,6 +121,12 @@ export async function setShareEnabled(id: string, enabled: boolean): Promise<voi
   await prisma.group.update({ where: { id }, data: { shareEnabled: enabled } });
 }
 
+/**
+ * Visibilitas dan kedaluwarsa ditulis BERSAMA dalam satu panggilan, tidak
+ * seperti setShareEnabled() yang menulis sendiri: keduanya duduk di
+ * belakang satu tombol Simpan di panel bagikan, jadi bagi pemilik ini satu
+ * keputusan yang diambil pada satu saat, bukan dua tulisan lepas.
+ */
 export async function updateGroupSharing(input: {
   id: string;
   visibility: Visibility;
