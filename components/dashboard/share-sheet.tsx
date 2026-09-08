@@ -1,6 +1,8 @@
 "use client";
 
 import { ShareEnabledSwitch } from "@/components/dashboard/share-enabled-switch";
+import { ShareLinkField } from "@/components/dashboard/share-link-field";
+import { ShareQrPanel } from "@/components/dashboard/share-qr-panel";
 import { ShareSettingsForm } from "@/components/dashboard/share-settings-form";
 import { useSheetSide } from "@/components/dashboard/use-sheet-side";
 import {
@@ -40,6 +42,8 @@ export function ShareSheet({
         <div className="flex flex-col gap-6 px-4 pb-8">
           <ShareEnabledSwitch groupId={group.id} shareEnabled={group.shareEnabled} />
           <ShareSettingsForm group={group} />
+          <ShareLinkField slug={group.slug} />
+          <ShareQrPanel groupId={group.id} slug={group.slug} title={group.title} />
         </div>
       </SheetContent>
     </Sheet>
