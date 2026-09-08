@@ -11,6 +11,7 @@ import { readRequestContext } from "@/lib/audit/request-context";
 import { auth } from "@/lib/auth";
 import { groupCallbackUrl } from "@/lib/auth/callback-url";
 import { readPublicGroup } from "@/lib/db/public-group";
+import { resolvePreviewReason } from "@/lib/groups/preview-reason";
 import { JALUR_GALAT_PENCATATAN, JALUR_TIDAK_TERSEDIA } from "@/lib/public/keadaan";
 import { formatItemSummary, summarizeItems } from "@/lib/groups/item-summary";
 
@@ -24,11 +25,15 @@ export default async function PublicGroupPage({
   const { slug } = await params;
   const session = await auth();
 
+  // Satu instan untuk kedua keputusan. Dua panggilan new Date() akan
+  // membuat evaluator dan spanduk membaca waktu yang berbeda, dan pada
+  // detik pergantian keduanya bisa tidak sepakat.
+  const now = new Date();
   const group = await readPublicGroup(slug);
   const decision = evaluateGroupAccess(
     group,
     session?.user ? { userId: session.user.id, role: session.user.role } : null,
-    new Date(),
+    now,
   );
 
   if (decision.kind === "NEEDS_LOGIN") {
@@ -78,6 +83,11 @@ export default async function PublicGroupPage({
   // pengalihannya sendiri.
   if (gagalMencatat) redirect(JALUR_GALAT_PENCATATAN);
 
+  // decision.ownerPreview sudah memutuskan APAKAH spanduk muncul; fungsi
+  // ini hanya memilih kalimatnya. Dijaga oleh syarat pertama supaya
+  // pengunjung biasa tidak pernah sampai ke sini.
+  const previewReason = decision.ownerPreview ? resolvePreviewReason(group, now) : null;
+
   return (
     <>
       {session?.user && (
@@ -87,7 +97,9 @@ export default async function PublicGroupPage({
           callbackUrl={groupCallbackUrl(slug)}
         />
       )}
-      {decision.ownerPreview && <OwnerPreviewBanner />}
+      {previewReason !== null && (
+        <OwnerPreviewBanner reason={previewReason} expiresAt={group.expiresAt} />
+      )}
       <GroupHeader
         title={group.title}
         slug={group.slug}
