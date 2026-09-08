@@ -1,5 +1,7 @@
 import "server-only";
 
+import type { Visibility } from "@prisma/client";
+
 import { prisma } from "@/lib/db/client";
 import { moveInList, renumber } from "@/lib/order/move";
 import type { GroupListItem } from "@/lib/types/group";
@@ -107,4 +109,25 @@ export async function moveGroupInTransaction(
  */
 export async function groupExists(id: string): Promise<boolean> {
   return (await prisma.group.count({ where: { id } })) > 0;
+}
+
+/**
+ * Satu kolom, satu tulisan. Dipanggil saat saklar digeser, dan disengaja
+ * TIDAK digabung dengan updateGroupSharing(): pencabutan harus dapat
+ * terjadi tanpa ikut menulis setelan lain yang mungkin sedang disunting
+ * pemilik di formulir yang belum ia simpan.
+ */
+export async function setShareEnabled(id: string, enabled: boolean): Promise<void> {
+  await prisma.group.update({ where: { id }, data: { shareEnabled: enabled } });
+}
+
+export async function updateGroupSharing(input: {
+  id: string;
+  visibility: Visibility;
+  expiresAt: Date | null;
+}): Promise<void> {
+  await prisma.group.update({
+    where: { id: input.id },
+    data: { visibility: input.visibility, expiresAt: input.expiresAt },
+  });
 }
