@@ -203,18 +203,40 @@ yang berarti.
   melanjutkan" yang menyatakan skrip itu tidak untuk di-commit. Catatan
   itulah yang menyatakan niatnya, jadi kodenya yang menyesuaikan.
   Berkasnya tetap ada di disk, hanya berhenti dilacak.
-- Tidak ada lagi pertanyaan terbuka.
+- **Implementasi Unit 5 selesai, 8 September 2026 — menunggu
+  pemeriksaan peramban pemilik.** Sepuluh task dieksekusi, delapan
+  keputusan U5-6 sampai U5-13 dicatat di atas. Keempat gerbang kode
+  lulus: `typecheck` bersih, `lint` nol peringatan, **401 pengujian
+  di 39 berkas**, `build` sukses. Keenam pemeriksaan peramban di
+  Step 2 task brief **belum dijalankan** — pemeriksaan itu menuntut
+  masuk sebagai pemilik lewat Google OAuth, dan itu bukan sesuatu
+  yang boleh dilakukan agen atas nama pemilik. Unit belum tertutup
+  sampai keenamnya dijalankan dan lulus.
+- **Worktree baru menuntut `npm run db:generate` sebelum
+  `typecheck` lulus.** npm memblokir skrip postinstall
+  `@prisma/client`, jadi klien hasil generate tidak ada sampai
+  `prisma generate` dijalankan sendiri. Sebab akarnya sama dengan
+  keputusan U5-0.
+- **`.env.local` tidak ikut ke worktree baru** — berkas itu
+  di-`.gitignore`, jadi tidak ditelusuri git. Tanpa berkas itu server
+  dev menjawab 500 sebelum satu gerbang pun sempat berjalan; berkas
+  itu wajib disalin dari checkout utama lebih dulu, baru pemeriksaan
+  peramban dapat dimulai.
+- Tidak ada lagi pertanyaan terbuka di luar keenam pemeriksaan itu.
 
 ## Current Goal
 
-- **Unit 4 tuntas. Berikutnya Unit 5 — panel Bagikan.** Kesembilan
-  pemeriksaan peramban dijalankan terhadap build produksi dan lulus —
-  tujuh pada 28 Agustus 2026, dua sisanya (CEK 2 dan CEK 4) pada
-  1 September 2026 — ditambah jalur 503 yang sebelumnya belum pernah
-  dijalankan dalam bentuk apa pun. Satu temuan yang sempat menahan Unit
-  5, permukaan galat kosong tanpa JavaScript, sudah ditelusuri sampai
-  akar dan **ditutup** pada 1 September 2026. Rinciannya di bagian
-  "Pemeriksaan peramban Unit 4" di bawah, dan Unit 5 di bagian Next Up.
+- **Unit 5 — implementasi selesai, menunggu pemeriksaan peramban
+  pemilik sebelum unit ini dapat dinyatakan tutup.** Keempat gerbang
+  kode (`typecheck`, `lint`, `test`, `build`) lulus pada 8 September
+  2026 dengan angka dicatat di atas. Enam pemeriksaan tersisa —
+  halaman hidup, pencabutan terlihat dari luar, pemilik tetap masuk
+  dengan sebab yang benar, kedaluwarsa berbunyi lain, QR terpindai,
+  dan salin yang gagal tetap berguna — seluruhnya di mode terang dan
+  gelap serta lebar 375 px, tercantum di
+  `.superpowers/sdd/task-10-brief.md` Step 2. Pemilik yang
+  menjalankannya, seperti Unit 1 sampai 4 sebelumnya. Baru setelah
+  keenamnya lulus, Unit 6 (tampilan riwayat akses) dapat dimulai.
 - Tidak ada keputusan yang menggantung.
 
   Rumusan sebelumnya di bagian ini masih menyebut Fase 2 sebagai
@@ -1479,21 +1501,16 @@ bukan oleh infrastruktur yang kebetulan menolak duluan.
 
 ## Next Up
 
-1. **Unit 5 — panel Bagikan.** `visibility`, `expiresAt`,
-   `shareEnabled`, penyalinan URL, QR code SVG dirender di server, dan
-   spanduk pratinjau pemilik untuk group yang dicabut atau kedaluwarsa
-   yang ia buka sendiri. **Seluruh prasyarat terpenuhi** —
-   kesembilan pemeriksaan peramban tuntas dan lulus pada 1 September
-   2026, jalur 503 ikut dijalankan, dan temuan permukaan galat kosong
-   sudah ditutup. Tidak ada lagi yang menahan unit ini.
-
-   **Gerbang D1 berlaku untuk unit ini secara langsung:** domain harus
-   sudah ditetapkan sebelum QR code dibangun, karena QR memuat URL
-   absolut dan QR yang sudah dicetak tidak dapat ditarik kembali.
-   Domain sudah ditetapkan — `diandiandian.web.id`, apex sebagai
-   Production — jadi gerbang ini sudah terpenuhi, tetapi periksa ulang
-   sebelum QR pertama dirender bahwa tidak ada perubahan arah
-   pengalihan yang terlewat sejak keputusan itu dicatat.
+1. **Unit 5 — panel Bagikan. Implementasi selesai; hanya keenam
+   pemeriksaan peramban pemilik yang tersisa.** `visibility`,
+   `expiresAt`, `shareEnabled`, penyalinan URL, QR code SVG dirender
+   di server, dan spanduk pratinjau pemilik sudah dibangun. Keempat
+   gerbang kode lulus 8 September 2026: `typecheck` bersih, `lint`
+   nol peringatan, **401 pengujian di 39 berkas**, `build` sukses.
+   Yang tersisa adalah keenam pemeriksaan peramban di
+   `.superpowers/sdd/task-10-brief.md` Step 2 — dijalankan pemilik
+   sendiri, seperti Unit 1 sampai 4 — di mode terang dan gelap serta
+   lebar 375 px. Baru setelah keenamnya lulus unit ini tertutup.
 
    **Tiga hal warisan yang kini TERTUTUP, dicatat di sini supaya tidak
    dicari ulang:**
@@ -1674,6 +1691,54 @@ dilupakan:
   menembus kuota gratis; lihat keputusan D5.
 
 ## Architecture Decisions
+
+### Keputusan U5-6 sampai U5-13 — 8 September 2026
+
+Delapan keputusan Unit 5, diambil di sesi brainstorming dan
+dicatat lengkap beserta alternatif yang ditolak di
+`docs/superpowers/specs/2026-09-08-unit-5-panel-bagikan-design.md`.
+Ringkasannya:
+
+- **U5-6 — domain QR sebagai konstanta di kode.**
+  `APP_ORIGIN = "https://diandiandian.web.id"` di
+  `lib/groups/share-url.ts`, bukan variabel lingkungan kedua belas.
+  Alasannya langsung dari U5-1: nilai `Sensitive` yang tersimpan
+  kosong tidak dapat dibaca siapa pun, sedangkan konstanta di kode
+  terbaca di diff. Domain bukan rahasia. Konsekuensi yang diterima
+  sadar: URL dan QR di localhost menunjuk domain produksi.
+- **U5-7 — saklar menyimpan seketika, dua setelan lain bertombol
+  Simpan.** Lingkup unit berbunyi mencabut link *seketika*.
+- **U5-8 — `expiresAt` per tanggal, mati akhir hari WIT.**
+  23:59:59.999 Asia/Jayapura. Aritmetika tetap UTC+9 di
+  `lib/time/expiry.ts`, bukan pustaka zona waktu; Papua tidak
+  pernah mengenal DST. Aturan ini ikut mengikat
+  `AccessRequest.expiresAt` di Unit 7.
+- **U5-9 — QR hanya SVG, 80 mm, koreksi galat M, margin 4 modul.**
+  Jarak pindai ≈ sepuluh kali lebar QR. Margin 4 modul adalah quiet
+  zone minimum spesifikasi QR, bukan selera.
+- **U5-10 — QR dilayani satu route handler.** Pratinjau dan unduhan
+  dari rute yang sama; tidak ada berkas turunan di Blob yang wajib
+  disapu saat slug berubah.
+- **U5-11 — tombol Salin adalah jalan pintas.** URL selalu terlihat
+  dan dapat diseleksi. Kemunduran ke `document.execCommand("copy")`
+  ditolak: pada sebagian peramban ia mengembalikan `true` tanpa
+  menyalin apa pun.
+- **U5-12 — saklar dan tingkat akses dua pekerjaan berbeda.**
+  Menggabungkannya menjadi satu daftar empat nilai ditolak: itu
+  menulis dua kolom dari satu masukan dan membuat pencabutan
+  melupakan tingkat akses yang sudah disetel.
+- **U5-13 — spanduk pratinjau pemilik membedakan sebabnya.**
+  Mengikuti aturan nada-mengikuti-sebab yang sudah berlaku pada
+  lencana. `evaluate-access.ts` tidak diubah dan `ownerPreview`
+  tetap boolean: sebabnya dihitung `resolvePreviewReason()` dari
+  kolom yang sudah dibaca halaman.
+
+**Yang TIDAK berubah di unit ini, dan itu disengaja:**
+`lib/access/evaluate-access.ts` tidak disentuh sama sekali, matriks
+izinnya tidak bertambah satu baris pun, dan tidak ada penulisan
+`AccessLog` yang ditambah atau diubah. Unit 5 hanya memberi
+antarmuka kepada tiga kolom yang sudah dibaca evaluator sejak
+Unit 4.
 
 ### Keputusan U5-5 — 7 September 2026
 
