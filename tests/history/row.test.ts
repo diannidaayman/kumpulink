@@ -48,6 +48,16 @@ describe("kolom Waktu dan alamat IP", () => {
     expect(toHistoryRow(baris(), JUDUL).time).toContain("9 Sep");
   });
 
+  // Seluruh guna tabel ini adalah menjawab "pada jam berapa", jadi kolom
+  // Waktu wajib memuat jam dan menit, bukan cuma tanggal. Pemisah jam yang
+  // dipakai Intl untuk locale id-ID berbeda antar versi ICU, jadi titik
+  // pada regex sengaja wildcard hanya untuk posisi pemisah itu; urutan
+  // digit "14" lalu "05" tetap terjaga. Lihat tests/time/format-datetime.test.ts.
+  it("menyertakan jam dan menit pada kolom Waktu, bukan hanya tanggal", () => {
+    const view = toHistoryRow(baris(), JUDUL);
+    expect(view.time).toMatch(/14.05/);
+  });
+
   it("menaruh IP di bawah Waktu pada baris beridentitas", () => {
     const view = toHistoryRow(baris(), JUDUL);
     expect(view.timeIp).toBe("203.0.113.9");
@@ -60,6 +70,13 @@ describe("kolom Waktu dan alamat IP", () => {
     const view = toHistoryRow(baris({ visitorName: null, visitorEmail: null }), JUDUL);
     expect(view.nameIp).toBe("203.0.113.9");
     expect(view.timeIp).toBeNull();
+  });
+});
+
+describe("medan id", () => {
+  it("meneruskan id baris log apa adanya ke model tampilan", () => {
+    const view = toHistoryRow(baris({ id: "log-42" }), JUDUL);
+    expect(view.id).toBe("log-42");
   });
 });
 
@@ -90,6 +107,15 @@ describe("kolom Item", () => {
 
   it("menandai baris PAGE_VIEW sebagai kunjungan halaman", () => {
     const view = toHistoryRow(baris({ eventType: "PAGE_VIEW", itemId: null }), JUDUL);
+    expect(view.item).toBe(PAGE_VIEW_ITEM);
+    expect(view.itemIsAbsent).toBe(true);
+  });
+
+  // eventType yang memutuskan, bukan ada tidaknya itemId. Baris ini
+  // kebetulan membawa itemId yang valid, tapi tetap harus terbaca sebagai
+  // kunjungan halaman karena eventType-nya PAGE_VIEW.
+  it("tetap terbaca sebagai kunjungan halaman meski barisnya kebetulan membawa itemId", () => {
+    const view = toHistoryRow(baris({ eventType: "PAGE_VIEW", itemId: "item-1" }), JUDUL);
     expect(view.item).toBe(PAGE_VIEW_ITEM);
     expect(view.itemIsAbsent).toBe(true);
   });
