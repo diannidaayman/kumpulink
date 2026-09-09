@@ -276,16 +276,83 @@ yang berarti.
   untuk Unit 5, dan ketiga butir "Before Moving to the Next Unit" yang
   disebut paragraf di atas tidak lagi terbuka.
 - Tidak ada lagi pertanyaan terbuka; keenam pemeriksaan itu pun sudah ditutup.
+- **Unit 6 implementasi selesai, 9 September 2026 — menunggu
+  pemeriksaan peramban pemilik.** Sebelas task dieksekusi lewat
+  subagent di worktree `.claude/worktrees/unit-6-riwayat-akses`,
+  cabang `worktree-unit-6-riwayat-akses`, 17 commit dari `56efa80`
+  sampai `96b3d72`. Keempat gerbang kode lulus pada 9 September 2026:
+  `typecheck` bersih, `lint` nol peringatan, **495 pengujian di 49
+  berkas**, `build` sukses dengan rute
+  `/dashboard/groups/[groupId]/riwayat` terbangun sebagai rute
+  dinamis. Angka pembanding di awal unit adalah 402 pengujian di 39
+  berkas, jadi unit ini menambah 93 pengujian di 10 berkas. Setiap
+  task ditutup review dua putusan — kepatuhan spesifikasi dan
+  kualitas — dan lima task menuntut putaran perbaikan sebelum lolos.
+
+  Review menjalankan mutasi pada kode dan menemukan cacat yang tidak
+  akan tertangkap tanpa itu. Tiga yang paling berarti:
+  1. Pengujian penjaga yang sudah ada, `tests/audit/access-log-boundary.test.ts`,
+     sempat dilonggarkan dari penjaga TULIS menjadi penjaga SENTUH
+     saat `lib/db/access-logs.ts` ditambahkan ke daftar yang
+     diizinkan. Akibatnya berkas pembaca itu boleh menulis ke
+     `AccessLog` tanpa CI mengeluh. Dibuktikan reviewer dengan
+     menyisipkan `prisma.accessLog.create(...)` yang tetap membuat
+     pengujian hijau. Ditutup dengan memisahkan peran penulis dari
+     pembaca, ditambah asersi bahwa berkas pembaca tidak pernah
+     memanggil operasi tulis.
+  2. `vitest.config.mts` sempat menyetel
+     `ssr.resolve.conditions: ["react-server"]` demi membuat
+     `server-only` dapat diimpor di pengujian. Menuliskan `conditions`
+     MENGGANTI daftar bawaan Vite, bukan menambahnya, sehingga `react`
+     teresolusi ke build RSC tanpa `useState` untuk SELURUH suite.
+     Suite saat itu kebetulan tidak mengimpor `react`, jadi
+     masalahnya tak terlihat; ia akan meledak pada pengujian komponen
+     pertama yang ditulis siapa pun, dengan galat yang tidak menunjuk
+     ke berkas konfigurasi. Diganti alias satu modul untuk
+     `server-only`.
+  3. Tiga perilaku halaman Riwayat — pengalihan alamat ke bentuk
+     kanonik, pembuangan nilai `?item=` yang tidak dikenal, dan
+     penjepitan nomor halaman di luar jangkauan — seluruhnya dapat
+     dihapus tanpa satu pun pengujian berubah warna. Ditutup dengan
+     asersi bergaya teks sumber yang dijangkarkan ke bentuk kode
+     setelah komentar dibuang, sehingga menghapus kode sambil
+     menyisakan komentarnya tetap merah.
+
+  **Satu keterbatasan diterima sadar sebagai konsekuensi:** repositori
+  ini tidak punya kerangka pengujian DOM, sehingga perilaku halaman
+  dan komponen dijaga dengan pengujian bergaya teks sumber. Gaya itu
+  menjaga BENTUK kode, bukan semantiknya — pembalikan logika yang
+  ditulis ulang secara ekuivalen dapat lolos. Ini berlaku untuk
+  seluruh keluarga `*-boundary.test.ts` di repositori ini, bukan hanya
+  Unit 6.
+
+  **Keenam pemeriksaan peramban Unit 6 belum dijalankan.** Unit ini
+  belum dapat dinyatakan tutup sampai keenamnya dijalankan pemilik di
+  mode terang dan gelap serta di lebar 375 px:
+  1. Tabel terbaca dan lengkap, termasuk baris `PAGE_VIEW`, baris
+     anonim berikut IP di sel Nama, baris item terhapus, dan baris
+     `DENIED` beserta penjelasan di `title`
+  2. Setiap cap waktu berakhir dengan `WIT` dan berbaris lurus ke
+     bawah
+  3. Penyaring bekerja, alamatnya dapat disalin dan dibuka di tab lain
+     dengan hasil identik, dan mengubah penyaring mengembalikan
+     halaman ke 1
+  4. Menyaring satu tanggal yang memuat akses sebelum pukul 09.00 WIT
+     tetap memunculkan baris itu
+  5. Paginasi menyatakan totalnya, tombolnya mati di kedua ujung, dan
+     `hal` di luar jangkauan meluruskan alamatnya sendiri
+  6. Di lebar 375 px tabel berganti menjadi kartu tanpa label medan,
+     tanpa alamat IP, tanpa gulir mendatar — dan `/dashboard` tidak
+     ikut melebar
 
 ## Current Goal
 
-- **Unit 6 — halaman riwayat akses, sedang berjalan.** Keenam
-  pemeriksaan peramban Unit 5 sudah dijalankan pemilik dan lulus,
-  sehingga gerbang "unit berjalan ujung ke ujung" tertutup dan Unit 6
-  dapat dimulai. Rencananya di
-  `docs/superpowers/plans/2026-09-09-unit-6-riwayat-akses.md`, dua
-  belas task, dengan kesembilan keputusan U6-1 sampai U6-9 tercatat
-  di Architecture Decisions.
+- **Unit 6 — implementasi selesai, menunggu pemeriksaan peramban
+  pemilik.** Keempat gerbang kode lulus dan kesebelas task kode
+  ditutup review dua putusan, tetapi task kedua belas — keenam
+  pemeriksaan peramban di atas — belum dijalankan siapa pun. Unit
+  belum dapat dinyatakan tutup, lulus pemeriksaan, atau siap digabung
+  sampai keenamnya dijalankan dan lulus.
 - Tidak ada keputusan yang menggantung.
 
 ## Completed
