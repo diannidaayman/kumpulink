@@ -8,7 +8,9 @@
 
 **Tech Stack:** Next.js 15.5 App Router, TypeScript strict, Prisma 6.19 + PostgreSQL, Auth.js v5, Zod 4, Tailwind v4 + shadcn/ui, Vitest.
 
-**Keputusan yang mendasari rencana ini:** U6-1 sampai U6-9 di bagian "Keputusan Unit 6" pada dokumen ini. Keputusan itu ditetapkan bersama pemilik pada 9 September 2026 dan **tidak dinegosiasikan ulang saat eksekusi**. Bila sebuah task tampak menuntut pelanggarannya, hentikan dan tanyakan.
+**Spesifikasi:** `docs/superpowers/specs/2026-09-09-unit-6-riwayat-akses-design.md`. Baca lebih dulu.
+
+**Keputusan yang mendasari rencana ini:** U6-1 sampai U6-9 di bagian "Keputusan Unit 6" pada dokumen ini, identik dengan yang tertulis di spesifikasi. Keputusan itu ditetapkan bersama pemilik pada 9 September 2026 dan **tidak dinegosiasikan ulang saat eksekusi**. Bila sebuah task tampak menuntut pelanggarannya, hentikan dan tanyakan.
 
 ## Global Constraints
 
