@@ -16,11 +16,13 @@ import {
   givenQueryString,
   historyHref,
   historyQueryString,
+  isFiltering,
   normalizeHistoryParams,
   type RawSearchParams,
 } from "@/lib/history/query-params";
 import { toHistoryRow } from "@/lib/history/row";
 import type { HistoryItemOption } from "@/lib/types/history";
+import { groupIdSchema } from "@/lib/validation/group";
 
 export const dynamic = "force-dynamic";
 
@@ -35,7 +37,17 @@ export default async function HistoryPage({
   // Pola yang sama dengan app/(dashboard)/dashboard/page.tsx.
   await requireOwner();
 
-  const { groupId } = await params;
+  const { groupId: rawGroupId } = await params;
+
+  // Parameter rute adalah input eksternal, sama seperti searchParams —
+  // keduanya wajib divalidasi Zod (code-standards.md, invarian 9 di
+  // architecture.md) sebelum dipakai untuk apa pun. Divalidasi PERTAMA,
+  // sebelum pengalihan kanonik disusun, supaya groupId yang tidak sah
+  // tidak pernah ikut tersusun menjadi alamat tujuan redirect.
+  const groupIdResult = groupIdSchema.safeParse(rawGroupId);
+  if (!groupIdResult.success) notFound();
+  const groupId = groupIdResult.data;
+
   const raw = await searchParams;
 
   // Aturan tunggal: nilai yang tidak sah dibuang, lalu alamatnya
@@ -100,8 +112,7 @@ export default async function HistoryPage({
   }
 
   const views = rows.map((row) => toHistoryRow(row, itemTitles));
-  const filtering =
-    query.item !== null || query.dari !== null || query.sampai !== null || query.deniedOnly;
+  const filtering = isFiltering(query);
 
   return (
     // data-wide melebarkan bilah atas DAN <main> menjadi max-w-6xl.

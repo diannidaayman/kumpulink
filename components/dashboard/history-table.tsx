@@ -19,7 +19,14 @@ import { cn } from "@/lib/utils";
 export function HistoryTable({ rows }: { rows: HistoryRowView[] }) {
   return (
     <div className="hidden overflow-x-auto md:block">
-      <table className="w-full border-collapse text-left">
+      {/* table-fixed wajib: di layout otomatis, truncate memasang
+          white-space: nowrap sehingga lebar minimum sel jadi lebar penuh
+          untainya (bukan nol) dan truncate tidak pernah sempat memotong —
+          w-56/w-52 hanya jadi preferensi, dan satu judul panjang melebarkan
+          seluruh tabel. table-fixed mengikat lebar kolom pada w-56/w-52,
+          sisanya dibagi ke Nama/Email/Item, dan urutan pengorbanan kolom
+          di ui-context.md baru terpenuhi. */}
+      <table className="w-full table-fixed border-collapse text-left">
         <thead>
           <tr className="border-b border-border">
             <th scope="col" className="w-56 px-3 py-2 text-sm font-medium text-muted-foreground">

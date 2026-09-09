@@ -345,6 +345,40 @@ yang berarti.
      tanpa alamat IP, tanpa gulir mendatar — dan `/dashboard` tidak
      ikut melebar
 
+- **Kelima temuan review menyeluruh Unit 6 ditutup, 10 September 2026.**
+  Dua Important dan tiga Minor, seluruhnya diterapkan di cabang yang
+  sama:
+  1. `components/dashboard/history-table.tsx` — `table-fixed`
+     ditambahkan ke elemen `<table>`. Tanpa itu, `truncate` di layout
+     otomatis memasang `white-space: nowrap` sehingga lebar minimum sel
+     jadi lebar penuh untainya, `w-56`/`w-52` hanya jadi preferensi, dan
+     satu judul panjang melebarkan seluruh tabel — elipsis tidak pernah
+     muncul, gulir mendatar yang muncul.
+  2. `app/(dashboard)/dashboard/groups/[groupId]/riwayat/page.tsx` —
+     `groupId` (parameter rute) kini divalidasi `groupIdSchema` sebagai
+     tindakan pertama sesudah `requireOwner()`, sebelum pengalihan
+     kanonik disusun. Sebelumnya diserahkan mentah ke
+     `getGroupTitleById()`, melanggar invarian 9 `architecture.md`.
+     Verifikasi mutasi dijalankan: validasi dihapus sementara membuat
+     asersi baru di `tests/dashboard/history-owner-boundary.test.ts`
+     MERAH, dikembalikan membuatnya HIJAU lagi.
+  3. `lib/history/row.ts` — cabang `PAGE_VIEW` dan `ITEM_ACCESS` dengan
+     `itemId` null dipisah. Yang kedua kini `UNKNOWN_ITEM` ("Item tidak
+     diketahui"), bukan ikut berbunyi "Membuka halaman group".
+  4. `components/dashboard/history-filter-bar.tsx` — tombol "Hapus
+     penyaring" kini memanggil `apply(...)` yang sudah ada, bukan
+     menduplikasi pola `startTransition`/`router.replace`.
+  5. `lib/history/query-params.ts` — fungsi murni `isFiltering()`
+     ditambahkan, dipakai oleh halaman server dan `HistoryFilterBar`
+     sehingga definisi "sedang menyaring" hidup di satu tempat.
+
+  Keempat gerbang lulus sesudahnya: `typecheck` bersih, `lint` nol
+  peringatan, **503 pengujian di 49 berkas** (naik dari 495 — bertambah
+  8), `build` sukses. Rincian lengkap di
+  `.superpowers/sdd/final-review-fix-report.md`. Keenam pemeriksaan
+  peramban pemilik yang disebut di atas **masih belum dijalankan** —
+  ini tidak berubah oleh sesi ini.
+
 ## Current Goal
 
 - **Unit 6 — implementasi selesai, menunggu pemeriksaan peramban

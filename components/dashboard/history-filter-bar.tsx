@@ -5,7 +5,7 @@ import { useTransition } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { historyHref, type HistoryParams } from "@/lib/history/query-params";
+import { historyHref, isFiltering, type HistoryParams } from "@/lib/history/query-params";
 import type { HistoryItemOption } from "@/lib/types/history";
 import { cn } from "@/lib/utils";
 
@@ -38,11 +38,7 @@ export function HistoryFilterBar({
     });
   };
 
-  const filtering =
-    params.item !== null ||
-    params.dari !== null ||
-    params.sampai !== null ||
-    params.deniedOnly;
+  const filtering = isFiltering(params);
 
   return (
     <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-end">
@@ -110,19 +106,7 @@ export function HistoryFilterBar({
             variant="outline"
             size="sm"
             disabled={pending}
-            onClick={() =>
-              startTransition(() => {
-                router.replace(
-                  historyHref(groupId, {
-                    item: null,
-                    dari: null,
-                    sampai: null,
-                    deniedOnly: false,
-                    page: 1,
-                  }),
-                );
-              })
-            }
+            onClick={() => apply({ item: null, dari: null, sampai: null, deniedOnly: false })}
           >
             Hapus penyaring
           </Button>

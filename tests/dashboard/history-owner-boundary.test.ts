@@ -62,6 +62,20 @@ describe("gerbang pemilik di halaman Riwayat", () => {
     );
   });
 
+  it("memvalidasi groupId dengan groupIdSchema sebelum menyentuh database", () => {
+    // groupId adalah parameter rute, input eksternal seperti searchParams
+    // (code-standards.md, invarian 9 architecture.md). Divalidasi lebih
+    // dulu supaya nilai yang tidak sah tidak pernah tersusun menjadi
+    // alamat tujuan redirect ataupun sampai ke query database.
+    expect(CODE).toMatch(/groupIdSchema\.safeParse\(/);
+
+    const validateIndex = CODE.indexOf("groupIdSchema.safeParse(");
+    const dbCallIndex = CODE.indexOf("getGroupTitleById(");
+    expect(validateIndex).toBeGreaterThan(-1);
+    expect(dbCallIndex).toBeGreaterThan(-1);
+    expect(validateIndex).toBeLessThan(dbCallIndex);
+  });
+
   it("menjepit ?hal= di luar jangkauan ke halaman hasil buildPagination", () => {
     // Tanpa penjepitan ini, ?hal=999 pada hasil yang hanya punya dua
     // halaman akan lolos apa adanya: tabel kosong ditampilkan sementara

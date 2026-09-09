@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { ANONYMOUS_NAME, DELETED_ITEM, PAGE_VIEW_ITEM, toHistoryRow } from "@/lib/history/row";
+import {
+  ANONYMOUS_NAME,
+  DELETED_ITEM,
+  PAGE_VIEW_ITEM,
+  UNKNOWN_ITEM,
+  toHistoryRow,
+} from "@/lib/history/row";
 import type { HistoryLogRow } from "@/lib/types/history";
 
 const JUDUL = new Map<string, string>([["item-1", "Rundown acara"]]);
@@ -123,6 +129,15 @@ describe("kolom Item", () => {
   it("menandai item yang tidak ada lagi di group sebagai sudah dihapus", () => {
     const view = toHistoryRow(baris({ itemId: "item-hilang" }), JUDUL);
     expect(view.item).toBe(DELETED_ITEM);
+    expect(view.itemIsAbsent).toBe(true);
+  });
+
+  it("menandai ITEM_ACCESS dengan itemId null sebagai item tidak diketahui, bukan kunjungan halaman", () => {
+    // Keadaan ini berbeda dari PAGE_VIEW: barisnya mengaku mengakses
+    // sebuah item, tapi itemId-nya hilang. Menyatukannya dengan cabang
+    // PAGE_VIEW akan menegaskan kunjungan halaman yang tidak pernah terjadi.
+    const view = toHistoryRow(baris({ eventType: "ITEM_ACCESS", itemId: null }), JUDUL);
+    expect(view.item).toBe(UNKNOWN_ITEM);
     expect(view.itemIsAbsent).toBe(true);
   });
 });

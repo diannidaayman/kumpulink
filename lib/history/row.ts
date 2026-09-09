@@ -5,6 +5,12 @@ import type { HistoryLogRow, HistoryRowView } from "@/lib/types/history";
 export const ANONYMOUS_NAME = "Tanpa identitas";
 export const PAGE_VIEW_ITEM = "Membuka halaman group";
 export const DELETED_ITEM = "Item sudah dihapus";
+// ITEM_ACCESS dengan itemId null tidak terjangkau hari ini, tapi ini
+// tabel pertanggungjawaban: label ini tidak boleh menegaskan kunjungan
+// halaman yang tidak pernah terjadi. Mengikuti preseden denyReasonText
+// di bawah — alasan yang tidak dikenali dinyatakan "tidak diketahui",
+// bukan ditebak sebagai cabang lain yang kebetulan mirip.
+export const UNKNOWN_ITEM = "Item tidak diketahui";
 
 function resolveItem(
   row: HistoryLogRow,
@@ -12,8 +18,17 @@ function resolveItem(
 ): { item: string; itemIsAbsent: boolean } {
   // PAGE_VIEW tidak menunjuk item mana pun menurut rancangan, bukan karena
   // datanya rusak. Keputusan U6-1: dinyatakan, bukan dikosongkan.
-  if (row.eventType === "PAGE_VIEW" || row.itemId === null) {
+  if (row.eventType === "PAGE_VIEW") {
     return { item: PAGE_VIEW_ITEM, itemIsAbsent: true };
+  }
+
+  // ITEM_ACCESS dengan itemId null adalah keadaan berbeda dari PAGE_VIEW:
+  // barisnya mengaku mengakses sebuah item, tapi itemId-nya sendiri
+  // hilang. Menyatukannya dengan cabang PAGE_VIEW di atas akan membuat
+  // baris ini berbunyi "Membuka halaman group" — menegaskan kunjungan
+  // halaman yang tidak pernah terjadi.
+  if (row.itemId === null) {
+    return { item: UNKNOWN_ITEM, itemIsAbsent: true };
   }
 
   // AccessLog sengaja tanpa foreign key, sehingga baris ini bertahan

@@ -4,6 +4,7 @@ import {
   givenQueryString,
   historyHref,
   historyQueryString,
+  isFiltering,
   normalizeHistoryParams,
 } from "@/lib/history/query-params";
 
@@ -126,5 +127,34 @@ describe("historyHref", () => {
     expect(historyHref("grp-1", normalizeHistoryParams({}))).toBe(
       "/dashboard/groups/grp-1/riwayat",
     );
+  });
+});
+
+describe("isFiltering", () => {
+  // Definisi tunggal "sedang menyaring", dipakai baik oleh halaman
+  // server maupun HistoryFilterBar — penyaring keenam kelak hanya
+  // menyentuh fungsi ini, bukan dua tempat yang bisa berselisih.
+  it("mengembalikan false ketika tidak ada penyaring aktif", () => {
+    expect(isFiltering(normalizeHistoryParams({}))).toBe(false);
+  });
+
+  it("mengembalikan true ketika hanya item yang aktif", () => {
+    expect(isFiltering(normalizeHistoryParams({ item: "cm1abc" }))).toBe(true);
+  });
+
+  it("mengembalikan true ketika hanya dari yang aktif", () => {
+    expect(isFiltering(normalizeHistoryParams({ dari: "2026-09-01" }))).toBe(true);
+  });
+
+  it("mengembalikan true ketika hanya sampai yang aktif", () => {
+    expect(isFiltering(normalizeHistoryParams({ sampai: "2026-09-09" }))).toBe(true);
+  });
+
+  it("mengembalikan true ketika hanya deniedOnly yang aktif", () => {
+    expect(isFiltering(normalizeHistoryParams({ ditolak: "1" }))).toBe(true);
+  });
+
+  it("mengabaikan halaman: hal saja tidak dianggap menyaring", () => {
+    expect(isFiltering(normalizeHistoryParams({ hal: "2" }))).toBe(false);
   });
 });

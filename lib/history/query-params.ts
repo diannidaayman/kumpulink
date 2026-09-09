@@ -92,3 +92,16 @@ export function historyHref(groupId: string, params: HistoryParams): string {
   const path = `/dashboard/groups/${groupId}/riwayat`;
   return query === "" ? path : `${path}?${query}`;
 }
+
+/**
+ * Satu-satunya tempat "sedang menyaring" didefinisikan. Halaman server dan
+ * HistoryFilterBar dulu masing-masing menulis ulang definisi ini sendiri
+ * — penyaring keenam kelak wajib menyentuh keduanya, atau kedua permukaan
+ * berselisih (bilah menyembunyikan tombol Hapus sementara keadaan kosong
+ * menampilkannya). Fungsi murni ini dipakai di kedua tempat.
+ */
+export function isFiltering(params: HistoryParams): boolean {
+  return (
+    params.item !== null || params.dari !== null || params.sampai !== null || params.deniedOnly
+  );
+}
