@@ -11,7 +11,13 @@ const SOURCE = readFileSync("app/(dashboard)/layout.tsx", "utf8");
  */
 describe("lebar shell dashboard", () => {
   it("memberi pembungkus terluar nama group/shell", () => {
-    expect(SOURCE).toContain("group/shell");
+    // Dijangkarkan ke atribut className pembungkus terluar, BUKAN ke teks
+    // berkas: toContain teks lama juga cocok pada komentar Bahasa Indonesia
+    // di atas elemen yang kebetulan menyebut "group/shell", sehingga nama
+    // grup bisa dihapus dari className dan pengujian tetap hijau.
+    const outer = SOURCE.match(/<div className="([^"]*)"/);
+    expect(outer).not.toBeNull();
+    expect(outer![1]).toContain("group/shell");
   });
 
   it("melebarkan <main> ketika halaman menandai dirinya lebar", () => {
