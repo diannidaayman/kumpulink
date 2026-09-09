@@ -18,9 +18,9 @@ import { DELETED_ITEM_VALUE } from "@/lib/validation/history";
  * penyempurnaan, dan tests/db/access-log-select-boundary.test.ts akan
  * menangkapnya.
  *
- * Pengenal pengguna dan userAgent sengaja TIDAK dibaca: keduanya tidak
- * dipakai satu pun kolom di layar, dan yang pertama itulah satu-satunya
- * jembatan menuju tabel User yang harus tetap tertutup.
+ * userId dan userAgent sengaja TIDAK dibaca: keduanya tidak dipakai satu
+ * pun kolom di layar, dan userId itulah satu-satunya jembatan menuju
+ * tabel User yang harus tetap tertutup.
  */
 const HISTORY_SELECT = {
   id: true,

@@ -63,9 +63,13 @@ describe("bentuk kueri riwayat", () => {
   });
 
   it("menghitung total dengan where yang sama persis", async () => {
-    await listAccessLogs({ ...DASAR, deniedOnly: true }, [], 0, 50);
+    const penuh = {
+      groupId: "grp-1", item: "dihapus",
+      dari: "2026-09-01", sampai: "2026-09-09", deniedOnly: true,
+    };
+    await listAccessLogs(penuh, ["item-1"], 0, 50);
 
-    expect(count.mock.calls[0][0].where).toEqual(findMany.mock.calls[0][0].where);
+    expect(count.mock.calls[0][0].where).toStrictEqual(findMany.mock.calls[0][0].where);
   });
 });
 

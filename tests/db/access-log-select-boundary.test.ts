@@ -2,6 +2,10 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 const SOURCE = readFileSync("lib/db/access-logs.ts", "utf8");
+// Komentar boleh menyebut nama kolomnya terang-terangan; hanya kode yang
+// dilarang menyentuhnya. Dibuang dulu supaya asersi menguji kode, bukan
+// prosa yang menjelaskan garis merahnya.
+const CODE = SOURCE.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
 
 /**
  * Lapis ketiga dari bukti bahwa riwayat dibaca dari kolom salinan.
@@ -27,7 +31,7 @@ describe("batas pembacaan riwayat", () => {
   it("tidak membaca kolom userId", () => {
     // Membacanya tidak salah dengan sendirinya, tetapi ia satu-satunya
     // jembatan menuju tabel User dan tidak dipakai satu pun kolom layar.
-    expect(SOURCE).not.toContain("userId");
+    expect(CODE).not.toMatch(/\buserId\b/);
   });
 
   it("membaca kedua kolom salinan identitas", () => {
