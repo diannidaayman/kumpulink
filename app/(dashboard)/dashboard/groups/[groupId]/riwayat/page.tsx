@@ -70,9 +70,11 @@ export default async function HistoryPage({
   // Bila dibiarkan, <select> tidak menampilkan pilihan apa pun sementara
   // penyaringnya tetap aktif, dan alamat bercerita berbeda dari isi
   // layar. Aturannya sama dengan parameter tidak sah lainnya: dibuang,
-  // lalu redirect ke alamat kanoniknya.
+  // lalu redirect ke alamat kanoniknya. Halaman juga dikembalikan ke 1,
+  // sama seperti setiap perubahan penyaring lain di HistoryFilterBar —
+  // ini satu-satunya tempat aturan itu sebelumnya tidak berlaku.
   if (query.item !== null && !itemOptions.some((option) => option.value === query.item)) {
-    redirect(historyHref(groupId, { ...query, item: null }));
+    redirect(historyHref(groupId, { ...query, item: null, page: 1 }));
   }
 
   const filter = {
