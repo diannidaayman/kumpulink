@@ -27,9 +27,13 @@ export default async function DashboardLayout({
   const identity = session.user.name ?? session.user.email;
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    // group/shell adalah jangkar bagi varian group-has-* di bawahnya.
+    // Halaman yang merender elemen ber-atribut data-wide melebarkan
+    // bilah atas DAN <main> sekaligus, sehingga tepi kirinya tetap lurus.
+    // Keputusan U6-3.
+    <div className="group/shell min-h-screen bg-background text-foreground">
       <header className="border-b border-border">
-        <div className="mx-auto flex max-w-4xl items-center justify-between gap-3 px-4 py-3">
+        <div className="mx-auto flex w-full max-w-4xl items-center justify-between gap-3 px-4 py-3 group-has-[[data-wide]]/shell:max-w-6xl">
           <span className="shrink-0 text-base font-medium">Kumpulink</span>
           <div className="flex min-w-0 items-center gap-2">
             <span
@@ -52,7 +56,9 @@ export default async function DashboardLayout({
           </div>
         </div>
       </header>
-      <main className="mx-auto max-w-4xl px-4 py-8">{children}</main>
+      <main className="mx-auto w-full max-w-4xl px-4 py-8 group-has-[[data-wide]]/shell:max-w-6xl">
+        {children}
+      </main>
     </div>
   );
 }
