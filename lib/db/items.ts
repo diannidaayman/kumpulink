@@ -172,3 +172,19 @@ export async function reorderItemsInTransaction(
     }
   });
 }
+
+/**
+ * Judul item untuk tabel riwayat, beserta urutan tampilnya di penyaring.
+ *
+ * `fileKey` dan `targetUrl` TIDAK ada di select ini — invarian 3, dan
+ * halaman riwayat memang tidak punya urusan dengan keduanya.
+ */
+export async function listItemTitlesByGroup(
+  groupId: string,
+): Promise<{ id: string; title: string }[]> {
+  return prisma.item.findMany({
+    where: { groupId },
+    orderBy: { sortOrder: "asc" },
+    select: { id: true, title: true },
+  });
+}

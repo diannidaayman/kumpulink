@@ -3,7 +3,10 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const ROOTS = ["app", "components", "lib"];
-const ALLOWED = "lib/audit/log-access.ts";
+// lib/audit/log-access.ts menulis baris riwayat; lib/db/access-logs.ts
+// (Unit 6) membacanya untuk halaman Riwayat Akses. Tidak ada berkas lain
+// yang berhak menyentuh tabel ini.
+const ALLOWED = ["lib/audit/log-access.ts", "lib/db/access-logs.ts"];
 
 /**
  * Disusun dari potongan supaya namanya TIDAK muncul utuh di berkas ini.
@@ -26,6 +29,6 @@ describe("batas penulisan AccessLog", () => {
       .filter((file) => readFileSync(file, "utf8").includes(TABLE_ACCESS))
       .map((file) => file.split("\\").join("/"));
 
-    expect(offenders).toEqual([ALLOWED]);
+    expect(offenders.sort()).toEqual([...ALLOWED].sort());
   });
 });

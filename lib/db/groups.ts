@@ -137,3 +137,8 @@ export async function updateGroupSharing(input: {
     data: { visibility: input.visibility, expiresAt: input.expiresAt },
   });
 }
+
+export async function getGroupTitleById(id: string): Promise<string | null> {
+  const group = await prisma.group.findUnique({ where: { id }, select: { title: true } });
+  return group?.title ?? null;
+}
