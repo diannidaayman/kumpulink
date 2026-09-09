@@ -1,6 +1,7 @@
 "use client";
 
-import { Plus, Share2, Trash2 } from "lucide-react";
+import { History, Plus, Share2, Trash2 } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 
 import { GroupDeleteDialog } from "@/components/dashboard/group-delete-dialog";
@@ -67,6 +68,12 @@ export function GroupAccordionBody({
         >
           <Share2 className="h-4 w-4" aria-hidden />
           Bagikan
+        </Button>
+        <Button asChild variant="outline" size="sm">
+          <Link href={`/dashboard/groups/${group.id}/riwayat`}>
+            <History className="h-4 w-4" aria-hidden />
+            Riwayat
+          </Link>
         </Button>
         <Button
           type="button"
