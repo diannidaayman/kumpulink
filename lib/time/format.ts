@@ -19,3 +19,24 @@ const dateFormatter = new Intl.DateTimeFormat("id-ID", {
 export function formatDateWIT(value: Date): string {
   return `${dateFormatter.format(value)} ${TIME_ZONE_LABEL}`;
 }
+
+const dateTimeFormatter = new Intl.DateTimeFormat("id-ID", {
+  timeZone: DISPLAY_TIME_ZONE,
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
+/**
+ * Cap waktu berjam untuk tabel riwayat. Aturan zonanya sama dengan
+ * formatDateWIT: Asia/Jayapura yang dipatok, label WIT yang wajib.
+ *
+ * Ia dirender monospasi di antarmuka — bukan selera, melainkan karena
+ * kolom ini dibandingkan baris demi baris, dan angka berlebar tetap
+ * membuat jamnya berbaris lurus ke bawah.
+ */
+export function formatDateTimeWIT(value: Date): string {
+  return `${dateTimeFormatter.format(value)} ${TIME_ZONE_LABEL}`;
+}

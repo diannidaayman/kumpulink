@@ -37,6 +37,17 @@ export function isCalendarDate(value: string): boolean {
   );
 }
 
+/** "2026-09-09" -> instan 00:00:00.000 WIT pada tanggal itu. */
+export function startOfDayWIT(isoDate: string): Date {
+  const match = ISO_DATE_PATTERN.exec(isoDate);
+  if (match === null || !isCalendarDate(isoDate)) {
+    throw new Error(`Tanggal tidak dikenali: ${isoDate}`);
+  }
+
+  const asUtc = Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  return new Date(asUtc - WIT_OFFSET_MS);
+}
+
 /** "2026-09-30" -> instan 23:59:59.999 WIT pada tanggal itu. */
 export function endOfDayWIT(isoDate: string): Date {
   const match = ISO_DATE_PATTERN.exec(isoDate);
