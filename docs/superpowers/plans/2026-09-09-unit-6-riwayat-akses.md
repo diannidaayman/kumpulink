@@ -107,6 +107,7 @@ Ditetapkan bersama pemilik, 9 September 2026, sebelum satu baris kode ditulis.
 | `lib/history/query-params.ts` | Fungsi murni: normalisasi `searchParams` dan penyusunan untai kanoniknya |
 | `lib/validation/history.ts` | Skema Zod per parameter |
 | `lib/db/access-logs.ts` | Dua kueri Prisma: baris berpaginasi beserta totalnya, dan deteksi item terhapus |
+| `components/dashboard/history-email.tsx` | Email mono redup terpotong; satu-satunya tempat gayanya ditetapkan |
 | `components/dashboard/history-outcome-badge.tsx` | Pil Diizinkan/Ditolak beserta baris alasannya |
 | `components/dashboard/history-table.tsx` | Tabel lima kolom, `md` ke atas |
 | `components/dashboard/history-cards.tsx` | Tumpukan kartu, di bawah `md` |
@@ -792,18 +793,14 @@ describe("riwayat dibaca dari baris log, bukan dari tabel User", () => {
     expect(lama.name).toBe("Nama Lama");
   });
 
-  it("tidak berubah ketika data pengguna berubah, karena data itu bukan argumennya", () => {
-    // Perubahan nama pengguna diwakili di sini sebagai fakta bahwa fungsi
-    // ini HANYA menerima baris log dan peta judul item. Tidak ada saluran
-    // yang dapat membawa "Nama Baru" masuk. Memanggilnya dua kali dengan
-    // baris yang sama menghasilkan hasil yang sama, apa pun isi tabel User.
+  it("membawa email yang tersalin di baris, bukan email pengguna hari ini", () => {
     const row = baris({ visitorName: "Nama Lama", visitorEmail: "lama@contoh.id" });
-    expect(toHistoryRow(row, JUDUL)).toEqual(toHistoryRow(row, JUDUL));
-    expect(toHistoryRow(row, JUDUL).email).toBe("lama@contoh.id");
-    expect(toHistoryRow(row, JUDUL).name).not.toContain("Baru");
+    const view = toHistoryRow(row, JUDUL);
+    expect(view.email).toBe("lama@contoh.id");
+    expect(view.name).toBe("Nama Lama");
   });
 
-  it("menerima tepat dua argumen, dan tidak satu pun bertipe data pengguna", () => {
+  it("menerima tepat dua argumen, sehingga data pengguna tidak punya jalan masuk", () => {
     // Penjaga mekanis: menambahkan argumen ketiga berisi User akan
     // membuat pengujian ini merah sebelum sempat dipakai di halaman.
     expect(toHistoryRow.length).toBe(2);
@@ -1955,17 +1952,23 @@ describe("lebar shell dashboard", () => {
     expect(SOURCE).toContain("group/shell");
   });
 
-  it("melebarkan bilah atas dan main ketika halaman menandai dirinya lebar", () => {
-    const matches = SOURCE.match(/group-has-\[\[data-wide\]\]\/shell:max-w-6xl/g);
-    // Dua tempat: container bilah atas, dan <main>. Satu saja berarti
-    // tepi kiri nama aplikasi tidak lurus dengan isi di bawahnya.
-    expect(matches).toHaveLength(2);
+  it("melebarkan <main> ketika halaman menandai dirinya lebar", () => {
+    // Dijangkarkan ke elemennya, BUKAN ke hitungan kemunculan teks.
+    // Hitungan akan merah karena penambahan sah yang tidak berhubungan,
+    // dan yang memperbaikinya kelak harus menebak kenapa angkanya 2.
+    const main = SOURCE.match(/<main[^>]*className="([^"]*)"/);
+    expect(main).not.toBeNull();
+    expect(main![1]).toContain("max-w-4xl");
+    expect(main![1]).toContain("group-has-[[data-wide]]/shell:max-w-6xl");
   });
 
-  it("tetap max-w-4xl sebagai lebar bawaan", () => {
-    // Halaman dashboard tidak boleh ikut melebar hanya karena halaman
-    // Riwayat membutuhkannya.
-    expect(SOURCE.match(/max-w-4xl/g)).toHaveLength(2);
+  it("melebarkan container bilah atas dengan aturan yang sama", () => {
+    // Tepi kiri nama aplikasi harus lurus dengan isi di bawahnya, jadi
+    // container di dalam <header> memikul kedua kelas yang sama.
+    const header = SOURCE.match(/<header[\s\S]*?<div className="([^"]*)"/);
+    expect(header).not.toBeNull();
+    expect(header![1]).toContain("max-w-4xl");
+    expect(header![1]).toContain("group-has-[[data-wide]]/shell:max-w-6xl");
   });
 
   it("tidak memakai komponen klien untuk memilih lebarnya", () => {
@@ -2052,6 +2055,7 @@ Lima komponen server, seluruhnya membaca `HistoryRowView` yang sudah jadi dari T
 **Task ini dan Task 10 tidak memiliki pengujian otomatis, dan itu disengaja.** `vitest.config.mts` berjalan di environment `node` tanpa DOM, dan repositori ini belum pernah memuat satu pun pengujian komponen. Menambahkan jsdom dan pustaka render di tengah Unit 6 adalah perubahan infrastruktur yang tidak diminta lingkup unit ini. Konsekuensinya diterima secara sadar: seluruh jaminan kedua task ini bersandar pada Task 12, yang memeriksanya di peramban di kedua mode dan di lebar ponsel. Itulah sebabnya seluruh **logika** sudah dipindahkan ke fungsi murni di Task 2 sampai Task 6 — yang tersisa di sini hanyalah penempatan, dan penempatan memang hanya dapat dinilai dengan mata.
 
 **Files:**
+- Create: `components/dashboard/history-email.tsx`
 - Create: `components/dashboard/history-outcome-badge.tsx`
 - Create: `components/dashboard/history-table.tsx`
 - Create: `components/dashboard/history-cards.tsx`
@@ -2061,13 +2065,48 @@ Lima komponen server, seluruhnya membaca `HistoryRowView` yang sudah jadi dari T
 **Interfaces:**
 - Consumes: `HistoryRowView` (Task 4), `HistoryPagination` (Task 5), `historyHref` dan `HistoryParams` (Task 6)
 - Produces:
+  - `<HistoryEmail email={string} className?={string} />`
   - `<HistoryOutcomeBadge row={HistoryRowView} />`
   - `<HistoryTable rows={HistoryRowView[]} />`
   - `<HistoryCards rows={HistoryRowView[]} />`
   - `<HistoryEmptyState filtering={boolean} clearHref={string} />`
   - `<HistoryPaginationBar groupId={string} params={HistoryParams} pagination={HistoryPagination} />`
 
-- [ ] **Step 1: Tulis `components/dashboard/history-outcome-badge.tsx`**
+- [ ] **Step 1: Tulis kedua komponen kecil — pil Hasil dan email**
+
+Buat `components/dashboard/history-email.tsx`:
+
+```tsx
+import { cn } from "@/lib/utils";
+
+/**
+ * Email mono redup terpotong, satu-satunya tempat gayanya ditetapkan.
+ *
+ * Ia dipakai TIGA kali: dua di tabel — sekali di dalam sel Nama untuk
+ * lebar di bawah lg, sekali di kolom Email tersendiri untuk lg ke atas,
+ * karena peleburan Email adalah pengorbanan pertama menurut ui-context —
+ * dan sekali di kartu ponsel. Kelas pembungkusnya berbeda di tiap tempat;
+ * gaya emailnya tidak, dan karena itu ia berdiri sendiri di sini.
+ */
+export function HistoryEmail({
+  email,
+  className,
+}: {
+  email: string;
+  className?: string;
+}) {
+  return (
+    <span
+      className={cn("block truncate font-mono text-sm text-muted-foreground", className)}
+      title={email}
+    >
+      {email}
+    </span>
+  );
+}
+```
+
+Lalu buat `components/dashboard/history-outcome-badge.tsx`:
 
 ```tsx
 import { Check, X } from "lucide-react";
@@ -2115,6 +2154,7 @@ export function HistoryOutcomeBadge({ row }: { row: HistoryRowView }) {
 - [ ] **Step 2: Tulis `components/dashboard/history-table.tsx`**
 
 ```tsx
+import { HistoryEmail } from "@/components/dashboard/history-email";
 import { HistoryOutcomeBadge } from "@/components/dashboard/history-outcome-badge";
 import type { HistoryRowView } from "@/lib/types/history";
 import { cn } from "@/lib/utils";
@@ -2180,14 +2220,7 @@ export function HistoryTable({ rows }: { rows: HistoryRowView[] }) {
                   {row.name}
                 </span>
                 {/* Pengorbanan pertama: di bawah lg, Email turun ke sini. */}
-                {row.email !== null && (
-                  <span
-                    className="block truncate font-mono text-sm text-muted-foreground lg:hidden"
-                    title={row.email}
-                  >
-                    {row.email}
-                  </span>
-                )}
+                {row.email !== null && <HistoryEmail email={row.email} className="lg:hidden" />}
                 {row.nameIp !== null && (
                   <span className="block font-mono text-sm text-muted-foreground">
                     {row.nameIp}
@@ -2195,14 +2228,7 @@ export function HistoryTable({ rows }: { rows: HistoryRowView[] }) {
                 )}
               </td>
               <td className="hidden min-w-0 px-3 py-3 lg:table-cell">
-                {row.email !== null && (
-                  <span
-                    className="block truncate font-mono text-sm text-muted-foreground"
-                    title={row.email}
-                  >
-                    {row.email}
-                  </span>
-                )}
+                {row.email !== null && <HistoryEmail email={row.email} />}
               </td>
               <td className="min-w-0 px-3 py-3">
                 <span
@@ -2230,6 +2256,7 @@ export function HistoryTable({ rows }: { rows: HistoryRowView[] }) {
 - [ ] **Step 3: Tulis `components/dashboard/history-cards.tsx`**
 
 ```tsx
+import { HistoryEmail } from "@/components/dashboard/history-email";
 import { HistoryOutcomeBadge } from "@/components/dashboard/history-outcome-badge";
 import type { HistoryRowView } from "@/lib/types/history";
 import { cn } from "@/lib/utils";
@@ -2261,9 +2288,7 @@ export function HistoryCards({ rows }: { rows: HistoryRowView[] }) {
             >
               {row.name}
             </p>
-            {row.email !== null && (
-              <p className="truncate font-mono text-sm text-muted-foreground">{row.email}</p>
-            )}
+            {row.email !== null && <HistoryEmail email={row.email} />}
             <p
               className={cn(
                 "mt-1 truncate text-base",
@@ -2394,7 +2419,7 @@ Expected: exit 0, nol peringatan.
 - [ ] **Step 7: Commit**
 
 ```bash
-git add components/dashboard/history-outcome-badge.tsx components/dashboard/history-table.tsx components/dashboard/history-cards.tsx components/dashboard/history-empty-state.tsx components/dashboard/history-pagination.tsx
+git add components/dashboard/history-email.tsx components/dashboard/history-outcome-badge.tsx components/dashboard/history-table.tsx components/dashboard/history-cards.tsx components/dashboard/history-empty-state.tsx components/dashboard/history-pagination.tsx
 git commit -m "feat(dashboard): komponen tabel, kartu, pil hasil, dan kaki riwayat
 
 Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
