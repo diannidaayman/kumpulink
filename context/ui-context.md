@@ -496,6 +496,105 @@ tindakan yang mengubah izin.
   seseorang membuka halaman ini di hari yang buruk, dan
   mencarinya di antara dua ratus baris `GRANTED` adalah
   pekerjaan yang tidak perlu ada.
+
+  **Kedua jenis peristiwa tampil.** Tabel memuat `PAGE_VIEW`
+  maupun `ITEM_ACCESS`. Baris `PAGE_VIEW` tidak menunjuk item
+  mana pun, dan sel Item-nya berbunyi "Membuka halaman group"
+  bergaya redup miring — bukan dibiarkan kosong. Sel kosong
+  tidak dapat dibedakan dari data yang gagal dimuat, dan ini
+  tabel yang dibaca untuk mempertanggungjawabkan kejadian.
+  Penyaring item membuang baris `PAGE_VIEW` saat dipakai,
+  karena baris itu tidak menunjuk item mana pun.
+  Ditetapkan 9 September 2026, keputusan U6-1.
+
+  **Baris tanpa identitas.** Sebagian besar baris memang tidak
+  punya nama dan email: klik item `OPEN` oleh pengunjung anonim
+  selalu dicatat, dan baris `DENIED / RATE_LIMITED` ditulis
+  sebelum sesi dibaca. Sel Nama pada baris semacam ini berbunyi
+  "Tanpa identitas" bergaya redup, dan **alamat IP naik ke sel
+  itu** sebagai satu-satunya penanda yang tersisa. Pada baris
+  beridentitas, IP tetap berada di bawah Waktu.
+  Ditetapkan 9 September 2026, keputusan U6-2.
+
+  **Item yang sudah dihapus.** `AccessLog` sengaja tidak punya
+  foreign key, sehingga baris riwayat bertahan setelah itemnya
+  dihapus dan judulnya tidak dapat diambil dari mana pun. Sel
+  Item-nya berbunyi "Item sudah dihapus" bergaya redup, dan
+  penyaring item memuat satu entri untuknya — tetapi hanya bila
+  riwayat group itu memang memuat baris semacam itu.
+  Ditetapkan 9 September 2026, keputusan U6-8.
+
+  **Kolom Hasil.** Pil bertata bahasa yang sama dengan lencana
+  status group: `rounded-full`, garis batas setipis rambut,
+  permukaan bernada tipis, tidak pernah terisi penuh, selalu
+  ikon plus teks. "Diizinkan" berikon `Check` bernada
+  `state-success`; "Ditolak" berikon `X` bernada `state-error`.
+  Ikon dan teks itulah yang membuat warna bukan satu-satunya
+  pembawa makna. **Tidak ada perlakuan di tingkat baris** —
+  tanpa tepi berwarna, tanpa latar bernada. Penyaring cip
+  "Hanya yang ditolak" sudah menjadi jalan resmi memisahkan
+  baris ini. Ditetapkan 9 September 2026, keputusan U6-6.
+
+  **Kesepuluh alasan penolakan** tampil sebagai label pendek di
+  baris kedua sel Hasil, dengan penjelasan panjangnya di
+  atribut `title`:
+
+  | `denyReason` | Label |
+  | --- | --- |
+  | `NOT_FOUND` | Tidak ditemukan |
+  | `REVOKED` | Link dicabut |
+  | `EXPIRED` | Group kedaluwarsa |
+  | `PRIVATE` | Group privat |
+  | `ITEM_INACTIVE` | Item nonaktif |
+  | `FILE_MISSING` | Berkas hilang |
+  | `RATE_LIMITED` | Terlalu banyak percobaan |
+  | `REQUEST_REJECTED` | Permintaan ditolak |
+  | `REQUEST_REVOKED` | Izin dicabut |
+  | `APPROVAL_EXPIRED` | Izin kedaluwarsa |
+
+  Empat pasangan sengaja dijaga tidak bertabrakan: "Link
+  dicabut" bukan "Izin dicabut", dan "Group kedaluwarsa" bukan
+  "Izin kedaluwarsa". `NOT_FOUND` dijaga tetap luas karena ia
+  dihasilkan enam cabang berbeda; menyempitkannya akan membuat
+  riwayat berbohong kepada pemilik, preseden U4-12. Baris
+  `DENIED` yang alasannya kosong atau tidak dikenali berbunyi
+  "Alasan tidak diketahui" — tidak pernah sel kosong.
+  Ditetapkan 9 September 2026, keputusan U6-7.
+
+  **Ukuran halaman 50 baris**, dan paginasinya berbasis offset.
+  Cursor tidak mengetahui total dan tidak dapat melompat ke
+  halaman 4, sedangkan keduanya dituntut paragraf paginasi di
+  atas. Ditetapkan 9 September 2026, keputusan U6-5.
+
+  **Alamat IP tetap dihilangkan dari kartu ponsel**, termasuk
+  pada baris tanpa identitas — sehingga kartu anonim di ponsel
+  hanya berbunyi "Tanpa identitas". Konsekuensi ini diterima
+  secara sadar: riwayat forensik dibaca di laptop, dan kartu
+  ponsel ada untuk memindai, bukan menelusuri. Mengizinkan IP
+  muncul di kartu anonim saja akan menyelamatkan satu kasus
+  dengan biaya satu kekecualian yang harus diingat selamanya.
+  Ditetapkan 9 September 2026.
+
+  **Dua keadaan kosong yang berbeda.** Group yang belum punya
+  satu pun baris berbunyi "Belum ada riwayat", disertai kalimat
+  bahwa baris muncul setelah pengunjung membuka group atau
+  itemnya. Penyaring yang tidak menghasilkan apa-apa berbunyi
+  "Tidak ada baris yang cocok" disertai tombol "Hapus
+  penyaring". Menyamakan keduanya membuat group yang sehat
+  terbaca seperti penyaring yang salah, dan sebaliknya.
+
+  **Lebar halaman Riwayat `max-w-6xl`**, sedangkan dashboard
+  tetap `max-w-4xl`. Bilah atas mengikuti lebar halaman yang
+  sedang dibuka, supaya tepi kirinya lurus dengan isi di
+  bawahnya. Ditetapkan 9 September 2026, keputusan U6-3.
+
+  **Pintu masuknya** tombol tautan "Riwayat" di baris tombol
+  dalam akordeon group, bersebelahan dengan "Bagikan" — satu-
+  satunya tempat di aplikasi yang mengumpulkan tindakan per
+  group. Alamatnya `/dashboard/groups/[groupId]/riwayat`,
+  memakai `id` yang tidak pernah berubah dan bukan slug yang
+  dapat diganti pemilik. Ditetapkan 9 September 2026,
+  keputusan U6-4.
 - **Halaman Permintaan** — daftar di `/dashboard/requests`,
   dikelompokkan per group lalu per pemohon. Satu kartu per
   pemohon memuat nama, email, waktu pengajuan, keperluan,

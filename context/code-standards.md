@@ -86,6 +86,9 @@
 - Nama dan email disalin ke baris log pada saat kejadian.
   Jangan mengandalkan join ke tabel `User` saat membaca
   riwayat, karena data pengguna bisa berubah kemudian.
+- **Pembacaan** riwayat tinggal di `lib/db/access-logs.ts`, di
+  luar `lib/audit/`, supaya modul itu tetap murni penulis.
+  Pembacaan itu tidak pernah menjoin ke tabel `User`.
 - Kegagalan menulis log pada peristiwa yang MENYAJIKAN sesuatu berarti
   tidak ada yang disajikan. Itu berlaku untuk `ITEM_ACCESS / GRANTED`
   yang membatalkan penerusan, dan sama persis untuk `PAGE_VIEW` yang
@@ -203,6 +206,12 @@
   urutan. Tidak menyentuh database, sehingga seluruh
   aturannya dapat diuji tanpa Prisma — alasan yang sama
   yang memisahkan `lib/access/`
+- `lib/history/` — tampilan riwayat akses sebagai fungsi murni:
+  terjemahan `denyReason`, pemetaan baris log menjadi model
+  tampilan, aritmetika paginasi, dan normalisasi `searchParams`.
+  Tidak menyentuh database, sehingga seluruh aturannya dapat
+  diuji tanpa Prisma — alasan yang sama yang memisahkan
+  `lib/access/` dan `lib/groups/`
 - `lib/order/` — penyusunan ulang urutan sebagai fungsi murni,
   generik atas apa pun yang berid. Dipakai group maupun item;
   berdiri di luar `lib/groups/` justru karena ia bukan milik

@@ -378,6 +378,62 @@ aturan di atas. Ini sejalan dengan alasan yang sama yang membuat nama dan
 email disalin alih-alih dirujuk: riwayat adalah catatan peristiwa, bukan
 pandangan atas keadaan sekarang.
 
+### Pembacaan riwayat
+
+**Pembacaan tinggal di `lib/db/access-logs.ts`, bukan di
+`lib/audit/`.** Modul `lib/audit/` adalah penulis `AccessLog`
+dan tetap murni penulis; menambahkan pembacaan di sana
+mengubahnya menjadi dua arah, persis yang dihindari U4-13 saat
+memisahkan `lib/gate/`.
+
+**Nama dan email dibaca dari kolom `visitorName` dan
+`visitorEmail` pada barisnya, tidak pernah dari join ke tabel
+`User`.** Ini bukan pilihan gaya: data pengguna dapat berubah
+atau dihapus kemudian, dan riwayat harus tetap menunjukkan
+keadaan pada saat kejadian. Aturan ini dijaga tiga lapis —
+fungsi pemetaan murni yang data `User`-nya bukan argumen, kueri
+yang diuji dengan Prisma di-mock, dan pengujian batas yang
+membaca teks sumber sehingga join yang ditambahkan kelak gagal
+di CI.
+
+**Judul item dipasangkan di memori** lewat `Map<id, title>`,
+bukan lewat `include` — `AccessLog` memang tidak punya relasi
+ke `Item`, dengan alasan yang sudah dijelaskan di atas.
+
+**Urutan baca `[{ createdAt: "desc" }, { id: "desc" }]`.**
+Pengurut kedua wajib. Paginasi offset mengueri ulang untuk
+setiap halaman, dan bila dua baris punya `createdAt` yang sama
+persis — tiga puluh peserta yang mengklik dalam detik yang sama
+membuat itu wajar — urutan di antara keduanya tidak ditentukan.
+Akibatnya satu baris dapat muncul di dua halaman sekaligus
+sementara baris lain tidak muncul di mana pun. Untuk tabel
+biasa itu gangguan; untuk catatan pertanggungjawaban itu cacat.
+
+**Kontrak `searchParams` halaman Riwayat:** `item`, `dari`,
+`sampai`, `ditolak`, `hal` — berbahasa Indonesia mengikuti
+segmen rute, bukan mengikuti aturan nama kolom. Kelimanya
+divalidasi Zod di halaman, karena `searchParams` adalah input
+eksternal. **Satu aturan tunggal untuk nilai yang tidak sah:
+parameter itu dibuang dan halaman `redirect()` ke URL
+bersihnya,** sehingga alamat dan isi layar tidak pernah
+berbeda. Satu kekecualian, `dari` yang lebih besar daripada
+`sampai` ditukar alih-alih dibuang, karena maksudnya tidak
+ambigu. Nomor halaman di luar jangkauan dijepit ke halaman
+terdekat yang sah, juga lewat `redirect()`.
+
+**Batas rentang tanggal dihitung di `Asia/Jayapura` lalu
+diubah ke UTC,** memakai `startOfDayWIT()` dan `endOfDayWIT()`
+di `lib/time/expiry.ts`. Batas tengah malam UTC akan membuang
+sembilan jam pertama setiap hari WIT ke tanggal yang salah:
+pemilik menyaring "9 September" lalu kehilangan setiap akses
+antara pukul 00.00 dan 09.00 pagi. Kedua ujung rentang
+inklusif.
+
+**Halaman Riwayat tidak menyajikan konten,** sehingga ia bukan
+jalur menuju konten dan tidak memanggil `evaluateAccess()`.
+Gerbangnya `requireOwner()`. `select` kuerinya tidak memuat
+`targetUrl` maupun `fileKey` — invarian 3.
+
 ## Storage Model
 
 - **PostgreSQL** — seluruh metadata: pengguna, group, item,

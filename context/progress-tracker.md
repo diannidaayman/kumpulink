@@ -269,22 +269,14 @@ yang berarti.
 
 ## Current Goal
 
-- **Unit 5 — implementasi selesai, menunggu pemeriksaan peramban
-  pemilik sebelum unit ini dapat dinyatakan tutup.** Keempat gerbang
-  kode (`typecheck`, `lint`, `test`, `build`) lulus pada 8 September
-  2026 dengan angka dicatat di atas. Enam pemeriksaan tersisa —
-  halaman hidup, pencabutan terlihat dari luar, pemilik tetap masuk
-  dengan sebab yang benar, kedaluwarsa berbunyi lain, QR terpindai,
-  dan salin yang gagal tetap berguna — seluruhnya di mode terang dan
-  gelap serta lebar 375 px, tercantum di
-  `.superpowers/sdd/task-10-brief.md` Step 2. Pemilik yang
-  menjalankannya, seperti Unit 1 sampai 4 sebelumnya. Baru setelah
-  keenamnya lulus, Unit 6 (tampilan riwayat akses) dapat dimulai.
+- **Unit 6 — halaman riwayat akses, sedang berjalan.** Keenam
+  pemeriksaan peramban Unit 5 sudah dijalankan pemilik dan lulus,
+  sehingga gerbang "unit berjalan ujung ke ujung" tertutup dan Unit 6
+  dapat dimulai. Rencananya di
+  `docs/superpowers/plans/2026-09-09-unit-6-riwayat-akses.md`, dua
+  belas task, dengan kesembilan keputusan U6-1 sampai U6-9 tercatat
+  di Architecture Decisions.
 - Tidak ada keputusan yang menggantung.
-
-  Rumusan sebelumnya di bagian ini masih menyebut Fase 2 sebagai
-  tujuan berjalan; itu basi sejak Unit 2 dan diperbaiki
-  27 Agustus 2026.
 
 ## Completed
 
@@ -1740,6 +1732,28 @@ dilupakan:
   menembus kuota gratis; lihat keputusan D5.
 
 ## Architecture Decisions
+
+### Keputusan Unit 6 — 9 September 2026
+
+Ditetapkan bersama pemilik, 9 September 2026, sebelum satu baris kode ditulis.
+
+- **U6-1 — Tabel memuat `PAGE_VIEW` maupun `ITEM_ACCESS`.** Sel Item pada baris `PAGE_VIEW` berbunyi "Membuka halaman group" bergaya redup, bukan dibiarkan kosong: sel kosong tidak dapat dibedakan dari data yang gagal dimuat. Penyaring item otomatis membuang baris `PAGE_VIEW` saat dipakai, karena baris itu tidak menunjuk item mana pun. Alternatif yang ditolak: hanya menampilkan `ITEM_ACCESS`, ditolak karena pemilik kehilangan jawaban atas "siapa saja yang membuka halamannya" dan tidak ada permukaan lain di aplikasi yang menjawabnya.
+
+- **U6-2 — Baris tanpa identitas berbunyi "Tanpa identitas", dan alamat IP naik ke sel Nama.** Baris semacam ini bukan kelainan: setiap klik item `OPEN` oleh pengunjung anonim selalu dicatat, dan setiap baris `DENIED / RATE_LIMITED` ditulis sebelum sesi dibaca (U4-11). Pada baris beridentitas, IP tetap sebagai baris kedua di bawah Waktu. Alternatif yang ditolak: sel dikosongkan, ditolak dengan alasan yang sama seperti U6-1.
+
+- **U6-3 — `max-w-4xl` turun dari `app/(dashboard)/layout.tsx` ke masing-masing halaman, dan bilah atas mengikuti lebar halaman yang sedang dibuka.** Halaman Riwayat memakai `max-w-6xl`; dashboard tetap `max-w-4xl`. Mekanismenya penanda CSS `data-wide` yang dibaca varian `group-has-*`, seluruhnya server, tanpa komponen klien dan tanpa terikat `pathname`. Alternatif yang ditolak: bilah dipatok `max-w-6xl` untuk semua halaman, ditolak karena tepi kiri nama aplikasi tidak lurus dengan isi di halaman dashboard.
+
+- **U6-4 — Alamat halaman `/dashboard/groups/[groupId]/riwayat`.** Memakai `id` yang tidak pernah berubah, bukan slug: slug dapat diubah pemilik lewat panel Bagikan, dan `ui-context.md` menuntut posisi baris riwayat "stabil serta dapat dirujuk". Alamat yang mati karena penggantian slug tidak dapat dirujuk.
+
+- **U6-5 — Ukuran halaman 50 baris, paginasi berbasis offset.** Angka 50 sudah dipakai contoh `1–50 dari 214` di `ui-context.md`. Offset, bukan cursor: cursor tidak mengetahui totalnya dan tidak dapat melompat ke halaman 4, sedangkan keduanya dituntut `ui-context.md`.
+
+- **U6-6 — Baris `DENIED` dibedakan oleh pil berikon dan baris alasan, tanpa perlakuan di tingkat baris.** Pil mengikuti tata bahasa `GroupStatusBadge`: `rounded-full`, garis batas setipis rambut, permukaan bernada tipis, tidak pernah terisi penuh, selalu ikon plus teks — sehingga warna bukan satu-satunya pembawa makna. Penyaring cip "Hanya yang ditolak" sudah menjadi jalan resmi memisahkan baris ini; menandai baris lagi berarti membayar dua kali untuk pekerjaan yang sama. Alternatif yang ditolak: latar baris bernada tipis, ditolak karena pembeda yang murni warna.
+
+- **U6-7 — Kesepuluh `denyReason` diterjemahkan menjadi label pendek, dengan penjelasan panjang di atribut `title`.** `NOT_FOUND` dijaga tetap luas — ia dihasilkan enam cabang berbeda, dan U4-12 sudah menetapkan riwayat tidak boleh berbohong kepada pemilik dengan menjanjikan sebab tunggal. `DENIED` tanpa alasan yang dikenali berbunyi "Alasan tidak diketahui", tidak pernah sel kosong. Konsekuensi yang diterima sadar: penjelasan panjang tidak terjangkau di ponsel yang tidak punya kursor.
+
+- **U6-8 — Baris menunjuk item yang sudah dihapus berbunyi "Item sudah dihapus", dan penyaring item memuat entri untuknya.** `AccessLog` sengaja tidak punya foreign key (`architecture.md` bagian "Tanpa relasi foreign key"), sehingga baris riwayat bertahan setelah itemnya dihapus dan judulnya tidak dapat diambil dari mana pun. Entri penyaring hanya muncul bila riwayat group itu memang memuat baris semacam itu. Alternatif yang ditolak: menyalin `itemTitle` ke `AccessLog`, ditolak karena menuntut migrasi skema di dalam Unit 6 sementara baris yang sudah tertulis tetap tidak punya judul.
+
+- **U6-9 — Bukti "nama lama bertahan" ditulis tiga lapis tanpa database.** Lapis satu, fungsi murni pemetaan baris yang data `User`-nya bahkan bukan argumen. Lapis dua, kueri dengan Prisma di-mock. Lapis tiga, pengujian batas yang membaca teks sumber. Alternatif yang ditolak: pengujian berdatabase sungguhan, ditolak karena menuntut infrastruktur — Postgres uji, migrasi, pembersihan antar pengujian, jalur CI — yang belum pernah ada preseden di repositori ini dan seluruhnya di luar lingkup Unit 6.
 
 ### Keputusan U5-14 — 8 September 2026
 
