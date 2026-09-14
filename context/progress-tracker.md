@@ -400,37 +400,54 @@ yang berarti.
   10 berkas**.
 
   Dengan ini ketiga butir "Before Moving to the Next Unit" di
-  `ai-workflow-rules.md` tertutup untuk Unit 6. **Yang belum:**
-  penggabungan ke `main` adalah keputusan pemilik dan belum diambil.
-  `main` lokal sendiri masih menahan dua commit dokumen Unit 6 (spec
-  dan rencana) yang belum terdorong, dan `dev` tertinggal dua commit
-  dari `main`.
+  `ai-workflow-rules.md` tertutup untuk Unit 6.
+
+- **Unit 6 digabung dan didorong, 14 September 2026.** Pemilik memilih
+  penggabungan lokal. `main` bergerak `afbf72f..6f5e1b6` — fast-forward
+  murni 21 commit, termasuk dua commit dokumen Unit 6 (spec dan rencana)
+  yang selama ini tertahan di lokal. Keempat gerbang dijalankan ulang
+  pada hasil gabungan, bukan hanya di cabangnya: `typecheck` 0, `lint` 0
+  tanpa keluaran, **503 pengujian di 49 berkas**, `build` sukses dengan
+  keempat belas rute tergenerate dan
+  `/dashboard/groups/[groupId]/riwayat` sebagai rute dinamis. `dev`
+  disusulkan dengan `merge --ff-only` lalu didorong, jadi alias preview
+  menunjuk kode Unit 6. Keempat ref dibaca ulang sesudah `fetch` dan
+  seluruhnya `6f5e1b6`: `main`, `origin/main`, `dev`, `origin/dev`.
+  Worktree `.claude/worktrees/unit-6-riwayat-akses` dicabut dan cabang
+  `worktree-unit-6-riwayat-akses` dihapus.
+
+- **Rumah tangga Unit 4 ditutup, 14 September 2026.** Worktree
+  `.claude/worktrees/unit-4-halaman-publik` dihapus dan kedua cabangnya
+  — `unit-4-gerbang-akses` (`e10cbda`) dan `unit-4-halaman-publik`
+  (`776b559`) — dihapus sesudah dipastikan nol commit di depan `main`
+  dan tip keduanya terkandung di `origin/main`. Tiga berkas belum
+  terlacak di sana: `scripts-cek/cek-identitas.mjs` dan
+  `scripts-cek/reset-broken.mjs` dipindahkan ke checkout utama lebih
+  dulu, sementara `sebelum.txt` — dump log pemeriksaan Unit 4 sekali
+  pakai — dibuang bersama worktree-nya. Kedua skrip itu **tidak
+  tercommit**: `scripts-cek/` diabaikan `.gitignore`, dan kelima berkas
+  lama di sana terlacak dari sebelum aturan itu ada. Aturannya
+  dibiarkan; skrip yang menyentuh basis data langsung memang tidak
+  seharusnya ikut terdorong. Konsekuensinya: **isi `scripts-cek/` hanya
+  hidup di mesin ini.**
+
+  Cabang jarak jauh `origin/unit-4-halaman-publik` masih ada dan
+  dibiarkan — menghapus cabang di `origin` bukan bagian dari permintaan.
 
 ## Current Goal
 
-- **Unit 6 tutup sejak 14 September 2026. Yang berjalan sekarang adalah
-  penutupan cabangnya, lalu Unit 7.** Tiga hal berurutan, dan yang
-  pertama milik pemilik:
-  1. **Keputusan penggabungan Unit 6.** Cabang
-     `worktree-unit-6-riwayat-akses` 20 commit di depan `main`,
-     fast-forward murni. Bila digabung: dorong `main`, susulkan `dev`
-     dengan `merge --ff-only`, dorong `dev`, lalu bersihkan worktree dan
-     hapus cabangnya. Melewatkan penyusulan `dev` membuat alias preview
-     menampilkan aplikasi yang salah tanpa peringatan apa pun.
-  2. **Rumah tangga Unit 4 yang tertinggal.** Kode Unit 4 sudah ada di
-     `main` dan di `origin/main` — kedua cabangnya nol commit di depan
-     `main` — tetapi direktori worktree
-     `.claude/worktrees/unit-4-halaman-publik` dan cabang
-     `unit-4-gerbang-akses` serta `unit-4-halaman-publik` belum
-     dibersihkan. Di worktree itu ada tiga berkas belum terlacak yang
-     tidak ada di mana pun lagi: `scripts-cek/cek-identitas.mjs`,
-     `scripts-cek/reset-broken.mjs`, dan `sebelum.txt`. Kedua skrip
-     pertama sejenis dengan `scripts-cek/` yang terlacak di `main`;
-     putuskan diselamatkan atau dibuang sebelum worktree dihapus.
-  3. **Unit 7.** Sebelum menyentuh `tests/dashboard/history-owner-boundary.test.ts`
-     lagi, pindahkan ketiga keputusan yang kini dikunci regex di sana ke
-     `lib/history/` — saran reviewer akhir Unit 6, dengan alasan yang
-     sama seperti keterbatasan yang dicatat di butir Unit 6 di atas.
+- **Unit 6 tutup, digabung, dan didorong sejak 14 September 2026.
+  Yang berjalan sekarang adalah Unit 7.** Cabangnya sudah dicabut,
+  worktree Unit 4 dan Unit 6 sudah dibersihkan, dan keempat ref berada
+  di `6f5e1b6`. Tidak ada sisa penggabungan yang menggantung.
+- **Satu hal dibawa masuk ke Unit 7 sebagai pekerjaan pertama.** Sebelum
+  menyentuh `tests/dashboard/history-owner-boundary.test.ts` lagi,
+  pindahkan ketiga keputusan yang kini dikunci regex di sana —
+  pengalihan kanonik, pembuangan `?item=` tak dikenal, dan penjepitan
+  nomor halaman — ke `lib/history/` sebagai fungsi murni. Saran reviewer
+  akhir Unit 6, dengan alasan yang sama seperti keterbatasan yang
+  dicatat di butir Unit 6 di atas: pengujian bergaya teks sumber menjaga
+  bentuk kode, bukan semantiknya.
 - Tidak ada keputusan yang menggantung.
 
 ## Completed
