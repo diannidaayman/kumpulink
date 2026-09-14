@@ -376,17 +376,61 @@ yang berarti.
   peringatan, **503 pengujian di 49 berkas** (naik dari 495 — bertambah
   8), `build` sukses. Rincian lengkap di
   `.superpowers/sdd/final-review-fix-report.md`. Keenam pemeriksaan
-  peramban pemilik yang disebut di atas **masih belum dijalankan** —
-  ini tidak berubah oleh sesi ini.
+  peramban pemilik yang disebut di atas belum dijalankan saat sesi itu
+  ditutup; keduanya baru bertemu pada 14 September 2026 — lihat butir
+  berikutnya.
+
+- **Unit 6 TUTUP, 14 September 2026.** Keenam pemeriksaan peramban
+  dijalankan pemilik sendiri dan **seluruhnya lulus, tanpa satu pun
+  cacat** — di mode terang dan gelap, dan yang keenam di lebar 375 px.
+  Berbeda dari Unit 2 dan dari Unit 5, pemeriksaan kali ini tidak
+  menemukan apa pun yang lolos dari rencana, implementasi, dan seluruh
+  putaran review; tidak ada commit perbaikan sesudahnya. Pemilik juga
+  memastikan server dev yang dipakai melayani worktree Unit 6, bukan
+  checkout `main` — perangkap yang menggigit proyek ini pada 8
+  September 2026 — dengan membuka `/dashboard/groups/<apa
+  saja>/riwayat` tanpa sesi dan mendapat pengalihan ke `/masuk`, bukan
+  404 HTML.
+
+  Keadaan akhir cabang `worktree-unit-6-riwayat-akses`: HEAD `ea04ff5`,
+  **19 commit** dari `56efa80`, dua belas task (sebelas kode dan satu
+  dokumen). Keempat gerbang: `typecheck` 0, `lint` 0 tanpa peringatan,
+  **503 pengujian di 49 berkas**, `build` sukses. Garis dasar awal unit
+  402 pengujian di 39 berkas, jadi unit ini menambah **101 pengujian di
+  10 berkas**.
+
+  Dengan ini ketiga butir "Before Moving to the Next Unit" di
+  `ai-workflow-rules.md` tertutup untuk Unit 6. **Yang belum:**
+  penggabungan ke `main` adalah keputusan pemilik dan belum diambil.
+  `main` lokal sendiri masih menahan dua commit dokumen Unit 6 (spec
+  dan rencana) yang belum terdorong, dan `dev` tertinggal dua commit
+  dari `main`.
 
 ## Current Goal
 
-- **Unit 6 — implementasi selesai, menunggu pemeriksaan peramban
-  pemilik.** Keempat gerbang kode lulus dan kesebelas task kode
-  ditutup review dua putusan, tetapi task kedua belas — keenam
-  pemeriksaan peramban di atas — belum dijalankan siapa pun. Unit
-  belum dapat dinyatakan tutup, lulus pemeriksaan, atau siap digabung
-  sampai keenamnya dijalankan dan lulus.
+- **Unit 6 tutup sejak 14 September 2026. Yang berjalan sekarang adalah
+  penutupan cabangnya, lalu Unit 7.** Tiga hal berurutan, dan yang
+  pertama milik pemilik:
+  1. **Keputusan penggabungan Unit 6.** Cabang
+     `worktree-unit-6-riwayat-akses` 20 commit di depan `main`,
+     fast-forward murni. Bila digabung: dorong `main`, susulkan `dev`
+     dengan `merge --ff-only`, dorong `dev`, lalu bersihkan worktree dan
+     hapus cabangnya. Melewatkan penyusulan `dev` membuat alias preview
+     menampilkan aplikasi yang salah tanpa peringatan apa pun.
+  2. **Rumah tangga Unit 4 yang tertinggal.** Kode Unit 4 sudah ada di
+     `main` dan di `origin/main` — kedua cabangnya nol commit di depan
+     `main` — tetapi direktori worktree
+     `.claude/worktrees/unit-4-halaman-publik` dan cabang
+     `unit-4-gerbang-akses` serta `unit-4-halaman-publik` belum
+     dibersihkan. Di worktree itu ada tiga berkas belum terlacak yang
+     tidak ada di mana pun lagi: `scripts-cek/cek-identitas.mjs`,
+     `scripts-cek/reset-broken.mjs`, dan `sebelum.txt`. Kedua skrip
+     pertama sejenis dengan `scripts-cek/` yang terlacak di `main`;
+     putuskan diselamatkan atau dibuang sebelum worktree dihapus.
+  3. **Unit 7.** Sebelum menyentuh `tests/dashboard/history-owner-boundary.test.ts`
+     lagi, pindahkan ketiga keputusan yang kini dikunci regex di sana ke
+     `lib/history/` — saran reviewer akhir Unit 6, dengan alasan yang
+     sama seperti keterbatasan yang dicatat di butir Unit 6 di atas.
 - Tidak ada keputusan yang menggantung.
 
 ## Completed
@@ -1647,84 +1691,34 @@ bukan oleh infrastruktur yang kebetulan menolak duluan.
 
 ## Next Up
 
-1. **Unit 5 — panel Bagikan. Implementasi selesai; hanya keenam
-   pemeriksaan peramban pemilik yang tersisa.** `visibility`,
-   `expiresAt`, `shareEnabled`, penyalinan URL, QR code SVG dirender
-   di server, dan spanduk pratinjau pemilik sudah dibangun. Keempat
-   gerbang kode lulus 8 September 2026: `typecheck` bersih, `lint`
-   nol peringatan, **401 pengujian di 39 berkas**, `build` sukses.
-   Yang tersisa adalah keenam pemeriksaan peramban di
-   `.superpowers/sdd/task-10-brief.md` Step 2 — dijalankan pemilik
-   sendiri, seperti Unit 1 sampai 4 — di mode terang dan gelap serta
-   lebar 375 px. Pemeriksaan QR termasuk verifikasi pengalihan: QR
-   code memuat URL absolut dan tidak dapat ditarik kembali setelah
-   dicetak. Gerbang D1 sudah terpenuhi di tingkat kode (domain
-   `diandiandian.web.id`, apex production), tetapi pengalihan perlu
-   diperiksa ulang sebelum QR pertama dirender dan dipindai,
-   memastikan tidak ada perubahan arah sejak keputusan itu dicatat.
-   Baru setelah keenamnya lulus unit ini tertutup.
+Kedua butir yang pernah berdiri di sini — keenam pemeriksaan peramban
+Unit 5, dan uji satu unggahan di preview Vercel — **keduanya sudah
+tertutup**, pada 9 dan 7 September 2026. Rinciannya tetap tersimpan di
+bagian "Pemeriksaan unggahan di preview — KEENAMNYA LULUS" dan di butir
+Unit 5 pada Current Phase; dua pelajaran yang paling berharga dari
+pemeriksaan preview dicatat ulang di sini supaya tidak ikut hilang saat
+butirnya dibuang:
 
-   **Tiga hal warisan yang kini TERTUTUP, dicatat di sini supaya tidak
-   dicari ulang:**
+- **Arah baca yang menentukan, bukan arah tulis.** Unggahan yang
+  berhasil hanya membuktikan `putFile()`. `getFileStream()` baru
+  tersentuh saat gerbang mengalirkan berkas, dan di sanalah kegagalan
+  kredensial muncul. Percabangan `lib/gate/serve-item.ts` membuat
+  ketiga hasilnya terbaca dari status respons saja: 200 lulus, 503
+  Blob melempar, 303 Blob menjawab tetapi berkasnya tidak ada di store
+  itu. Hasil 303 menandai item `isBroken` permanen, jadi berhenti di
+  situ alih-alih mengulang.
+- **Tidak perlu seed untuk memeriksa sebagai pemilik.**
+  `evaluate-access.ts` meloloskan `OWNER` di kedua tahap, jadi pemilik
+  dapat membuka group `PRIVATE` yang belum dibagikan berikut itemnya
+  tanpa menulis langsung ke basis data.
 
-   - **`getFileStream()` yang ditunda Unit 3 kini ada**, di
-     `lib/storage/blob.ts`, dipanggil hanya dari balik gerbang item.
-   - **Sanitasi `fileName` sebelum menjadi header kini ditegakkan**
-     fungsi murni beserta pengujiannya di
-     `lib/storage/content-disposition.ts`.
-   - **Pilihan sadar antara `requireOwner()` dan `getOwnerSession()`
-     untuk gerbang item ternyata tidak diperlukan — gerbang tidak
-     memakai keduanya.** Gerbang item melayani pengunjung, bukan
-     pemilik, dan seluruh keputusan izinnya datang dari
-     `evaluateItemAccess()`. Sesi dibaca lewat `auth()` biasa, sesudah
-     pemeriksaan rate limit (U4-11), semata untuk mengetahui identitas
-     yang dicatat — bukan untuk menggerbangi apa pun.
-
-2. **Uji satu unggahan di preview Vercel sebelum Unit 4 dimulai.**
-   `dev` sudah sejajar dengan `main` sejak 27 Agustus 2026, jadi alias
-   `kumpulink-preview.vercel.app` akhirnya menunjuk kode sungguhan.
-   Deployment itu yang pertama menyentuh Vercel Blob di luar mesin
-   lokal, dan dua hal hanya dapat diketahui di sana:
-
-   - **Autentikasi Blob lewat OIDC, bukan `BLOB_READ_WRITE_TOKEN`.** Di
-     lokal kode memakai token statis; di atas Vercel ia memakai
-     `VERCEL_OIDC_TOKEN` dan `BLOB_STORE_ID` yang terpasang sendiri.
-     Jalur itu belum pernah dijalankan sekali pun.
-   - **Batas 4,5 MB Vercel yang sesungguhnya.** Di lokal batas itu tidak
-     ada, sehingga penolakan 413 yang diuji pemilik datang dari kode
-     kita. Di produksi ia bisa datang dari Vercel lebih dulu, dengan
-     bentuk respons yang berbeda.
-
-   Lebih murah ketahuan sekarang daripada di tengah unit yang sudah
-   ditandai paling berisiko.
-
-   **Daftar periksanya sudah ditulis: `docs/cek-unggahan-preview.md`,
-   3 September 2026.** Enam pemeriksaan, CEK P1 sampai P6, seluruhnya
-   dijalankan lewat antarmuka. Judul butir ini masih berbunyi "sebelum
-   Unit 4 dimulai" — itu basi; Unit 4 sudah tutup, dan yang ditahannya
-   sekarang adalah pendorongan `main`.
-
-   Dua hal yang ditemukan saat menyusunnya dan mengubah bentuk
-   pemeriksaan:
-
-   - **Tidak perlu seed.** `evaluate-access.ts:44` dan `:106`
-     meloloskan `OWNER` di kedua tahap, jadi pemilik dapat membuka
-     group `PRIVATE` yang belum dibagikan berikut itemnya. Ini penting
-     karena `visibility` dan `shareEnabled` belum punya antarmuka —
-     keduanya baru lahir di Unit 5, dan defaultnya `PRIVATE` dan
-     `false`. Pemeriksaan Unit 4 dulu memakai `scripts-cek/seed.mjs`
-     yang menulis langsung ke basis data; di preview itu tidak
-     tersedia dan ternyata tidak diperlukan.
-   - **Arah baca yang menentukan, bukan arah tulis.** Unggahan yang
-     berhasil hanya membuktikan `putFile()`. `getFileStream()` baru
-     tersentuh saat gerbang mengalirkan berkas, dan justru di sanalah
-     kegagalan kredensial akan muncul. Percabangan di
-     `lib/gate/serve-item.ts` membuat ketiga hasilnya dapat dibedakan
-     dari status respons saja: 200 berarti lulus, 503 berarti Blob
-     melempar, dan 303 berarti Blob menjawab tetapi berkasnya tidak
-     ada di sana — store yang berbeda antara tulis dan baca. Hasil 303
-     menandai item `isBroken` secara permanen, jadi daftar periksanya
-     menyuruh berhenti di situ alih-alih mengulang.
+Yang berjalan sekarang ada di **Current Goal**: keputusan penggabungan
+Unit 6, rumah tangga worktree Unit 4, lalu Unit 7. Di luar itu,
+prasyarat rilis di bawah yang masih terbuka — peringatan Safe Browsing
+di `diandiandian.web.id`, satu unggahan yang belum dibuktikan di
+Production, basis data Preview dan Production yang masih satu, dan
+status publikasi OAuth Google — tidak menghalangi Unit 7 tetapi
+menghalangi acara pertama.
 
 ## Open Questions
 
